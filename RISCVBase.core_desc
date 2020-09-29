@@ -1,50 +1,59 @@
-InsructionSet RISCVBase {
+InstructionSet RISCVBase {
     constants {
-        XLEN,
-        fence:=0,
-        fencei:=1,
-        fencevmal:=2,
-        fencevmau:=3
+        unsigned XLEN;
+        unsigned CSR_SIZE=4096;
+        unsigned fence=0;
+        unsigned fencei=1;
+        unsigned fencevmal=2;
+        unsigned fencevmau=3;
     }
     
     address_spaces { 
-        MEM[8], CSR[XLEN], FENCE[XLEN], RES[8]
+        char MEM[1<<XLEN];
+        unsigned<XLEN> CSR;
+        unsigned<XLEN> FENCE;
+        char RES[8]; // reservation address space
     }
                 
     registers { 
-        [31:0]   X[XLEN],
-                PC[XLEN](is_pc),
-                alias ZERO[XLEN] is X[0],
-                alias RA[XLEN] is X[1],
-                alias SP[XLEN] is X[2],
-                alias GP[XLEN] is X[3],
-                alias TP[XLEN] is X[4],
-                alias T0[XLEN] is X[5],
-                alias T1[XLEN] is X[6],
-                alias T2[XLEN] is X[7],
-                alias S0[XLEN] is X[8],
-                alias S1[XLEN] is X[9],
-                alias A0[XLEN] is X[10],
-                alias A1[XLEN] is X[11],
-                alias A2[XLEN] is X[12],
-                alias A3[XLEN] is X[13],
-                alias A4[XLEN] is X[14],
-                alias A5[XLEN] is X[15],
-                alias A6[XLEN] is X[16],
-                alias A7[XLEN] is X[17],
-                alias S2[XLEN] is X[18],
-                alias S3[XLEN] is X[19],
-                alias S4[XLEN] is X[20],
-                alias S5[XLEN] is X[21],
-                alias S6[XLEN] is X[22],
-                alias S7[XLEN] is X[23],
-                alias S8[XLEN] is X[24],
-                alias S9[XLEN] is X[25],
-                alias S10[XLEN] is X[26],
-                alias S11[XLEN] is X[27],
-                alias T3[XLEN] is X[28],
-                alias T4[XLEN] is X[29],
-                alias T5[XLEN] is X[30],
-                alias T6[XLEN] is X[31]
+        unsigned<XLEN>  X[31];
+        unsigned<XLEN>  PC [[is_pc]];
+        unsigned<XLEN>& ZERO = X[0];
+        unsigned<XLEN>& RA   = X[1];
+        unsigned<XLEN>& SP   = X[2];
+        unsigned<XLEN>& GP   = X[3];
+        unsigned<XLEN>& TP   = X[4];
+        unsigned<XLEN>& T0   = X[5];
+        unsigned<XLEN>& T1   = X[6];
+        unsigned<XLEN>& T2   = X[7];
+        unsigned<XLEN>& S0   = X[8];
+        unsigned<XLEN>& S1   = X[9];
+        unsigned<XLEN>& A0   = X[10];
+        unsigned<XLEN>& A1   = X[11];
+        unsigned<XLEN>& A2   = X[12];
+        unsigned<XLEN>& A3   = X[13];
+        unsigned<XLEN>& A4   = X[14];
+        unsigned<XLEN>& A5   = X[15];
+        unsigned<XLEN>& A6   = X[16];
+        unsigned<XLEN>& A7   = X[17];
+        unsigned<XLEN>& S2   = X[18];
+        unsigned<XLEN>& S3   = X[19];
+        unsigned<XLEN>& S4   = X[20];
+        unsigned<XLEN>& S5   = X[21];
+        unsigned<XLEN>& S6   = X[22];
+        unsigned<XLEN>& S7   = X[23];
+        unsigned<XLEN>& S8   = X[24];
+        unsigned<XLEN>& S9   = X[25];
+        unsigned<XLEN>& S10  = X[26];
+        unsigned<XLEN>& S11  = X[27];
+        unsigned<XLEN>& T3   = X[28];
+        unsigned<XLEN>& T4   = X[29];
+        unsigned<XLEN>& T5   = X[30];
+        unsigned<XLEN>& T6   = X[31];
+    }
+    functions {
+    	extern void raise(int irq, int mcause);
+    	extern void leave(int priv_lvl);
+    	extern void wait(int a, int b);
     }
 }
