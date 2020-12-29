@@ -7,16 +7,9 @@ InstructionSet RISCVBase {
         unsigned fencevmal=2;
         unsigned fencevmau=3;
     }
-    
-    address_spaces { 
-        char MEM[1<<XLEN];
-        unsigned<XLEN> CSR;
-        unsigned<XLEN> FENCE;
-        char RES[8]; // reservation address space
-    }
                 
     registers { 
-        unsigned<XLEN>  X[31];
+        unsigned<XLEN>  X[32];
         unsigned<XLEN>  PC [[is_pc]];
         unsigned<XLEN>& ZERO = X[0];
         unsigned<XLEN>& RA   = X[1];
@@ -51,9 +44,17 @@ InstructionSet RISCVBase {
         unsigned<XLEN>& T5   = X[30];
         unsigned<XLEN>& T6   = X[31];
     }
+    
+    address_spaces { 
+        char MEM[1<<XLEN];
+        unsigned<XLEN> CSR;
+        unsigned<XLEN> FENCE;
+        char RES[8]; // reservation address space
+    }
+
     functions {
     	extern void raise(int irq, int mcause);
     	extern void leave(int priv_lvl);
-    	extern void wait(int a, int b);
+    	extern void wait(int a);
     }
 }
