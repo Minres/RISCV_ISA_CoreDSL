@@ -1,11 +1,13 @@
 import "RISCVBase.core_desc"
 
-InsructionSet RV32D extends RISCVBase{
+InstructionSet RV32D extends RISCVBase{
     constants {
-        FLEN, FFLAG_MASK := 0x1f
+        unsigned FLEN;
+        unsigned FFLAG_MASK = 0x1f;
     } 
     registers {
-        [31:0]    F[FLEN],  FCSR[32]
+	   float<FLEN> F[32];
+       unsigned FCSR[32];
     }    
     instructions{
         FLD {
