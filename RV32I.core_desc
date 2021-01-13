@@ -1,6 +1,6 @@
 import "RISCVBase.core_desc"
 
-InstructionSet RV32I extends RISCVBase{
+InstructionSet RV32I extends RISCVBase {
      
     instructions { 
         LUI{
