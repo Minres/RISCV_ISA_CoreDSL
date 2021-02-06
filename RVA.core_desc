@@ -5,7 +5,7 @@ InstructionSet RV32A extends RISCVBase {
     instructions{
         LRW {
             encoding: b00010 :: aq[0:0] :: rl[0:0]  :: b00000 :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}";
+            args_disass: "{name(rd)}, {name(rs1)}, {name(aq)}, {name(rl)}";
             behavior: if(rd!=0){
                 unsigned<XLEN> offs = X[rs1];
                 X[rd] = (int<32>)MEM[offs];
@@ -14,7 +14,7 @@ InstructionSet RV32A extends RISCVBase {
         }
         SCW {
             encoding: b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}, {name(aq)}, {name(rl)}";
             behavior:  {
 				unsigned<XLEN> offs = X[rs1];
             	unsigned<32>  res1 = RES[offs];
