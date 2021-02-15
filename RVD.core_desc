@@ -1,5 +1,6 @@
 import "RISCVBase.core_desc"
 
+// TODO: review instruction description wrt. Spec after type system is fixed
 InstructionSet RV32D extends RISCVBase{
     architectural_state {
         unsigned FLEN;

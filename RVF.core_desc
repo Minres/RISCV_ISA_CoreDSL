@@ -1,5 +1,6 @@
 import "RV32I.core_desc"
 
+// TODO: review instruction description wrt. Spec after type system is fixed
 InstructionSet RV32F extends RV32I{
     architectural_state {
         unsigned FLEN;
