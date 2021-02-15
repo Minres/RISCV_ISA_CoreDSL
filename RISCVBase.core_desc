@@ -1,16 +1,13 @@
 InstructionSet RISCVBase {
-    constants {
+    architectural_state {
         unsigned XLEN;
         unsigned CSR_SIZE=4096;
         unsigned fence=0;
         unsigned fencei=1;
         unsigned fencevmal=2;
         unsigned fencevmau=3;
-    }
-                
-    registers { 
-        unsigned<XLEN>  X[32];
-        unsigned<XLEN>  PC [[is_pc]];
+        register unsigned<XLEN>  X[32];
+        register unsigned<XLEN>  PC [[is_pc]];
         unsigned<XLEN>& ZERO = X[0];
         unsigned<XLEN>& RA   = X[1];
         unsigned<XLEN>& SP   = X[2];
@@ -43,13 +40,11 @@ InstructionSet RISCVBase {
         unsigned<XLEN>& T4   = X[29];
         unsigned<XLEN>& T5   = X[30];
         unsigned<XLEN>& T6   = X[31];
-    }
-    
-    address_spaces { 
-        char MEM[1<<XLEN];
-        unsigned<XLEN> CSR;
-        unsigned<XLEN> FENCE;
-        char RES[8]; // reservation address space
+
+        extern char MEM[1<<XLEN];
+        extern unsigned<XLEN> CSR;
+        extern unsigned<XLEN> FENCE;
+        extern char RES[8]; // reservation address space
     }
 
     functions {

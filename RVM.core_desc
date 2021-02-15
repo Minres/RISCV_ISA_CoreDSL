@@ -1,7 +1,7 @@
 import "RISCVBase.core_desc"
 
 InstructionSet RV32M extends RISCVBase {
-    constants {
+    architectural_state {
         unsigned MUL_LEN=2*XLEN;
     }
     instructions{       
