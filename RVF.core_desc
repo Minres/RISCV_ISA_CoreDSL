@@ -1,400 +1,449 @@
 import "RV32I.core_desc"
 
 InstructionSet RV32F extends RV32I{
-    constants {
+    architectural_state {
         unsigned FLEN;
         unsigned FFLAG_MASK = 0x1f;
-    } 
-    registers {
-	   float<FLEN> F[32];
-       unsigned FCSR[32];
+
+	   	unsigned<FLEN> F[32];
+       	unsigned<32> FCSR;
     }    
+    functions {
+        extern unsigned fadd_s(unsigned, unsigned, unsigned char);
+        extern unsigned fsub_s(unsigned, unsigned, unsigned char);
+        extern unsigned fmul_s(unsigned, unsigned, unsigned char);
+        extern unsigned fdiv_s(unsigned, unsigned, unsigned char);
+        extern unsigned fmadd_s(unsigned, unsigned, unsigned, unsigned, unsigned char);
+        extern unsigned fsel_s(unsigned, unsigned, unsigned);
+        extern unsigned fsqrt_s(unsigned, unsigned char);
+        extern unsigned fcmp_s(unsigned, unsigned, unsigned);
+        extern unsigned fcvt_s(unsigned, unsigned, unsigned char);
+        extern unsigned long fcvt_32_64(unsigned, unsigned, unsigned char);
+        extern unsigned long fcvt_64_32(unsigned, unsigned, unsigned char);
+        extern unsigned unbox_s(unsigned long);
+        extern unsigned fclass_s(unsigned);
+        extern unsigned fget_flags();
+    }
     instructions{
         FLW {
-            encoding: imm[11:0]s | rs1[4:0] | b010 | rd[4:0] | b0000111;
+            encoding: imm[11:0]s :: rs1[4:0] :: b010 :: rd[4:0] :: b0000111;
             args_disass:"f{rd}, {imm}({name(rs1)})";
-            val offs[XLEN] <= X[rs1]'s + imm;
-            val res[32] <= MEM[offs]{32};
-            if(FLEN==32)
-                F[rd] <= res;
-            else { // NaN boxing
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                unsigned<XLEN> offs = X[rs1] + imm;
+                unsigned<XLEN> res = MEM[offs];
+                if(FLEN==32)
+                    F[rd] = res;
+                else { // NaN boxing
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
             }
         }
         FSW {
-            encoding: imm[11:5]s | rs2[4:0] | rs1[4:0] | b010 | imm[4:0]s | b0100111;
+            encoding: imm[11:5]s :: rs2[4:0] :: rs1[4:0] :: b010 :: imm[4:0]s :: b0100111;
             args_disass:"f{rs2}, {imm}({name(rs1)])";
-            val offs[XLEN] <= X[rs1]'s + imm;
-            MEM[offs]{32}<=F[rs2]{32};
-        }
-        FMADD.S {
-            encoding: rs3[4:0] | b00 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1000011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
-            //F[rd]f<= F[rs1]f * F[rs2]f + F[rs3]f;
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fmadd_s(F[rs1], F[rs2], F[rs3], zext(0, 32), choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-	            val frs3[32] <= fdispatch_unbox_s(F[rs3]);
-                val res[32] <= fdispatch_fmadd_s(frs1, frs2, frs3, zext(0, 32), choose(rm<7, rm{8}, FCSR{8}));            
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                unsigned<XLEN> offs = X[rs1] + imm;
+                MEM[offs]=F[rs2];
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FMSUB.S {
-            encoding: rs3[4:0] | b00 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1000111;
+        FMADD_S {
+            encoding: rs3[4:0] :: b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1000011;
             args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
-            //F[rd]f<=F[rs1]f * F[rs2]f - F[rs3]f;
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fmadd_s(F[rs1], F[rs2], F[rs3], zext(1, 32), choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-	            val frs3[32] <= fdispatch_unbox_s(F[rs3]);
-                val res[32] <= fdispatch_fmadd_s(frs1, frs2, frs3, zext(1, 32), choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                //F[rd]f= F[rs1]f * F[rs2]f + F[rs3]f;
+                if(FLEN==32)
+    	            F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 0, rm<7? (unsigned char)rm:(unsigned char)FCSR);
+                else { // NaN boxing
+                    unsigned res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 0, rm<7? rm: (unsigned char)FCSR);            
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};    
         }
-        FNMADD.S {
-            encoding: rs3[4:0] | b00 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1001111;
+        FMSUB_S {
+            encoding: rs3[4:0] :: b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1000111;
+            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            behavior: {
+                //F[rd]f=F[rs1]f * F[rs2]f - F[rs3]f;
+                if(FLEN==32)
+    	            F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 1UL, rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+                    unsigned res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 1U, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FNMADD_S {
+            encoding: rs3[4:0] :: b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1001111;
             args_disass:"{name(rm)}, name(rd), f{rs1}, f{rs2}, f{rs3}";
-            //F[rd]f<=-F[rs1]f * F[rs2]f + F[rs3]f;
-            if(FLEN==32)
-                F[rd] <= fdispatch_fmadd_s(F[rs1], F[rs2], F[rs3], zext(2, 32), choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-	            val frs3[32] <= fdispatch_unbox_s(F[rs3]);
-                val res[32] <= fdispatch_fmadd_s(frs1, frs2, frs3, zext(2, 32), choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                //F[rd]f=-F[rs1]f * F[rs2]f + F[rs3]f;
+                if(FLEN==32)
+                    F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 2U, rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+    	            unsigned frs3 = unbox_s(F[rs3]);
+                    unsigned res = fmadd_s(frs1, frs2, frs3, 2U, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FNMSUB.S {
-            encoding: rs3[4:0] | b00 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1001011;
+        FNMSUB_S {
+            encoding: rs3[4:0] :: b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1001011;
             args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
-            //F[rd]f<=-F[rs1]f * F[rs2]f - F[rs3]f;
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fmadd_s(F[rs1], F[rs2], F[rs3], zext(3, 32), choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-	            val frs3[32] <= fdispatch_unbox_s(F[rs3]);
-                val res[32] <= fdispatch_fmadd_s(frs1, frs2, frs3, zext(3, 32), choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+            //F[rd]f=-F[rs1]f * F[rs2]f - F[rs3]f;
+                if(FLEN==32)
+    	            F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 3U, rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+    	            unsigned frs3 = unbox_s(F[rs3]);
+                    unsigned res = fmadd_s(frs1, frs2, frs3, 3U, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FADD.S {
-            encoding: b0000000 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FADD_S {
+            encoding: b0000000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
-            // F[rd]f <= F[rs1]f + F[rs2]f;
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fadd_s(F[rs1], F[rs2], choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= fdispatch_fadd_s(frs1, frs2, choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                // F[rd]f = F[rs1]f + F[rs2]f;
+                if(FLEN==32)
+    	            F[rd] = fadd_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = fadd_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FSUB.S {
-            encoding: b0000100 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FSUB_S {
+            encoding: b0000100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
-            // F[rd]f <= F[rs1]f - F[rs2]f;
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fsub_s(F[rs1], F[rs2], choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= fdispatch_fsub_s(frs1, frs2, choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                // F[rd]f = F[rs1]f - F[rs2]f;
+                if(FLEN==32)
+    	            F[rd] = fsub_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = fsub_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FMUL.S {
-            encoding: b0001000 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FMUL_S {
+            encoding: b0001000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
-            // F[rd]f <= F[rs1]f * F[rs2]f;
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fmul_s(F[rs1], F[rs2], choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= fdispatch_fmul_s(frs1, frs2, choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                // F[rd]f = F[rs1]f * F[rs2]f;
+                if(FLEN==32)
+    	            F[rd] = fmul_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = fmul_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FDIV.S {
-            encoding: b0001100 | rs2[4:0] | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FDIV_S {
+            encoding: b0001100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
-            // F[rd]f <= F[rs1]f / F[rs2]f;
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fdiv_s(F[rs1], F[rs2], choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= fdispatch_fdiv_s(frs1, frs2, choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                // F[rd]f = F[rs1]f / F[rs2]f;
+                if(FLEN==32)
+    	            F[rd] = fdiv_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = fdiv_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FSQRT.S {
-            encoding: b0101100 | b00000 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FSQRT_S {
+            encoding: b0101100 :: b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, f{rd}, f{rs1}";
-            //F[rd]f<=sqrt(F[rs1]f);
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fsqrt_s(F[rs1], choose(rm<7, rm{8}, FCSR{8}));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-                val res[32] <= fdispatch_fsqrt_s(frs1, choose(rm<7, rm{8}, FCSR{8}));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                //F[rd]f=sqrt(F[rs1]f);
+                if(FLEN==32)
+    	            F[rd] = fsqrt_s(F[rs1], rm<7? rm: (unsigned char)FCSR);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+                    unsigned res = fsqrt_s(frs1, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FSGNJ.S {
-            encoding: b0010000 | rs2[4:0] | rs1[4:0] | b000 | rd[4:0] | b1010011;
+        FSGNJ_S {
+            encoding: b0010000 :: rs2[4:0] :: rs1[4:0] :: b000 :: rd[4:0] :: b1010011;
             args_disass:"f{rd}, f{rs1}, f{rs2}";
-            if(FLEN==32)
-	            F[rd] <= (F[rs1] & 0x7fffffff) | (F[rs2] & 0x80000000);
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= (frs1 & 0x7fffffff) | (frs2 & 0x80000000);
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                if(FLEN==32)
+    	            F[rd] = (F[rs1] & 0x7fffffff) :: (F[rs2] & 0x80000000);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = (frs1 & 0x7fffffff) :: (frs2 & 0x80000000);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
             }
         }
-        FSGNJN.S {
-            encoding: b0010000 | rs2[4:0] | rs1[4:0] | b001 | rd[4:0] | b1010011;
+        FSGNJN_S {
+            encoding: b0010000 :: rs2[4:0] :: rs1[4:0] :: b001 :: rd[4:0] :: b1010011;
             args_disass:"f{rd}, f{rs1}, f{rs2}";
-            if(FLEN==32)
-	            F[rd] <= (F[rs1] & 0x7fffffff) | (~F[rs2] & 0x80000000);
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= (frs1 & 0x7fffffff) | (~frs2 & 0x80000000);
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                if(FLEN==32)
+    	            F[rd] = (F[rs1] & 0x7fffffff) :: (~F[rs2] & 0x80000000);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = (frs1 & 0x7fffffff) :: (~frs2 & 0x80000000);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
             }
         }
-        FSGNJX.S {
-            encoding: b0010000 | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b1010011;
+        FSGNJX_S {
+            encoding: b0010000 :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b1010011;
             args_disass:"f{rd}, f{rs1}, f{rs2}";
-            if(FLEN==32)
-	            F[rd] <= F[rs1] ^ (F[rs2] & 0x80000000);
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= frs1 ^ (frs2 & 0x80000000);
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                if(FLEN==32)
+    	            F[rd] = F[rs1] ^ (F[rs2] & 0x80000000);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = frs1 ^ (frs2 & 0x80000000);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
             }
         }
-        FMIN.S  {
-            encoding: b0010100 | rs2[4:0] | rs1[4:0] | b000 | rd[4:0] | b1010011;
+        FMIN_S  {
+            encoding: b0010100 :: rs2[4:0] :: rs1[4:0] :: b000 :: rd[4:0] :: b1010011;
             args_disass:"f{rd}, f{rs1}, f{rs2}";
-            //F[rd]f<= choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fsel_s(F[rs1], F[rs2], zext(0, 32));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= fdispatch_fsel_s(frs1, frs2, zext(0, 32));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                //F[rd]f= choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
+                if(FLEN==32)
+    	            F[rd] = fsel_s(F[rs1], F[rs2], 0U);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = fsel_s(frs1, frs2, 0U);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FMAX.S {
-            encoding: b0010100 | rs2[4:0] | rs1[4:0] | b001 | rd[4:0] | b1010011;
+        FMAX_S {
+            encoding: b0010100 :: rs2[4:0] :: rs1[4:0] :: b001 :: rd[4:0] :: b1010011;
             args_disass:"f{rd}, f{rs1}, f{rs2}";
-            //F[rd]f<= choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
-            if(FLEN==32)
-	            F[rd] <= fdispatch_fsel_s(F[rs1], F[rs2], zext(1, 32));
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-                val res[32] <= fdispatch_fsel_s(frs1, frs2, zext(1, 32));
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                //F[rd]f= choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
+                if(FLEN==32)
+    	            F[rd] = fsel_s(F[rs1], F[rs2], 1U);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                    unsigned res = fsel_s(frs1, frs2, 1U);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FCVT.W.S {
-            encoding: b1100000 | b00000 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FCVT_W_S {
+            encoding: b1100000 :: b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
-            if(FLEN==32)
-	            X[rd] <= sext(fdispatch_fcvt_s(F[rs1], zext(0, 32), rm{8}), XLEN);
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-                X[rd]<= sext(fdispatch_fcvt_s(frs1, zext(0, 32), rm{8}), XLEN);
+            behavior: {
+                if(FLEN==32)
+    	            X[rd] = fcvt_s(F[rs1], 0U, rm);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+                    X[rd]= fcvt_s(frs1, 0U, rm);
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FCVT.WU.S {
-            encoding: b1100000 | b00001 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FCVT_WU_S {
+            encoding: b1100000 :: b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
-            //FIXME: according to the spec it should be zero-extended not sign extended
-            if(FLEN==32)
-           		 X[rd]<= sext(fdispatch_fcvt_s(F[rs1], zext(1, 32), rm{8}), XLEN);
-            else { // NaN boxing
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-                X[rd]<= sext(fdispatch_fcvt_s(frs1, zext(1, 32), rm{8}), XLEN);
+            behavior: {
+                //FIXME: according to the spec it should be zero-extended not sign extended
+                if(FLEN==32)
+               		 X[rd]= fcvt_s(F[rs1], 1U, rm);
+                else { // NaN boxing
+    	            unsigned frs1 = unbox_s(F[rs1]);
+                    X[rd]= fcvt_s(frs1, 1U, rm);
+                }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FEQ.S {
-            encoding: b1010000 | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b1010011;
+        FEQ_S {
+            encoding: b1010000 :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b1010011;
             args_disass:"{name(rd)}, f{rs1}, f{rs2}";
-            if(FLEN==32)
-	            X[rd]<=zext(fdispatch_fcmp_s(F[rs1], F[rs2], zext(0, 32)));
-	        else {
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-	            X[rd]<=zext(fdispatch_fcmp_s(frs1, frs2, zext(0, 32)));	        
-	        }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
-        }
-        FLT.S {
-            encoding: b1010000 | rs2[4:0] | rs1[4:0] | b001 | rd[4:0] | b1010011;
-            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
-            if(FLEN==32)
-            	X[rd]<=zext(fdispatch_fcmp_s(F[rs1], F[rs2], zext(2, 32)));
-	        else {
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-            	X[rd]<=zext(fdispatch_fcmp_s(frs1, frs2, zext(2, 32)));
+            behavior: {
+                if(FLEN==32)
+    	            X[rd]=fcmp_s(F[rs1], F[rs2], 0U);
+    	        else {
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+    	            X[rd]=fcmp_s(frs1, frs2, 0U);	        
+    	        }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
-            X[rd]<=fdispatch_fcmp_s(F[rs1]{32}, F[rs2]{32}, zext(2, 32));
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
         }
-        FLE.S {
-            encoding: b1010000 | rs2[4:0] | rs1[4:0] | b000 | rd[4:0] | b1010011;
+        FLT_S {
+            encoding: b1010000 :: rs2[4:0] :: rs1[4:0] :: b001 :: rd[4:0] :: b1010011;
             args_disass:"{name(rd)}, f{rs1}, f{rs2}";
-            if(FLEN==32)
-	            X[rd]<=zext(fdispatch_fcmp_s(F[rs1], F[rs2], zext(1, 32)));
-	        else {
-	            val frs1[32] <= fdispatch_unbox_s(F[rs1]);
-	            val frs2[32] <= fdispatch_unbox_s(F[rs2]);
-	            X[rd]<=zext(fdispatch_fcmp_s(frs1, frs2, zext(1, 32)));
-	        }
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
+            behavior: {
+                if(FLEN==32)
+                	X[rd]=fcmp_s(F[rs1], F[rs2], 2U);
+    	        else {
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+                	X[rd]=fcmp_s(frs1, frs2, 2U);
+                }
+                X[rd]=fcmp_s((unsigned)F[rs1], (unsigned)F[rs2], 2U);
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
         }
-        FCLASS.S {
-            encoding: b1110000 | b00000 | rs1[4:0] | b001 | rd[4:0] | b1010011;
+        FLE_S {
+            encoding: b1010000 :: rs2[4:0] :: rs1[4:0] :: b000 :: rd[4:0] :: b1010011;
+            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
+            behavior: {
+                if(FLEN==32)
+    	            X[rd]=fcmp_s(F[rs1], F[rs2], 1U);
+    	        else {
+    	            unsigned frs1 = unbox_s(F[rs1]);
+    	            unsigned frs2 = unbox_s(F[rs2]);
+    	            X[rd]=fcmp_s(frs1, frs2, 1U);
+    	        }
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCLASS_S {
+            encoding: b1110000 :: b00000 :: rs1[4:0] :: b001 :: rd[4:0] :: b1010011;
             args_disass:"{name(rd)}, f{rs1}";
-            X[rd]<=fdispatch_fclass_s(fdispatch_unbox_s(F[rs1]));
-        }
-        FCVT.S.W {
-            encoding: b1101000 | b00000 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
-            if(FLEN==32)
-	            F[rd]  <= fdispatch_fcvt_s(X[rs1]{32}, zext(2, 32), rm{8});
-            else { // NaN boxing
-                val res[32] <= fdispatch_fcvt_s(X[rs1]{32}, zext(2, 32), rm{8});
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                X[rd]=fclass_s(unbox_s(F[rs1]));
             }
         }
-        FCVT.S.WU {
-            encoding: b1101000 | b00001 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FCVT_S_W {
+            encoding: b1101000 :: b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
-            if(FLEN==32)
-    	        F[rd]  <=fdispatch_fcvt_s(X[rs1]{32}, zext(3,32), rm{8});
-            else { // NaN boxing
-                val res[32] <=fdispatch_fcvt_s(X[rs1]{32}, zext(3,32), rm{8});
-    	        val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                if(FLEN==32)
+    	            F[rd]  = fcvt_s((unsigned)X[rs1], 2U, rm);
+                else { // NaN boxing
+                    unsigned res = fcvt_s((unsigned)X[rs1], 2U, rm);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
             }
         }
-        FMV.X.W {
-            encoding: b1110000 | b00000 | rs1[4:0] | b000 | rd[4:0] | b1010011;
+        FCVT_S_WU {
+            encoding: b1101000 :: b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
+            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            behavior: {
+                if(FLEN==32)
+        	        F[rd]  =fcvt_s((unsigned)X[rs1], 3U, rm);
+                else { // NaN boxing
+                    unsigned res =fcvt_s((unsigned)X[rs1], 3U, rm);
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+            }
+        }
+        FMV_X_W {
+            encoding: b1110000 :: b00000 :: rs1[4:0] :: b000 :: rd[4:0] :: b1010011;
             args_disass:"{name(rd)}, f{rs1}";
-            X[rd]<=sext(F[rs1]{32});
+            behavior: {
+                X[rd]=F[rs1];
+            }
         }
-        FMV.W.X {
-            encoding: b1111000 | b00000 | rs1[4:0] | b000 | rd[4:0] | b1010011;
+        FMV_W_X {
+            encoding: b1111000 :: b00000 :: rs1[4:0] :: b000 :: rd[4:0] :: b1010011;
             args_disass:"f{rd}, {name(rs1)}";
-            if(FLEN==32)
-                F[rd] <= X[rs1]{32};
-            else { // NaN boxing
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(X[rs1]{32}, FLEN);
+            behavior: {
+                if(FLEN==32)
+                    F[rd] = X[rs1];
+                else { // NaN boxing
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)X[rs1];
+                }
             }
         }
     }
 }
 
-InsructionSet RV64F extends RV32F{
+InstructionSet RV64F extends RV32F{
 
     instructions{
-        FCVT.L.S { // fp to 64bit signed integer
-            encoding: b1100000 | b00010 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FCVT_L_S { // fp to 64bit signed integer
+            encoding: b1100000 :: b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
-            val res[64] <= fdispatch_fcvt_32_64(fdispatch_unbox_s(F[rs1]), zext(0, 32), rm{8});
-            X[rd]<= sext(res);
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
-        }
-        FCVT.LU.S { // fp to 64bit unsigned integer
-            encoding: b1100000 | b00011 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
-            val res[64] <= fdispatch_fcvt_32_64(fdispatch_unbox_s(F[rs1]), zext(1, 32), rm{8});
-            X[rd]<= zext(res);
-            val flags[32] <= fdispatch_fget_flags();
-            FCSR <= (FCSR & ~FFLAG_MASK) + flags{5};
-        }
-        FCVT.S.L { // 64bit signed int to to fp 
-            encoding: b1101000 | b00010 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
-            val res[32] <= fdispatch_fcvt_64_32(X[rs1], zext(2, 32), rm{8});
-            if(FLEN==32)
-                F[rd] <= res;
-            else { // NaN boxing
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 0U, rm);
+                X[rd]= res;
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-        FCVT.S.LU { // 64bit unsigned int to to fp 
-            encoding: b1101000 | b00011 | rs1[4:0] | rm[2:0] | rd[4:0] | b1010011;
+        FCVT_LU_S { // fp to 64bit unsigned integer
+            encoding: b1100000 :: b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
+            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            behavior: {
+                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 1U, rm);
+                X[rd]= res;
+                unsigned flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT_S_L { // 64bit signed int to to fp 
+            encoding: b1101000 :: b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
             args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
-            val res[32] <=fdispatch_fcvt_64_32(X[rs1], zext(3,32), rm{8});
-            if(FLEN==32)
-                F[rd] <= res;
-            else { // NaN boxing
-                val upper[FLEN] <= -1;
-                F[rd] <= (upper<<32) | zext(res, FLEN);
+            behavior: {
+                unsigned res = fcvt_64_32(X[rs1], 2U, rm);
+                if(FLEN==32)
+                    F[rd] = res;
+                else { // NaN boxing
+                        F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
+            }
+        }
+        FCVT_S_LU { // 64bit unsigned int to to fp 
+            encoding: b1101000 :: b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: b1010011;
+            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            behavior: {
+                unsigned res =fcvt_64_32(X[rs1], 3U, rm);
+                if(FLEN==32)
+                    F[rd] = res;
+                else { // NaN boxing
+                        F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                }
             }
         }
 	}
