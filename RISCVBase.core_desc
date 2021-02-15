@@ -40,16 +40,21 @@ InstructionSet RISCVBase {
         unsigned<XLEN>& T4   = X[29];
         unsigned<XLEN>& T5   = X[30];
         unsigned<XLEN>& T6   = X[31];
-
+        // address spaces
         extern char MEM[1<<XLEN];
         extern unsigned<XLEN> CSR;
         extern unsigned<XLEN> FENCE;
         extern char RES[8]; // reservation address space
+        // CSRs and additional regs used by the core
+        unsigned<XLEN> MCAUSE;
+        unsigned<XLEN> MTVAL;
+        unsigned<XLEN> MEPC;
+        unsigned<2>    PRIV;
     }
 
     functions {
     	extern void raise(int irq, int mcause);
     	extern void leave(int priv_lvl);
-    	extern void wait(int a);
+    	extern void wait(int flag);
     }
 }
