@@ -45,11 +45,8 @@ InstructionSet RISCVBase {
         extern unsigned<XLEN> CSR;
         extern unsigned<XLEN> FENCE;
         extern char RES[8]; // reservation address space
-        // CSRs and additional regs used by the core
-        unsigned<XLEN> MCAUSE;
-        unsigned<XLEN> MTVAL;
-        unsigned<XLEN> MEPC;
-        unsigned<2>    PRIV;
+        // additional state register
+        register unsigned<2>    PRIV;
     }
 
     functions {
