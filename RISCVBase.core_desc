@@ -48,7 +48,7 @@ InstructionSet RISCVBase {
         extern unsigned<XLEN> FENCE[8];
         extern char RES[8]; // reservation address space
         // supplemental state register
-        register unsigned char    PRIV;
+        register unsigned<2>    PRIV;
     }
 
     functions {

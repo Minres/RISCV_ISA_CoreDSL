@@ -25,8 +25,8 @@ InstructionSet RV32I extends RISCVBase {
             encoding: imm[11:0]s :: rs1[4:0] :: b000 :: rd[4:0] :: b1100111;
             args_disass: "{name(rd)}, {name(rs1)}, {imm:#0x}";
             behavior: {
-	            int<XLEN> new_pc = X[rs1] + imm;
-	            int<XLEN> align = new_pc & 0x2;
+	            signed<XLEN> new_pc = X[rs1] + imm;
+	            signed<XLEN> align = new_pc & 0x2;
 	            if(align != 0){
 	                raise(0, 0);
 	            } else {
@@ -38,32 +38,32 @@ InstructionSet RV32I extends RISCVBase {
         BEQ[[no_cont]] [[cond]]{
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b000 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: PC=X[rs1]==X[rs2] ? PC+imm : PC+4;
+            behavior: if(X[rs1]==X[rs2]) PC = PC+imm;
         }
         BNE[[no_cont]] [[cond]]{
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b001 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: PC=X[rs1]!=X[rs2]? PC+imm : PC+4;
+            behavior: if(X[rs1]!=X[rs2]) PC = PC+imm;
         }
         BLT[[no_cont]] [[cond]]{
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b100 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: PC=X[rs1]<X[rs2]? PC+imm : PC+4;
+            behavior: if(X[rs1]<X[rs2]) PC = PC+imm;
         }
         BGE[[no_cont]] [[cond]] {
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b101 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: PC=X[rs1]>=X[rs2]? PC+imm : PC+4;
+            behavior: if(X[rs1]>=X[rs2]) PC = PC+imm;
         }
         BLTU[[no_cont]] [[cond]] {
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b110 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: PC=X[rs1]<X[rs2]? PC+imm : PC+4;
+            behavior: if(X[rs1]<X[rs2]) PC = PC+imm;
         }
         BGEU[[no_cont]] [[cond]] {
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b111 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: PC=X[rs1]>=X[rs2]? PC+imm : PC+4;
+            behavior: if(X[rs1]>=X[rs2]) PC = PC+imm;
         }
         LB {
             encoding: imm[11:0]s :: rs1[4:0] :: b000 :: rd[4:0] :: b0000011;
@@ -78,7 +78,7 @@ InstructionSet RV32I extends RISCVBase {
         LW {
             encoding: imm[11:0]s :: rs1[4:0] :: b010 :: rd[4:0] :: b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd!=0) X[rd]=(int)MEM[X[rs1] + imm]; 
+            behavior: if(rd!=0) X[rd]=(unsigned<32>)MEM[X[rs1] + imm]; 
         }
         LBU {
             encoding: imm[11:0]s :: rs1[4:0] :: b100 :: rd[4:0] :: b0000011;
