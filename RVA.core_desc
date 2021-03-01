@@ -4,7 +4,7 @@ InstructionSet RV32A extends RISCVBase {
      
     instructions{
         LRW {
-            encoding: b00010 :: aq[0:0] :: rl[0:0]  :: b00000 :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b00010 :: aq[0:0] :: rl[0:0]  :: 0b00000 :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(aq)}, {name(rl)}";
             behavior: if(rd!=0){
                 unsigned<XLEN> offs = X[rs1];
@@ -13,7 +13,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         SCW {
-            encoding: b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}, {name(aq)}, {name(rl)}";
             behavior:  {
 				unsigned<XLEN> offs = X[rs1];
@@ -25,7 +25,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOSWAPW{
-            encoding: b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN> offs=X[rs1];
@@ -34,7 +34,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOADDW{
-            encoding: b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs=X[rs1];
@@ -45,7 +45,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOXORW{
-            encoding: b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN> offs = X[rs1];
@@ -56,7 +56,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOANDW{
-            encoding: b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN> offs=X[rs1];
@@ -67,7 +67,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOORW {
-            encoding: b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs=X[rs1];
@@ -78,7 +78,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOMINW{
-            encoding: b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs=X[rs1];
@@ -89,7 +89,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOMAXW{
-            encoding: b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs=X[rs1];
@@ -100,7 +100,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOMINUW{
-            encoding: b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs=X[rs1];
@@ -111,7 +111,7 @@ InstructionSet RV32A extends RISCVBase {
             }
         }
         AMOMAXUW{
-            encoding: b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0101111;
+            encoding: 0b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs=X[rs1];
@@ -128,7 +128,7 @@ InstructionSet RV64A extends RV32A {
      
     instructions{
         LRD {
-            encoding: b00010 :: aq[0:0] :: rl[0:0]  :: b00000 :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b00010 :: aq[0:0] :: rl[0:0]  :: 0b00000 :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}";
             behavior:  {
 	            if(rd!=0){
@@ -139,7 +139,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         SCD {
-            encoding: b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior:  {
             unsigned<XLEN>  offs = X[rs1];
@@ -153,7 +153,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOSWAPD{
-            encoding: b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -162,7 +162,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOADDD{
-            encoding: b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -173,7 +173,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOXORD{
-            encoding: b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -184,7 +184,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOANDD{
-            encoding: b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -195,7 +195,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOORD {
-            encoding: b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -206,7 +206,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOMIND{
-            encoding: b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -217,7 +217,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOMAXD{
-            encoding: b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -228,7 +228,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOMINUD{
-            encoding: b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];
@@ -239,7 +239,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
         AMOMAXUD{
-            encoding: b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0101111;
+            encoding: 0b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
             behavior:  {
 	            unsigned<XLEN>  offs = X[rs1];

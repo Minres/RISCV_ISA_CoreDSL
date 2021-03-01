@@ -3,56 +3,56 @@ import "RV32I.core_desc"
 InstructionSet RV64I extends RV32I {
     instructions{
         LWU { //    80000104: 0000ef03            lwu t5,0(ra)
-            encoding: imm[11:0]s :: rs1[4:0] :: b110 :: rd[4:0] :: b0000011;
+            encoding: imm[11:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-	            unsigned offs = (signed)X[rs1]+imm;
+	            unsigned offs = X[rs1]+(signed<12>)imm;
 	            if(rd!=0) X[rd]=(unsigned<32>)MEM[offs];
             }
         }
         LD{
-            encoding: imm[11:0]s :: rs1[4:0] :: b011 :: rd[4:0] :: b0000011;
+            encoding: imm[11:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-	            unsigned offs = (signed)X[rs1] + imm;
+	            unsigned offs = X[rs1] + (signed<12>)imm;
 	            if(rd!=0) X[rd]=(unsigned<64>)MEM[offs];
             }
         }
         SD{
-            encoding: imm[11:5]s :: rs2[4:0] :: rs1[4:0] :: b011 :: imm[4:0]s :: b0100011;
+            encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: imm[4:0] :: 0b0100011;
             args_disass:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: {
-            	unsigned offs = (signed)X[rs1] + imm;
+            	unsigned offs = X[rs1] + (signed<12>)imm;
             	MEM[offs] = X[rs2];
             }
         }
         SLLI {
-            encoding: b000000 :: shamt[5:0] :: rs1[4:0] :: b001 :: rd[4:0] :: b0010011;
+            encoding: 0b000000 :: shamt[5:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd != 0) X[rd] = X[rs1] << shamt;
         }
         SRLI {
-            encoding: b000000 :: shamt[5:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0010011;
+            encoding: 0b000000 :: shamt[5:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd != 0) X[rd] = ((unsigned<64>)X[rs1])>>shamt;
         }
         SRAI {
-            encoding: b010000 :: shamt[5:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0010011;
+            encoding: 0b010000 :: shamt[5:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd != 0) X[rd] = ((signed<64>)X[rs1])>>shamt;
         }
         ADDIW {
-            encoding: imm[11:0]s :: rs1[4:0] :: b000 :: rd[4:0] :: b0011011;
+            encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0011011;
             args_disass:"{name(rd)}, {name(rs1)}, {imm}";
             behavior: {
 	            if(rd != 0){
-	                unsigned<32> res = ((signed<32>)X[rs1]) + imm;
+	                unsigned<32> res = X[rs1] + (signed<12>)imm;
 	                X[rd] = res;
 	            } 
             }
         }
         SLLIW {
-            encoding: b0000000 :: shamt[4:0] :: rs1[4:0] :: b001 :: rd[4:0] :: b0011011;
+            encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0011011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: {
 	            if(rd != 0){
@@ -62,7 +62,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
         SRLIW {
-            encoding: b0000000 :: shamt[4:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0011011;
+            encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0011011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: {
 	            if(rd != 0){
@@ -72,7 +72,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
         SRAIW {
-            encoding: b0100000 :: shamt[4:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0011011;
+            encoding: 0b0100000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0011011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: {
 	            if(rd != 0){
@@ -82,7 +82,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
         ADDW {
-            encoding: b0000000 :: rs2[4:0] :: rs1[4:0] :: b000 :: rd[4:0] :: b0111011;
+            encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0111011;
             behavior: {
 	            if(rd != 0){
 	                signed<32> res = (signed<32>)X[rs1] + (signed<32>)X[rs2];
@@ -91,7 +91,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
         SUBW {
-            encoding: b0100000 :: rs2[4:0] :: rs1[4:0] :: b000 :: rd[4:0] :: b0111011;
+            encoding: 0b0100000 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0111011;
             behavior: {
             	if(rd != 0){
 	                signed<32> res = (signed<32>)X[rs1] - (signed<32>)X[rs2];
@@ -100,7 +100,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
         SLLW {
-            encoding: b0000000 :: rs2[4:0] :: rs1[4:0] :: b001 :: rd[4:0] :: b0111011;
+            encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -111,7 +111,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
         SRLW {
-            encoding: b0000000 :: rs2[4:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0111011;
+            encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
     	        if(rd != 0){
@@ -122,7 +122,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
         SRAW {
-            encoding: b0100000 :: rs2[4:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0111011;
+            encoding: 0b0100000 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){

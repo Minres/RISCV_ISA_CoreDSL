@@ -6,7 +6,7 @@ InstructionSet RV32M extends RISCVBase {
     }
     instructions{       
         MUL{
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b000 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -16,7 +16,7 @@ InstructionSet RV32M extends RISCVBase {
             }
         }
         MULH {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b001 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -26,7 +26,7 @@ InstructionSet RV32M extends RISCVBase {
             }
         }
         MULHSU {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b010 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -36,7 +36,7 @@ InstructionSet RV32M extends RISCVBase {
             }
         }
         MULHU {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b011 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -46,7 +46,7 @@ InstructionSet RV32M extends RISCVBase {
             }
         }
         DIV {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b100 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -62,7 +62,7 @@ InstructionSet RV32M extends RISCVBase {
             }
         }
         DIVU {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
             if(rd != 0){
@@ -74,7 +74,7 @@ InstructionSet RV32M extends RISCVBase {
             }
         }
         REM {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b110 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -90,7 +90,7 @@ InstructionSet RV32M extends RISCVBase {
             }
         }
         REMU {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b111 :: rd[4:0] :: b0110011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b111 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
             if(rd != 0){
@@ -107,7 +107,7 @@ InstructionSet RV32M extends RISCVBase {
 InstructionSet RV64M extends RV32M {
     instructions{       
         MULW{
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b000 :: rd[4:0] :: b0111011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -116,7 +116,7 @@ InstructionSet RV64M extends RV32M {
             }
         }
         DIVW {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b100 :: rd[4:0] :: b0111011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -132,7 +132,7 @@ InstructionSet RV64M extends RV32M {
             }
         }
         DIVUW {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b101 :: rd[4:0] :: b0111011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -144,7 +144,7 @@ InstructionSet RV64M extends RV32M {
 	        }
         }
         REMW {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b110 :: rd[4:0] :: b0111011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
@@ -160,7 +160,7 @@ InstructionSet RV64M extends RV32M {
             }
         }
         REMUW {
-            encoding: b0000001 :: rs2[4:0] :: rs1[4:0] :: b111 :: rd[4:0] :: b0111011;
+            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b111 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if(rd != 0){
