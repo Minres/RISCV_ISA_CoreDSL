@@ -38,32 +38,32 @@ InstructionSet RV32I extends RISCVBase {
         BEQ[[no_cont]] [[cond]]{
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b000 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]==X[rs2]) PC = PC+imm;
+            behavior: if(X[rs1]==X[rs2]) PC = PC + imm;
         }
         BNE[[no_cont]] [[cond]]{
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b001 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]!=X[rs2]) PC = PC+imm;
+            behavior: if(X[rs1]!=X[rs2]) PC = PC + imm;
         }
         BLT[[no_cont]] [[cond]]{
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b100 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]<X[rs2]) PC = PC+imm;
+            behavior: if(X[rs1]<X[rs2]) PC = PC + imm;
         }
         BGE[[no_cont]] [[cond]] {
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b101 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]>=X[rs2]) PC = PC+imm;
+            behavior: if(X[rs1]>=X[rs2]) PC = PC + imm;
         }
         BLTU[[no_cont]] [[cond]] {
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b110 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]<X[rs2]) PC = PC+imm;
+            behavior: if(X[rs1]<X[rs2]) PC = PC + imm;
         }
         BGEU[[no_cont]] [[cond]] {
             encoding: imm[12:12]s ::imm[10:5]s :: rs2[4:0] :: rs1[4:0] :: b111 :: imm[4:1]s :: imm[11:11]s :: b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]>=X[rs2]) PC = PC+imm;
+            behavior: if(X[rs1]>=X[rs2]) PC = PC + imm;
         }
         LB {
             encoding: imm[11:0]s :: rs1[4:0] :: b000 :: rd[4:0] :: b0000011;

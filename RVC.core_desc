@@ -142,12 +142,12 @@ InstructionSet RV32IC extends RISCVBase{
         CBEQZ[[no_cont]] [[cond]] {//(RV32)
             encoding:b110 :: imm[8:8]s :: imm[4:3]s :: rs1[2:0] :: imm[7:6]s :: imm[2:1]s :: imm[5:5]s :: b01;
             args_disass: "{name(8+rs1)}, {imm:#05x}";
-            behavior: if(X[rs1+8]==0) PC = (signed)PC+imm;
+            behavior: if(X[rs1+8]==0) PC = PC + imm;
         }
         CBNEZ[[no_cont]] [[cond]] {//(RV32)
             encoding:b111 :: imm[8:8]s :: imm[4:3]s :: rs1[2:0] :: imm[7:6]s :: imm[2:1]s :: imm[5:5]s :: b01;
             args_disass: "{name(8+rs1)}, {imm:#05x}";
-            behavior: if(X[rs1+8]!=0) PC=(signed)PC+imm;
+            behavior: if(X[rs1+8]!=0) PC = PC + imm;
         }
         CSLLI {//(RV32)
             encoding:b000 :: b0 :: rs1[4:0] :: shamt[4:0] :: b10;
