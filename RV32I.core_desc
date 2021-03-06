@@ -214,12 +214,12 @@ InstructionSet RV32I extends RISCVBase {
         }
         FENCE {
             encoding: 0b0000 :: pred[3:0] :: succ[3:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0001111;
-            args_disass:"{name(pred)}, {name(succ)}, {name(rs1)}, {name(rd)}";
+            args_disass:"{pred}, {succ}, {name(rs1)}, {name(rd)}";
             behavior: FENCE[fence] = pred<<4 | succ;
         }
         FENCE_I[[flush]] {
             encoding: imm[11:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0001111 ;
-            args_disass:"{name(rs1)}, {name(rd)}, {name(imm)}";
+            args_disass:"{name(rs1)}, {name(rd)}, {imm}";
             behavior: FENCE[fencei] = imm;
         }
         ECALL[[no_cont]] {
