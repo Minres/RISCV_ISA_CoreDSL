@@ -68,27 +68,57 @@ InstructionSet RV32I extends RISCVBase {
         LB {
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd!=0) X[rd]=MEM[X[rs1] + (signed<12>)imm];
+            behavior: {
+                signed<8> res = (signed<8>)MEM[X[rs1] + (signed<12>)imm];
+                if(rd!=0) X[rd]=res;
+            }
         }
         LH {
             encoding: imm[11:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd!=0) X[rd]=(short)MEM[X[rs1] + (signed<12>)imm];    
+            behavior: {
+                unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
+                if(eei_aligned_addresses && (load_address&0x1))
+                    raise(0, 4);
+                else{
+                    signed<16> res = (signed<16>)MEM[X[rs1] + (signed<12>)imm];
+                    if(rd!=0) X[rd]=res;
+                }
+             }    
         }
         LW {
             encoding: imm[11:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd!=0) X[rd]=(unsigned<32>)MEM[X[rs1] + (signed<12>)imm]; 
+            behavior: {
+                unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
+                if(eei_aligned_addresses && (load_address&0x3))
+                    raise(0, 4);
+                else {
+                    signed<32> res = (signed<32>)MEM[X[rs1] + (signed<12>)imm];
+                    if(rd!=0) X[rd]=(unsigned<32>)res;
+                }
+            } 
         }
         LBU {
             encoding: imm[11:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd!=0) X[rd]=(unsigned char)MEM[X[rs1] + (signed<12>)imm];
+            behavior: {
+                unsigned<8> res = (unsigned<8>)MEM[X[rs1] + (signed<12>)imm];
+                if(rd!=0) X[rd]=res;
+            }
         }
         LHU {
             encoding: imm[11:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0000011;
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd!=0) X[rd]=(unsigned short)MEM[X[rs1] + (signed<12>)imm];
+            behavior: {
+                unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
+                if(eei_aligned_addresses && (load_address&0x1))
+                    raise(0, 4);
+                else{
+                    unsigned<16> res = (unsigned<16>)MEM[X[rs1] + (signed<12>)imm];
+                    if(rd!=0) X[rd]=res;
+                }
+            }
         }
         SB {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b000 :: imm[4:0] :: 0b0100011;
@@ -98,12 +128,24 @@ InstructionSet RV32I extends RISCVBase {
         SH {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b001 :: imm[4:0] :: 0b0100011;
             args_disass:"{name(rs2)}, {imm}({name(rs1)})";
-            behavior: MEM[X[rs1] + (signed<12>)imm] = (short)X[rs2];
+            behavior: { 
+                unsigned<XLEN> store_address = X[rs1] + (signed<12>)imm;
+                if(eei_aligned_addresses && (store_address&0x1))
+                    raise(0, 6);
+                else
+                    MEM[store_address] = (short)X[rs2];
+            }
         }
         SW {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: imm[4:0] :: 0b0100011;
             args_disass:"{name(rs2)}, {imm}({name(rs1)})";
-            behavior: MEM[X[rs1] + (signed<12>)imm] = X[rs2];
+            behavior: {
+                unsigned<XLEN> store_address = X[rs1] + (signed<12>)imm;
+                if(eei_aligned_addresses && (store_address&0x3))
+                    raise(0, 6);
+                else
+                    MEM[store_address] = X[rs2];
+            }
         }
         ADDI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0010011;

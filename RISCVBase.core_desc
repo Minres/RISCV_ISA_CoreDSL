@@ -43,12 +43,14 @@ InstructionSet RISCVBase {
         unsigned<XLEN>& T5   = X[30];
         unsigned<XLEN>& T6   = X[31];
         // address spaces
-        extern char MEM[1<<XLEN];
+        extern char           MEM[1<<XLEN];
         extern unsigned<XLEN> CSR[1<<CSR_SIZE];
         extern unsigned<XLEN> FENCE[8];
         extern char RES[8]; // reservation address space
         // supplemental state register
         register unsigned<2>    PRIV;
+        // EEI related settings
+        bool eei_aligned_addresses = true;
     }
 
     functions {

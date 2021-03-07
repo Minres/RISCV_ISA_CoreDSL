@@ -24,16 +24,22 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b010 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 0b00;
             args_disass: "{name(8+rd)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
-	            unsigned<XLEN> offs = X[rs1+8]+uimm;
-	            X[rd+8] = (int)MEM[offs];
+                unsigned<XLEN> load_address = X[rs1+8] + uimm;
+                if(eei_aligned_addresses && (load_address&0x3))
+                    raise(0, 4);
+                else
+    	            X[rd+8] = (signed<32>)MEM[load_address];
             }
         }
         CSW {//(RV32)
             encoding: 0b110 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 0b00;
             args_disass: "{name(8+rs2)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
-	            unsigned offs = X[rs1+8]+uimm;
-	            MEM[offs] = X[rs2+8];
+                unsigned<XLEN> load_address = X[rs1+8] + uimm;
+                if(eei_aligned_addresses && (load_address&0x3))
+                    raise(0, 6);
+                else
+	                MEM[load_address] = X[rs2+8];
             }
         }
         CADDI {//(RV32)
@@ -42,8 +48,10 @@ InstructionSet RV32IC extends RISCVBase{
             behavior: X[rs1] = X[rs1] + (signed<6>)imm;
         }
         CNOP {
-            encoding: 0b000 :: 0b0 :: 0b00000 :: 0b00000 :: 0b01;
-            behavior: {}
+            encoding: 0b000 :: nzimm[5:5] :: 0b00000 :: nzimm[4:0] :: 0b01;
+            behavior: {
+                //if(!nzimm) raise(0, 2);
+            }
         }
         // CJAL will be overwritten by CADDIW for RV64/128
         CJAL[[no_cont]] {//(RV32)
@@ -51,15 +59,15 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{imm:#05x}";
             behavior: {
 	            X[1] = PC+2;
-	            PC=(signed)PC+(signed<12>)imm;
+	            PC=PC+(signed<12>)imm;
             }
         }
         CLI {//(RV32)
             encoding: 0b010 :: imm[5:5] :: rd[4:0] :: imm[4:0] :: 0b01;
             args_disass: "{name(rd)}, {imm:#05x}";
             behavior: {
-	            if(rd == 0)    raise(0, 2);   //TODO: should it be handled as trap?
-	            X[rd] = (signed<6>)imm;
+	            if(rd == 0)   //rd==0 is a hint, so no trap
+	               X[rd] = (signed<6>)imm;
             }
         }
         // order matters here as CADDI16SP overwrites CLUI for rd==2
@@ -74,9 +82,12 @@ InstructionSet RV32IC extends RISCVBase{
             }
         }
         CADDI16SP {//(RV32)
-            encoding: 0b011 :: imm[9:9] :: 0b00010 :: imm[4:4] :: imm[6:6] :: imm[8:7] :: imm[5:5] :: 0b01;
-            args_disass: "{imm:#05x}";
-            behavior:  X[2] = X[2] + (signed<10>)imm;
+            encoding: 0b011 :: imm[9:9] :: 0b00010 :: nzimm[4:4] :: nzimm[6:6] :: nzimm[8:7] :: nzimm[5:5] :: 0b01;
+            args_disass: "{nzimm:#05x}";
+            behavior:  if(nzimm)
+                X[2] = X[2] + (signed<10>)nzimm;
+            else
+                raise(0, 2);
         }
         CSRLI {//(RV32 nse)
             encoding: 0b100 :: 0b0 :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
@@ -89,10 +100,13 @@ InstructionSet RV32IC extends RISCVBase{
         CSRAI {//(RV32)
             encoding: 0b100 :: 0b0 :: 0b01 :: rs1[2:0] :: shamt[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
-            behavior: {
+            behavior: if(shamt){
 	            unsigned rs1_idx = rs1+8;
-	            X[rs1_idx] = ((signed)X[rs1_idx])>>shamt;
-            }
+	            X[rs1_idx] = ((signed<XLEN>)X[rs1_idx])>>shamt;
+            } else if(XLEN==128){
+                unsigned rs1_idx = rs1+8;
+                X[rs1_idx] = ((signed<XLEN>)X[rs1_idx])>>64;               
+            } 
         }
         CANDI {//(RV32)
             encoding: 0b100 :: imm[5:5] :: 0b10 :: rs1[2:0] :: imm[4:0] :: 0b01;
@@ -150,20 +164,18 @@ InstructionSet RV32IC extends RISCVBase{
             behavior: if(X[rs1+8]!=0) PC = PC + (signed<9>)imm;
         }
         CSLLI {//(RV32)
-            encoding: 0b000 :: 0b0 :: rs1[4:0] :: shamt[4:0] :: 0b10;
-            args_disass: "{name(rs1)}, {shamt}";
-            behavior: {
-	            if(rs1 == 0) raise(0, 2);
-	            X[rs1] = X[rs1]<< shamt;
-            }
+            encoding: 0b000 :: 0b0 :: rs1[4:0] :: nzuimm[4:0] :: 0b10;
+            args_disass: "{name(rs1)}, {nzuimm}";
+            behavior: if(nzuimm) X[rs1] = X[rs1]<< nzuimm;
         }
         CLWSP {//
             encoding: 0b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 0b10;
             args_disass: "{name(rd)}, sp, {uimm:#05x}";
-            behavior: {
+            behavior: if(rd){
     	        unsigned offs = X[2] + uimm;
 	            X[rd] = (signed<32>)MEM[offs];
-            }
+            } else 
+                raise(0,2);
         }
         // order matters as CJR is a special case of CMV
         CMV {//(RV32)
@@ -174,7 +186,10 @@ InstructionSet RV32IC extends RISCVBase{
         CJR[[no_cont]] {//(RV32)
             encoding: 0b100 :: 0b0 :: rs1[4:0] :: 0b00000 :: 0b10;
             args_disass: "{name(rs1)}";
-            behavior:            PC = X[rs1];
+            behavior: if(rs1)
+                PC = X[rs1];
+            else
+                raise(0,2);
         }
         // order matters as CEBREAK is a special case of CJALR which is a special case of CADD
         CADD {//(RV32)
