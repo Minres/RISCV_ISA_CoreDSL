@@ -172,7 +172,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 0b10;
             args_disass: "{name(rd)}, sp, {uimm:#05x}";
             behavior: if(rd){
-    	        unsigned offs = X[2] + uimm;
+    	        unsigned<XLEN> offs = X[2] + uimm;
 	            X[rd] = (signed<32>)MEM[offs];
             } else 
                 raise(0,2);
