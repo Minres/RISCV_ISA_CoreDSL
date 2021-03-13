@@ -66,8 +66,8 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b010 :: imm[5:5] :: rd[4:0] :: imm[4:0] :: 0b01;
             args_disass: "{name(rd)}, {imm:#05x}";
             behavior: {
-	            if(rd == 0)   //rd==0 is a hint, so no trap
-	               X[rd] = (signed<6>)imm;
+	            if(rd != 0)   //rd==0 is a hint, so no trap
+	               X[rd] = (unsigned<XLEN>)(signed)imm;
             }
         }
         // order matters here as CADDI16SP overwrites CLUI for rd==2
@@ -82,7 +82,7 @@ InstructionSet RV32IC extends RISCVBase{
             }
         }
         CADDI16SP {//(RV32)
-            encoding: 0b011 :: imm[9:9] :: 0b00010 :: nzimm[4:4] :: nzimm[6:6] :: nzimm[8:7] :: nzimm[5:5] :: 0b01;
+            encoding: 0b011 :: nzimm[9:9] :: 0b00010 :: nzimm[4:4] :: nzimm[6:6] :: nzimm[8:7] :: nzimm[5:5] :: 0b01;
             args_disass: "{nzimm:#05x}";
             behavior:  if(nzimm)
                 X[2] = X[2] + (signed<10>)nzimm;
@@ -94,7 +94,7 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(8+rs1)}, {shamt}";
             behavior: {
 	            unsigned rs1_idx = rs1+8;
-	            X[rs1_idx] = X[rs1_idx]<< shamt;
+	            X[rs1_idx] = X[rs1_idx] >> shamt;
             }
         }
         CSRAI {//(RV32)
@@ -102,10 +102,10 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(8+rs1)}, {shamt}";
             behavior: if(shamt){
 	            unsigned rs1_idx = rs1+8;
-	            X[rs1_idx] = ((signed<XLEN>)X[rs1_idx])>>shamt;
+	            X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> shamt;
             } else if(XLEN==128){
                 unsigned rs1_idx = rs1+8;
-                X[rs1_idx] = ((signed<XLEN>)X[rs1_idx])>>64;               
+                X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> 64;               
             } 
         }
         CANDI {//(RV32)
