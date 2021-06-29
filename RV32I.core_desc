@@ -160,7 +160,7 @@ InstructionSet RV32I extends RISCVBase {
         SLTIU {
             encoding: imm[11:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if (rd != 0) X[rd] = X[rs1] < (signed<12>)imm? 1 : 0;
+            behavior: if (rd != 0) X[rd] = (X[rs1] < (unsigned<XLEN>)((signed<12>)imm))? 1 : 0;
         }
         XORI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0010011;
@@ -287,14 +287,14 @@ InstructionSet RV32I extends RISCVBase {
             encoding: csr[11:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1110011;
             args_disass:"{name(rd)}, {csr}, {name(rs1)}";
             behavior: {
-	            unsigned<XLEN> rs_val = X[rs1];
+	            unsigned<XLEN> xrs1 = X[rs1];
 	            if(rd!=0){
-	                unsigned<XLEN> csr_val = CSR[csr];
-	                CSR[csr] = rs_val; 
+	                unsigned<XLEN> xrd = CSR[csr];
+	                CSR[csr] = xrs1; 
 	                // make sure Xrd is updated once CSR write succeeds
-	                X[rd] = csr_val;
+	                X[rd] = xrd;
 	            } else {
-	                CSR[csr] = rs_val;
+	                CSR[csr] = xrs1;
 	            }
             }
         }
@@ -322,27 +322,27 @@ InstructionSet RV32I extends RISCVBase {
             encoding: csr[11:0] :: zimm[4:0] :: 0b101 :: rd[4:0] :: 0b1110011;
             args_disass:"{name(rd)}, {csr}, {zimm:#0x}";
             behavior: {
-	            if(rd!=0) X[rd] = CSR[csr];
+                unsigned<XLEN> xrd = CSR[csr];
 	            CSR[csr] = (unsigned<XLEN>)zimm;    
+                if(rd!=0) X[rd] = xrd;
             }
         }
         CSRRSI {
             encoding: csr[11:0] :: zimm[4:0] :: 0b110 :: rd[4:0] :: 0b1110011;
             args_disass:"{name(rd)}, {csr}, {zimm:#0x}";
             behavior: {
-	            unsigned<XLEN> res = CSR[csr];
-	            if(zimm!=0) CSR[csr] = res | (unsigned<XLEN>)zimm;
-	            // make sure rd is written after csr write succeeds    
-	            if(rd!=0) X[rd] = res;
+	            unsigned<XLEN> xrd = CSR[csr];
+	            if(zimm!=0) CSR[csr] = xrd | (unsigned<XLEN>)zimm;
+	            if(rd!=0) X[rd] = xrd;
             }
         }
         CSRRCI {
             encoding: csr[11:0] :: zimm[4:0] :: 0b111 :: rd[4:0] :: 0b1110011;
             args_disass:"{name(rd)}, {csr}, {zimm:#0x}";
             behavior: {
-	            unsigned<XLEN> res = CSR[csr];
-                if(zimm!=0) CSR[csr] = res & ~((unsigned<XLEN>)zimm);    
-	            if(rd!=0) X[rd] = res;
+	            unsigned<XLEN> xrd = CSR[csr];
+                if(zimm!=0) CSR[csr] = xrd & ~((unsigned<XLEN>)zimm);    
+	            if(rd!=0) X[rd] = xrd;
             }
         }   
     }

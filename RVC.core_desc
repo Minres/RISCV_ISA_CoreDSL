@@ -15,10 +15,9 @@ InstructionSet RV32IC extends RISCVBase{
         CADDI4SPN { //(RES, imm=0)
             encoding: 0b000 :: imm[5:4] :: imm[9:6] :: imm[2:2] :: imm[3:3] :: rd[2:0] :: 0b00;
             args_disass: "{name(rd)}, {imm:#05x}";
-            behavior: {
-            	if(imm == 0) raise(0, 2);
-            	X[rd+8] = X[2] + imm;
-            }
+            behavior:
+            	if(imm) X[rd+8] = X[2] + imm;
+            	else raise(0, 2);
         }
         CLW { // (RV32)
             encoding: 0b010 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 0b00;
@@ -75,19 +74,21 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b011 :: imm[17:17] :: rd[4:0] :: imm[16:12] :: 0b01;
             args_disass: "{name(rd)}, {imm:#05x}";
             behavior: {
-            if(rd == 0) raise(0, 2);   //TODO: should it be handled as trap?
-            if(imm == 0) raise(0, 2);   //TODO: should it be handled as trap?
-            X[rd] = (signed<18>)imm;
-            
+                if(imm == 0) raise(0, 2);
+                if(rd != 0) 
+                    X[rd] = (signed<18>)imm;
             }
         }
         CADDI16SP {//(RV32)
             encoding: 0b011 :: nzimm[9:9] :: 0b00010 :: nzimm[4:4] :: nzimm[6:6] :: nzimm[8:7] :: nzimm[5:5] :: 0b01;
             args_disass: "{nzimm:#05x}";
-            behavior:  if(nzimm)
-                X[2] = X[2] + (signed<10>)nzimm;
-            else
-                raise(0, 2);
+            behavior:  
+                if(nzimm) X[2] = X[2] + (signed<10>)nzimm;
+                else raise(0, 2);
+        }
+        __reserved_clui {//(RV32)
+            encoding: 0b011 :: 0b0 :: rd[4:0] :: 0b00000 :: 0b01;
+            behavior: raise(0, 2);
         }
         CSRLI {//(RV32 nse)
             encoding: 0b100 :: 0b0 :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
@@ -173,7 +174,10 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(rd)}, sp, {uimm:#05x}";
             behavior: if(rd){
     	        unsigned<XLEN> offs = X[2] + uimm;
-	            X[rd] = (signed<32>)MEM[offs];
+                if(eei_aligned_addresses && (offs&0x3))
+                    raise(0, 4);
+                else
+	                X[rd] = (signed<32>)MEM[offs];
             } else 
                 raise(0,2);
         }
@@ -181,28 +185,33 @@ InstructionSet RV32IC extends RISCVBase{
         CMV {//(RV32)
             encoding: 0b100 :: 0b0 :: rd[4:0] :: rs2[4:0] :: 0b10;
             args_disass: "{name(rd)}, {name(rs2)}";
-            behavior:            X[rd] = X[rs2];
+            behavior: if(rd!=0) X[rd] = X[rs2];
         }
         CJR[[no_cont]] {//(RV32)
             encoding: 0b100 :: 0b0 :: rs1[4:0] :: 0b00000 :: 0b10;
             args_disass: "{name(rs1)}";
             behavior: if(rs1)
-                PC = X[rs1];
+                PC = X[rs1] & ~0x1;
             else
                 raise(0,2);
+        }
+        __reserved_cmv {//(RV32)
+            encoding: 0b100 :: 0b0 :: 0b00000 :: 0b00000 :: 0b10;
+            behavior: raise(0,2);
         }
         // order matters as CEBREAK is a special case of CJALR which is a special case of CADD
         CADD {//(RV32)
             encoding: 0b100 :: 0b1 :: rd[4:0] :: rs2[4:0] :: 0b10;
             args_disass: "{name(rd)}, {name(rs2)}";
-            behavior:            X[rd] = X[rd] + X[rs2];
+            behavior: if(rd!=0) X[rd] = X[rd] + X[rs2];
         }
         CJALR[[no_cont]] {//(RV32)
             encoding: 0b100 :: 0b1 :: rs1[4:0] :: 0b00000 :: 0b10;
             args_disass: "{name(rs1)}";
             behavior: {
-	            X[1] = PC+2;
-	            PC=X[rs1];
+                signed<XLEN> new_pc = X[rs1];
+                X[1] = PC+2;
+                PC=new_pc & ~0x1;
             }
         }
         CEBREAK[[no_cont]] {//(RV32)
@@ -214,7 +223,10 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(rs2)}, {uimm:#05x}(sp)";
             behavior: {
 	            unsigned<XLEN> offs = X[2] + uimm;
-	            MEM[offs] = (unsigned<32>)X[rs2];
+                if(eei_aligned_addresses && (offs&0x3))
+                    raise(0, 4);
+                else
+    	            MEM[offs] = (unsigned<32>)X[rs2];
             }
         }
         DII[[no_cont]] { // Defined Illegal Instruction
