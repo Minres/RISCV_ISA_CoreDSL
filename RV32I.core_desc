@@ -78,12 +78,8 @@ InstructionSet RV32I extends RISCVBase {
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
-                if(eei_aligned_addresses && (load_address&0x1))
-                    raise(0, 4);
-                else{
-                    signed<16> res = (signed<16>)MEM[X[rs1] + (signed<12>)imm];
-                    if(rd!=0) X[rd]=res;
-                }
+                signed<16> res = (signed<16>)MEM[X[rs1] + (signed<12>)imm];
+                if(rd!=0) X[rd]=res;
              }    
         }
         LW {
@@ -91,12 +87,8 @@ InstructionSet RV32I extends RISCVBase {
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
-                if(eei_aligned_addresses && (load_address&0x3))
-                    raise(0, 4);
-                else {
-                    signed<32> res = (signed<32>)MEM[X[rs1] + (signed<12>)imm];
-                    if(rd!=0) X[rd]=(unsigned<32>)res;
-                }
+                signed<32> res = (signed<32>)MEM[X[rs1] + (signed<12>)imm];
+                if(rd!=0) X[rd]=(unsigned<32>)res;
             } 
         }
         LBU {
@@ -112,12 +104,8 @@ InstructionSet RV32I extends RISCVBase {
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
-                if(eei_aligned_addresses && (load_address&0x1))
-                    raise(0, 4);
-                else{
-                    unsigned<16> res = (unsigned<16>)MEM[X[rs1] + (signed<12>)imm];
-                    if(rd!=0) X[rd]=res;
-                }
+                unsigned<16> res = (unsigned<16>)MEM[X[rs1] + (signed<12>)imm];
+                if(rd!=0) X[rd]=res;
             }
         }
         SB {
@@ -130,10 +118,7 @@ InstructionSet RV32I extends RISCVBase {
             args_disass:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: { 
                 unsigned<XLEN> store_address = X[rs1] + (signed<12>)imm;
-                if(eei_aligned_addresses && (store_address&0x1))
-                    raise(0, 6);
-                else
-                    MEM[store_address] = (short)X[rs2];
+                MEM[store_address] = (short)X[rs2];
             }
         }
         SW {
@@ -141,10 +126,7 @@ InstructionSet RV32I extends RISCVBase {
             args_disass:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> store_address = X[rs1] + (signed<12>)imm;
-                if(eei_aligned_addresses && (store_address&0x3))
-                    raise(0, 6);
-                else
-                    MEM[store_address] = X[rs2];
+                MEM[store_address] = X[rs2];
             }
         }
         ADDI {

@@ -49,8 +49,6 @@ InstructionSet RISCVBase {
         extern char RES[8]; // reservation address space
         // supplemental state register
         register unsigned<2>    PRIV;
-        // EEI related settings
-        bool eei_aligned_addresses = true;
     }
 
     functions {

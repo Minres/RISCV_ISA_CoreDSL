@@ -24,10 +24,7 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(8+rd)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> load_address = X[rs1+8] + uimm;
-                if(eei_aligned_addresses && (load_address&0x3))
-                    raise(0, 4);
-                else
-    	            X[rd+8] = (signed<32>)MEM[load_address];
+	            X[rd+8] = (signed<32>)MEM[load_address];
             }
         }
         CSW {//(RV32)
@@ -35,10 +32,7 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(8+rs2)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> load_address = X[rs1+8] + uimm;
-                if(eei_aligned_addresses && (load_address&0x3))
-                    raise(0, 6);
-                else
-	                MEM[load_address] = X[rs2+8];
+                MEM[load_address] = X[rs2+8];
             }
         }
         CADDI {//(RV32)
@@ -174,10 +168,7 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(rd)}, sp, {uimm:#05x}";
             behavior: if(rd){
     	        unsigned<XLEN> offs = X[2] + uimm;
-                if(eei_aligned_addresses && (offs&0x3))
-                    raise(0, 4);
-                else
-	                X[rd] = (signed<32>)MEM[offs];
+                X[rd] = (signed<32>)MEM[offs];
             } else 
                 raise(0,2);
         }
@@ -223,10 +214,7 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(rs2)}, {uimm:#05x}(sp)";
             behavior: {
 	            unsigned<XLEN> offs = X[2] + uimm;
-                if(eei_aligned_addresses && (offs&0x3))
-                    raise(0, 4);
-                else
-    	            MEM[offs] = (unsigned<32>)X[rs2];
+	            MEM[offs] = (unsigned<32>)X[rs2];
             }
         }
         DII[[no_cont]] { // Defined Illegal Instruction
