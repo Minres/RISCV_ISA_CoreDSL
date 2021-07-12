@@ -1,210 +1,253 @@
 import "RISCVBase.core_desc"
 
-InsructionSet RV32A extends RISCVBase{
+InstructionSet RV32A extends RISCVBase {
      
     instructions{
-        LR.W {
-            encoding: b00010 | aq[0:0] | rl[0:0]  | b00000 | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        LRW {
+            encoding: 0b00010 :: aq[0:0] :: rl[0:0]  :: 0b00000 :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(aq)}, {name(rl)}";
-            if(rd!=0){
-                val offs[XLEN] <= X[rs1];
-                X[rd]<= sext(MEM[offs]{32}, XLEN);
-                RES[offs]{32}<=sext(-1, 32);
+            behavior: if(rd!=0){
+                unsigned<XLEN> offs = X[rs1];
+                X[rd] = (int<32>)MEM[offs];
+                RES[offs]=-1;
             }
         }
-        SC.W {
-            encoding: b00011 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        SCW {
+            encoding: 0b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}, {name(aq)}, {name(rl)}";
-            val offs[XLEN] <= X[rs1];
-            val res1[32] <= RES[offs]{32};
-            if(res1!=0)
-                MEM[offs]{32} <= X[rs2];
-            if(rd!=0) X[rd]<= choose(res1!=zext(0, 32), 0, 1);
+            behavior:  {
+				unsigned<XLEN> offs = X[rs1];
+            	unsigned<32>  res1 = RES[offs];
+            	if(res1!=0)
+                	MEM[offs] = X[rs2];
+            	if(rd!=0)
+            		X[rd] = res1? 0: 1;
+            }
         }
-        AMOSWAP.W{
-            encoding: b00001 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOSWAPW{
+            encoding: 0b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            if(rd!=0) X[rd]<=sext(MEM[offs]{32});
-            MEM[offs]{32}<=X[rs2];
+            behavior:  {
+	            unsigned<XLEN> offs=X[rs1];
+	            if(rd!=0) X[rd]=(signed<32>)MEM[offs];
+	            MEM[offs]=X[rs2];
+            }
         }
-        AMOADD.W{
-            encoding: b00000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOADDW{
+            encoding: 0b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd]<=res1;
-            val res2[XLEN]<=res1 + X[rs2];
-            MEM[offs]{32}<=res2;
+            behavior:  {
+	            unsigned<XLEN>  offs=X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd]=res1;
+	            unsigned<XLEN>  res2 =res1 + X[rs2];
+	            MEM[offs]=res2;
+            }
         }
-        AMOXOR.W{
-            encoding: b00100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOXORW{
+            encoding: 0b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd]<=res1;
-            val res2[XLEN]<=res1 ^ X[rs2];
-            MEM[offs]{32}<=res2;
+            behavior:  {
+	            unsigned<XLEN> offs = X[rs1];
+	            signed<XLEN> res1 = MEM[offs];
+	            if(rd!=0) X[rd]=res1;
+	            unsigned<XLEN>  res2 =res1 ^ X[rs2];
+	            MEM[offs]=res2;
+            }
         }
-        AMOAND.W{
-            encoding: b01100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOANDW{
+            encoding: 0b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd]<=res1;
-            val res2[XLEN] <=res1 & X[rs2];
-            MEM[offs]{32}<=res2;
+            behavior:  {
+	            unsigned<XLEN> offs=X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd]=res1;
+	            unsigned<XLEN>  res2 =res1 & X[rs2];
+	            MEM[offs]=res2;
+            }
         }
-        AMOOR.W {
-            encoding: b01000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOORW {
+            encoding: 0b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd]<=res1;
-            val res2[XLEN]<=res1 | X[rs2];
-            MEM[offs]{32}<=res2;
+            behavior:  {
+	            unsigned<XLEN>  offs=X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd]=res1;
+	            unsigned<XLEN>  res2=res1 :: X[rs2];
+	            MEM[offs]=res2;
+            }
         }
-        AMOMIN.W{
-            encoding: b10000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOMINW{
+            encoding: 0b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd] <= res1;
-            val res2[XLEN] <= choose(res1's > X[rs2]s, X[rs2], res1);
-            MEM[offs]{32} <= res2;
+            behavior:  {
+	            unsigned<XLEN>  offs=X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd] = res1;
+	            unsigned<XLEN>  res2 = (signed<XLEN>)res1 > (signed<XLEN>)X[rs2]? X[rs2]: res1;
+	            MEM[offs] = res2;
+            }
         }
-        AMOMAX.W{
-            encoding: b10100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOMAXW{
+            encoding: 0b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd]<=res1;
-            val res2[XLEN]<= choose(res1's<X[rs2]s, X[rs2], res1);
-            MEM[offs]{32}<=res2;
+            behavior:  {
+	            unsigned<XLEN>  offs=X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd]=res1;
+	            unsigned<XLEN>  res2= res1<(signed<XLEN>) X[rs2]? X[rs2] : res1;
+	            MEM[offs]=res2;
+            }
         }
-        AMOMINU.W{
-            encoding: b11000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOMINUW{
+            encoding: 0b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd]<=res1;
-            val res2[XLEN]<= choose(res1>X[rs2], X[rs2], res1);
-            MEM[offs]{32}<=res2;
+            behavior:  {
+	            unsigned<XLEN>  offs=X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd]=res1;
+	            unsigned<XLEN>  res2= res1>(signed<XLEN>)X[rs2]? X[rs2] : res1;
+	            MEM[offs]=res2;
+            }
         }
-        AMOMAXU.W{
-            encoding: b11100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b010 | rd[4:0] | b0101111;
+        AMOMAXUW{
+            encoding: 0b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN]<=X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{32});
-            if(rd!=0) X[rd] <= res1;
-            val res2[XLEN] <= choose(res1 < X[rs2], X[rs2], res1);
-            MEM[offs]{32} <= res2;
+            behavior:  {
+	            unsigned<XLEN>  offs=X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd] = res1;
+	            unsigned<XLEN>  res2 = res1 < X[rs2]? X[rs2] : res1;
+	            MEM[offs] = res2;
+            }
         }
     }
 }
 
-InsructionSet RV64A extends RV32A {
+InstructionSet RV64A extends RV32A {
      
     instructions{
-        LR.D {
-            encoding: b00010 | aq[0:0] | rl[0:0]  | b00000 | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        LRD {
+            encoding: 0b00010 :: aq[0:0] :: rl[0:0]  :: 0b00000 :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}";
-            if(rd!=0){
-                val offs[XLEN] <= X[rs1];
-                X[rd]<= sext(MEM[offs]{64}, XLEN);
-                RES[offs]{64}<=sext(-1, 64);
-            }        
-        }
-        SC.D {
-            encoding: b00011 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            val offs[XLEN] <= X[rs1];
-            val res[64] <= RES[offs];
-            if(res!=0){
-                MEM[offs]{64} <= X[rs2];
-                if(rd!=0) X[rd]<=0;
-            } else{ 
-                if(rd!=0) X[rd]<= 1;
+            behavior:  {
+	            if(rd!=0){
+	                unsigned<XLEN>  offs = X[rs1];
+	                X[rd]= (signed<XLEN> )MEM[offs];
+	                RES[offs]=-1;
+	            }
             }
         }
-        AMOSWAP.D{
-            encoding: b00001 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            if(rd!=0) X[rd] <= sext(MEM[offs]{64});
-            MEM[offs]{64} <= X[rs2];            
+        SCD {
+            encoding: 0b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior:  {
+            unsigned<XLEN>  offs = X[rs1];
+            unsigned<XLEN>  res[64] = RES[offs];
+	            if(res!=0){
+	                MEM[offs] = X[rs2];
+	                if(rd!=0) X[rd]=0;
+	            } else{ 
+	                if(rd!=0) X[rd]= 1;
+	            }
+            }
         }
-        AMOADD.D{
-            encoding: b00000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOSWAPD{
+            encoding: 0b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd]<=res;
-            val res2[XLEN] <= res + X[rs2];
-            MEM[offs]{64}<=res2;            
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            if(rd!=0) X[rd] = MEM[offs];
+	            MEM[offs] = X[rs2];            
+            }
         }
-        AMOXOR.D{
-            encoding: b00100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOADDD{
+            encoding: 0b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd] <= res;
-            val res2[XLEN] <= res ^ X[rs2];
-            MEM[offs]{64} <= res2;            
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            signed<XLEN>  res = MEM[offs];
+	            if(rd!=0) X[rd]=res;
+	            unsigned<XLEN>  res2 = res + X[rs2];
+	            MEM[offs]=res2;            
+            }
         }
-        AMOAND.D{
-            encoding: b01100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOXORD{
+            encoding: 0b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd] <= res;
-            val res2[XLEN] <= res & X[rs2];
-            MEM[offs]{64} <= res2;            
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            signed<XLEN>  res = MEM[offs];
+	            if(rd!=0) X[rd] = res;
+	            unsigned<XLEN>  res2 = res ^ X[rs2];
+	            MEM[offs] = res2;            
+            }
         }
-        AMOOR.D {
-            encoding: b01000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOANDD{
+            encoding: 0b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd] <= res;
-            val res2[XLEN] <= res | X[rs2];
-            MEM[offs]{64} <= res2;            
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            signed<XLEN>  res = MEM[offs];
+	            if(rd!=0) X[rd] = res;
+	            unsigned<XLEN>  res2 = res & X[rs2];
+	            MEM[offs] = res2;            
+            }
         }
-        AMOMIN.D{
-            encoding: b10000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOORD {
+            encoding: 0b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd] <= res1;
-            val res2[XLEN] <= choose(res1's > X[rs2]s, X[rs2], res1);
-            MEM[offs]{64} <= res2;
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            signed<XLEN>  res = MEM[offs];
+	            if(rd!=0) X[rd] = res;
+	            unsigned<XLEN>  res2 = res :: X[rs2];
+	            MEM[offs] = res2;            
+            }
         }
-        AMOMAX.D{
-            encoding: b10100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOMIND{
+            encoding: 0b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd] <= res;
-            val res2[XLEN] <= choose(res s < X[rs2]s, X[rs2], res);            
-            MEM[offs]{64} <= res2;            
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            signed<XLEN>  res1 = MEM[offs];
+	            if(rd!=0) X[rd] = res1;
+	            unsigned<XLEN>  res2 = res1 > (signed<XLEN> )X[rs2]? X[rs2] : res1;
+	            MEM[offs] = res2;
+            }
         }
-        AMOMINU.D{
-            encoding: b11000 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOMAXD{
+            encoding: 0b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd] <= res;
-            val res2[XLEN] <= choose(res > X[rs2], X[rs2], res);            
-            MEM[offs]{64} <= res2;            
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            signed<XLEN>  res = MEM[offs];
+	            if(rd!=0) X[rd] = res;
+	            unsigned<XLEN>  res2 = res < (signed<XLEN>)X[rs2]? X[rs2] : res;            
+	            MEM[offs] = res2;            
+            }
         }
-        AMOMAXU.D{
-            encoding: b11100 | aq[0:0] | rl[0:0] | rs2[4:0] | rs1[4:0] | b011 | rd[4:0] | b0101111;
+        AMOMINUD{
+            encoding: 0b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            val offs[XLEN] <= X[rs1];
-            val res1[XLEN] <= sext(MEM[offs]{64});
-            if(rd!=0) X[rd] <= res1;
-            val res2[XLEN] <= choose(res1 < X[rs2], X[rs2], res1);
-            MEM[offs]{64} <= res2;
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            unsigned<XLEN>  res = MEM[offs];
+	            if(rd!=0) X[rd] = res;
+	            unsigned<XLEN>  res2 = res > X[rs2]? X[rs2] : res;            
+	            MEM[offs] = res2;            
+            }
+        }
+        AMOMAXUD{
+            encoding: 0b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
+            behavior:  {
+	            unsigned<XLEN>  offs = X[rs1];
+	            unsigned<XLEN> res1 = MEM[offs];
+	            if(rd!=0) X[rd] = res1;
+	            unsigned<XLEN>  res2 = res1 < X[rs2]? X[rs2] : res1;
+	            MEM[offs] = res2;
+            }
         }
     }
 }

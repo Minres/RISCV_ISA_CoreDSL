@@ -1,3 +1,3 @@
-# CoreDSL-Instruction-Set-Descrition
+# CoreDSL-Instruction-Set-Description of RISC-V
 
-Instruction set description files for CoreDSL
+Instruction set description of the RISC-V standard extensions in CoreDSL2
