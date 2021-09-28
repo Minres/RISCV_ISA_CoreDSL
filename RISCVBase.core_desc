@@ -2,6 +2,7 @@ InstructionSet RISCVBase {
     architectural_state {
         unsigned XLEN;
         unsigned CSR_SIZE=4096;
+        unsigned INSTR_ALIGNMENT=4;
         unsigned fence=0;
         unsigned fencei=1;
         unsigned fencevmal=2;

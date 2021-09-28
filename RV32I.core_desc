@@ -17,8 +17,12 @@ InstructionSet RV32I extends RISCVBase {
             encoding: imm[20:20] :: imm[10:1] :: imm[11:11] :: imm[19:12] :: rd[4:0] :: 0b1101111;
             args_disass: "{name(rd)}, {imm:#0x}";
             behavior: {
-            	if(rd!=0) X[rd] = PC+4;
-            	PC=PC+(signed<21>)imm;
+                if(imm % INSTR_ALIGNMENT) {
+                    raise(0, 0);
+                } else {
+                    if(rd!=0) X[rd] = PC+4;
+                    PC=PC+(signed<21>)imm;
+                }
         	}
         }
         JALR[[no_cont]]{
@@ -26,8 +30,7 @@ InstructionSet RV32I extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {imm:#0x}";
             behavior: {
 	            signed<XLEN> new_pc = X[rs1] + (signed<12>)imm;
-	            signed<XLEN> align = new_pc & 0x2;
-	            if(align != 0){
+                if(new_pc % INSTR_ALIGNMENT) {
 	                raise(0, 0);
 	            } else {
 	                if(rd!=0) X[rd] = PC+4;
@@ -38,32 +41,70 @@ InstructionSet RV32I extends RISCVBase {
         BEQ[[no_cont]] [[cond]]{
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b000 :: imm[4:1] :: imm[11:11] :: 0b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]==X[rs2]) PC = PC + (signed<13>)imm;
+            behavior: {
+                if(X[rs1]==X[rs2])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else 
+                        PC = PC + (signed<13>)imm;
+                
+            }
         }
         BNE[[no_cont]] [[cond]]{
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b001 :: imm[4:1] :: imm[11:11] :: 0b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]!=X[rs2]) PC = PC + (signed<13>)imm;
+            behavior: {
+                if(X[rs1]!=X[rs2])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else 
+                        PC = PC + (signed<13>)imm;
+
+            }
         }
         BLT[[no_cont]] [[cond]]{
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b100 :: imm[4:1] :: imm[11:11] :: 0b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if((signed<XLEN>)X[rs1] < (signed<XLEN>)X[rs2]) PC = PC + (signed<13>)imm;
+            behavior: {
+                if((signed<XLEN>)X[rs1] < (signed<XLEN>)X[rs2])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else 
+                        PC = PC + (signed<13>)imm;
+            }
         }
         BGE[[no_cont]] [[cond]] {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b101 :: imm[4:1] :: imm[11:11] :: 0b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if((signed<XLEN>)X[rs1] >= (signed<XLEN>)X[rs2]) PC = PC + (signed<13>)imm;
+            behavior: {
+                if((signed<XLEN>)X[rs1] >= (signed<XLEN>)X[rs2])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else 
+                        PC = PC + (signed<13>)imm;
+            }
         }
         BLTU[[no_cont]] [[cond]] {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b110 :: imm[4:1] :: imm[11:11] :: 0b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]<X[rs2]) PC = PC + (signed<13>)imm;
+            behavior: {
+                if(X[rs1]<X[rs2])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else 
+                        PC = PC + (signed<13>)imm;
+            }
         }
         BGEU[[no_cont]] [[cond]] {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b111 :: imm[4:1] :: imm[11:11] :: 0b1100011;
             args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]>=X[rs2]) PC = PC + (signed<13>)imm;
+            behavior: {
+                if(X[rs1]>=X[rs2])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else 
+                        PC = PC + (signed<13>)imm;
+            }
         }
         LB {
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0000011;

@@ -1,17 +1,10 @@
 import "RISCVBase.core_desc"
 
 InstructionSet RV32IC extends RISCVBase{
-
+    architectural_state {
+        INSTR_ALIGNMENT=2;
+    }
     instructions{
-         JALR[[no_cont]]{ // overwriting the implementation if rv32i, alignment does not need to be word
-            encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1100111;
-            args_disass: "{name(rd)}, {name(rs1)}, {imm:#0x}";
-            behavior: {
-	            int<XLEN> new_pc = X[rs1] + (signed<12>)imm;
-                if(rd!=0) X[rd] = PC+4;
-                PC=new_pc & ~0x1;
-            }
-        }
         CADDI4SPN { //(RES, imm=0)
             encoding: 0b000 :: imm[5:4] :: imm[9:6] :: imm[2:2] :: imm[3:3] :: rd[2:0] :: 0b00;
             args_disass: "{name(rd)}, {imm:#05x}";
