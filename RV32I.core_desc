@@ -29,7 +29,7 @@ InstructionSet RV32I extends RISCVBase {
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1100111;
             args_disass: "{name(rd)}, {name(rs1)}, {imm:#0x}";
             behavior: {
-	            signed<XLEN> new_pc = X[rs1] + (signed<12>)imm;
+	            signed<XLEN> new_pc = (X[rs1] + (signed<12>)imm) & ~1;
                 if(new_pc % INSTR_ALIGNMENT) {
 	                raise(0, 0);
 	            } else {
