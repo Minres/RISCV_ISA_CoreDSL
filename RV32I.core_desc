@@ -306,6 +306,11 @@ InstructionSet RV32I extends RISCVBase {
             encoding: 0b0001000 :: 0b00101 :: 0b00000 :: 0b000 :: 0b00000 :: 0b1110011;
             behavior: wait(1);
         }
+    }
+}
+
+InstructionSet Zicsr extends RISCVBase {
+    instructions {
         CSRRW {
             encoding: csr[11:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1110011;
             args_disass:"{name(rd)}, {csr}, {name(rs1)}";
@@ -378,16 +383,7 @@ InstructionSet Zifencei extends RISCVBase {
             args_disass:"{name(rs1)}, {name(rd)}, {imm}";
             behavior: FENCE[fencei] = imm;
         }
-        SFENCE_VMA {
-            encoding: 0b0001001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: 0b00000 :: 0b1110011;
-            args_disass:"{name(rs2)}, {rs1}";
-            behavior: {
-                FENCE[fencevmal] = (unsigned)rs1;
-            FENCE[fencevmau] = (unsigned)rs2;
-            }
-        }
-     }
-     
+     }     
  }
      
 
