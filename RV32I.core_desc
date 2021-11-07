@@ -306,6 +306,17 @@ InstructionSet RV32I extends RISCVBase {
             encoding: 0b0001000 :: 0b00101 :: 0b00000 :: 0b000 :: 0b00000 :: 0b1110011;
             behavior: wait(1);
         }
+        DRET {
+            encoding: 0b01111011001000000000000001110011;
+            behavior: {
+                if(PRIV<4)
+                    raise(0, 2);
+                else {
+                    PC=DPC;
+                    PRIV &= 0x3;                    
+                }
+            }
+        }
     }
 }
 

@@ -7,6 +7,7 @@ InstructionSet RISCVBase {
         unsigned fencei=1;
         unsigned fencevmal=2;
         unsigned fencevmau=3;
+        
         // core registers
         register unsigned<XLEN>  X[32];
         register unsigned<XLEN>  PC [[is_pc]];
@@ -49,7 +50,8 @@ InstructionSet RISCVBase {
         extern unsigned<XLEN> FENCE[8];
         extern char RES[8]; // reservation address space
         // supplemental state register
-        register unsigned<2>    PRIV;
+        register unsigned<3>    PRIV=3;
+        register unsigned<XLEN> DPC=0;
     }
 
     functions {
