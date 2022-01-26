@@ -1,452 +1,480 @@
 import "RV32I.core_desc"
 
 // TODO: review instruction description wrt. Spec after type system is fixed
-InstructionSet RV32F extends RV32I{
+InstructionSet RV32F extends Zicsr {
     architectural_state {
-        unsigned FLEN;
-        unsigned FFLAG_MASK = 0x1f;
+        unsigned<32> FLEN;
+        unsigned<32> FFLAG_MASK = 0x1f;
 
-	   	unsigned<FLEN> F[32];
-       	unsigned<32> FCSR;
-    }    
-    functions {
-        extern unsigned fadd_s(unsigned, unsigned, unsigned char);
-        extern unsigned fsub_s(unsigned, unsigned, unsigned char);
-        extern unsigned fmul_s(unsigned, unsigned, unsigned char);
-        extern unsigned fdiv_s(unsigned, unsigned, unsigned char);
-        extern unsigned fmadd_s(unsigned, unsigned, unsigned, unsigned, unsigned char);
-        extern unsigned fsel_s(unsigned, unsigned, unsigned);
-        extern unsigned fsqrt_s(unsigned, unsigned char);
-        extern unsigned fcmp_s(unsigned, unsigned, unsigned);
-        extern unsigned fcvt_s(unsigned, unsigned, unsigned char);
-        extern unsigned long fcvt_32_64(unsigned, unsigned, unsigned char);
-        extern unsigned long fcvt_64_32(unsigned, unsigned, unsigned char);
-        extern unsigned unbox_s(unsigned long);
-        extern unsigned fclass_s(unsigned);
-        extern unsigned fget_flags();
+        register unsigned<FLEN> F[32];
+        unsigned<32>& FCSR = CSR[3];
     }
-    instructions{
+
+    functions {
+        extern unsigned<32> fadd_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fsub_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fmul_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fdiv_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fmadd_s(unsigned<32>, unsigned<32>, unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fsel_s(unsigned<32>, unsigned<32>, unsigned<32>);
+        extern unsigned<32> fsqrt_s(unsigned<32>, unsigned char);
+        extern unsigned<32> fcmp_s(unsigned<32>, unsigned<32>, unsigned<32>);
+        extern unsigned<32> fcvt_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<64> fcvt_32_64(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<64> fcvt_64_32(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> unbox_s(unsigned<64>);
+        extern unsigned<32> fclass_s(unsigned<32>);
+        extern unsigned<32> fget_flags();
+    }
+
+    instructions {
         FLW {
             encoding: imm[11:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0000111;
-            args_disass:"f{rd}, {imm}({name(rs1)})";
+            args_disass:"f {rd}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
                 unsigned<XLEN> res = MEM[offs];
-                if(FLEN==32)
+                if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
+
         FSW {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: imm[4:0] :: 0b0100111;
-            args_disass:"f{rs2}, {imm}({name(rs1)])";
+            args_disass:"f {rs2}, {imm}({name(rs1)])";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                MEM[offs]=F[rs2];
+                MEM[offs] = F[rs2];
             }
         }
+
         FMADD_S {
             encoding: rs3[4:0] :: 0b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1000011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            args_disass:"{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
             behavior: {
-                //F[rd]f= F[rs1]f * F[rs2]f + F[rs3]f;
-                if(FLEN==32)
-    	            F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 0, rm<7? (unsigned char)rm:(unsigned char)FCSR);
+                //F[rd]f = F[rs1]f * F[rs2]f + F[rs3]f;
+                if (FLEN == 32)
+                    F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 0, rm<7? (unsigned char)rm:(unsigned char)FCSR);
                 else { // NaN boxing
-                    unsigned res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 0, rm<7? rm: (unsigned char)FCSR);            
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 0, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FMSUB_S {
             encoding: rs3[4:0] :: 0b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1000111;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            args_disass:"{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
             behavior: {
-                //F[rd]f=F[rs1]f * F[rs2]f - F[rs3]f;
-                if(FLEN==32)
-    	            F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 1UL, rm<7? rm: (unsigned char)FCSR);
+                //F[rd]f = F[rs1]f * F[rs2]f - F[rs3]f;
+                if (FLEN == 32)
+                    F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 1, rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-                    unsigned res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 1U, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 1, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FNMADD_S {
             encoding: rs3[4:0] :: 0b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1001111;
-            args_disass:"{name(rm)}, name(rd), f{rs1}, f{rs2}, f{rs3}";
+            args_disass:"{name(rm)}, name(rd), f {rs1}, f {rs2}, f {rs3}";
             behavior: {
-                //F[rd]f=-F[rs1]f * F[rs2]f + F[rs3]f;
-                if(FLEN==32)
-                    F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 2U, rm<7? rm: (unsigned char)FCSR);
+                //F[rd]f = -F[rs1]f * F[rs2]f + F[rs3]f;
+                if (FLEN == 32)
+                    F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 2, rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-    	            unsigned frs3 = unbox_s(F[rs3]);
-                    unsigned res = fmadd_s(frs1, frs2, frs3, 2U, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> frs3 = unbox_s(F[rs3]);
+                    unsigned<32> res = fmadd_s(frs1, frs2, frs3, 2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FNMSUB_S {
             encoding: rs3[4:0] :: 0b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1001011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            args_disass:"{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
             behavior: {
-            //F[rd]f=-F[rs1]f * F[rs2]f - F[rs3]f;
-                if(FLEN==32)
-    	            F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 3U, rm<7? rm: (unsigned char)FCSR);
+            //F[rd]f = -F[rs1]f * F[rs2]f - F[rs3]f;
+                if (FLEN == 32)
+                    F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 3, rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-    	            unsigned frs3 = unbox_s(F[rs3]);
-                    unsigned res = fmadd_s(frs1, frs2, frs3, 3U, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> frs3 = unbox_s(F[rs3]);
+                    unsigned<32> res = fmadd_s(frs1, frs2, frs3, 3, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FADD_S {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
+            args_disass:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f + F[rs2]f;
-                if(FLEN==32)
-    	            F[rd] = fadd_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                if (FLEN == 32)
+                    F[rd] = fadd_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = fadd_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = fadd_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FSUB_S {
             encoding: 0b0000100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
+            args_disass:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f - F[rs2]f;
-                if(FLEN==32)
-    	            F[rd] = fsub_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                if (FLEN == 32)
+                    F[rd] = fsub_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = fsub_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = fsub_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FMUL_S {
             encoding: 0b0001000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
+            args_disass:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f * F[rs2]f;
-                if(FLEN==32)
-    	            F[rd] = fmul_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                if (FLEN == 32)
+                    F[rd] = fmul_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = fmul_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = fmul_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FDIV_S {
             encoding: 0b0001100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, f{rs1}, f{rs2}";
+            args_disass:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f / F[rs2]f;
-                if(FLEN==32)
-    	            F[rd] = fdiv_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
+                if (FLEN == 32)
+                    F[rd] = fdiv_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = fdiv_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = fdiv_s(frs1, frs2, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FSQRT_S {
             encoding: 0b0101100 :: 0b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, f{rs1}";
+            args_disass:"{name(rm)}, f {rd}, f {rs1}";
             behavior: {
-                //F[rd]f=sqrt(F[rs1]f);
-                if(FLEN==32)
-    	            F[rd] = fsqrt_s(F[rs1], rm<7? rm: (unsigned char)FCSR);
+                //F[rd]f = sqrt(F[rs1]f);
+                if (FLEN == 32)
+                    F[rd] = fsqrt_s(F[rs1], rm<7? rm: (unsigned char)FCSR);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-                    unsigned res = fsqrt_s(frs1, rm<7? rm: (unsigned char)FCSR);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> res = fsqrt_s(frs1, rm<7? rm: (unsigned char)FCSR);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FSGNJ_S {
             encoding: 0b0010000 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                if(FLEN==32)
-    	            F[rd] = (F[rs1] & 0x7fffffff) :: (F[rs2] & 0x80000000);
+                if (FLEN == 32)
+                    F[rd] = F[rs2][31] :: F[rs1][30:0];
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = (frs1 & 0x7fffffff) :: (frs2 & 0x80000000);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = (frs1 & 0x7fffffff) :: (frs2 & 0x80000000);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
+
         FSGNJN_S {
             encoding: 0b0010000 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                if(FLEN==32)
-    	            F[rd] = (F[rs1] & 0x7fffffff) :: (~F[rs2] & 0x80000000);
+                if (FLEN == 32)
+                    F[rd] = ~F[rs2][31:31] :: F[rs1][30:0];
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = (frs1 & 0x7fffffff) :: (~frs2 & 0x80000000);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = (frs1 & 0x7fffffff) :: (~frs2 & 0x80000000);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
+
         FSGNJX_S {
             encoding: 0b0010000 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                if(FLEN==32)
-    	            F[rd] = F[rs1] ^ (F[rs2] & 0x80000000);
+                if (FLEN == 32)
+                    F[rd] = F[rs1] ^ (F[rs2] & 0x80000000);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = frs1 ^ (frs2 & 0x80000000);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = frs1 ^ (frs2 & 0x80000000);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
-        FMIN_S  {
+
+        FMIN_S {
             encoding: 0b0010100 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                //F[rd]f= choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
-                if(FLEN==32)
-    	            F[rd] = fsel_s(F[rs1], F[rs2], 0U);
+                //F[rd]f = choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
+                if (FLEN == 32)
+                    F[rd] = fsel_s(F[rs1], F[rs2], 0);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = fsel_s(frs1, frs2, 0U);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = fsel_s(frs1, frs2, 0);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FMAX_S {
             encoding: 0b0010100 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                //F[rd]f= choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
-                if(FLEN==32)
-    	            F[rd] = fsel_s(F[rs1], F[rs2], 1U);
+                //F[rd]f = choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
+                if (FLEN == 32)
+                    F[rd] = fsel_s(F[rs1], F[rs2], 1);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                    unsigned res = fsel_s(frs1, frs2, 1U);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    unsigned<32> res = fsel_s(frs1, frs2, 1);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FCVT_W_S {
             encoding: 0b1100000 :: 0b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            args_disass:"{name(rm)}, {name(rd)}, f {rs1}";
             behavior: {
-                if(FLEN==32)
-    	            X[rd] = fcvt_s(F[rs1], 0U, rm);
+                if (FLEN == 32)
+                    X[rd] = fcvt_s(F[rs1], 0, rm);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-                    X[rd]= fcvt_s(frs1, 0U, rm);
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    X[rd] = fcvt_s(frs1, 0, rm);
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FCVT_WU_S {
             encoding: 0b1100000 :: 0b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            args_disass:"{name(rm)}, {name(rd)}, f {rs1}";
             behavior: {
                 //FIXME: according to the spec it should be zero-extended not sign extended
-                if(FLEN==32)
-               		 X[rd]= fcvt_s(F[rs1], 1U, rm);
+                if (FLEN == 32)
+                      X[rd] = fcvt_s(F[rs1], 1, rm);
                 else { // NaN boxing
-    	            unsigned frs1 = unbox_s(F[rs1]);
-                    X[rd]= fcvt_s(frs1, 1U, rm);
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    X[rd] = fcvt_s(frs1, 1, rm);
                 }
-                unsigned flags = fget_flags();
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FEQ_S {
             encoding: 0b1010000 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
+            args_disass:"{name(rd)}, f {rs1}, f {rs2}";
             behavior: {
-                if(FLEN==32)
-    	            X[rd]=fcmp_s(F[rs1], F[rs2], 0U);
-    	        else {
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-    	            X[rd]=fcmp_s(frs1, frs2, 0U);	        
-    	        }
-                unsigned flags = fget_flags();
+                if (FLEN == 32)
+                    X[rd] = fcmp_s(F[rs1], F[rs2], 0);
+                else {
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    X[rd] = fcmp_s(frs1, frs2, 0);
+                }
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FLT_S {
             encoding: 0b1010000 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
+            args_disass:"{name(rd)}, f {rs1}, f {rs2}";
             behavior: {
-                if(FLEN==32)
-                	X[rd]=fcmp_s(F[rs1], F[rs2], 2U);
-    	        else {
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-                	X[rd]=fcmp_s(frs1, frs2, 2U);
+                if (FLEN == 32)
+                    X[rd] = fcmp_s(F[rs1], F[rs2], 2);
+                else {
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    X[rd] = fcmp_s(frs1, frs2, 2);
                 }
-                X[rd]=fcmp_s((unsigned)F[rs1], (unsigned)F[rs2], 2U);
-                unsigned flags = fget_flags();
+                X[rd] = fcmp_s((unsigned)F[rs1], (unsigned)F[rs2], 2);
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FLE_S {
             encoding: 0b1010000 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
+            args_disass:"{name(rd)}, f {rs1}, f {rs2}";
             behavior: {
-                if(FLEN==32)
-    	            X[rd]=fcmp_s(F[rs1], F[rs2], 1U);
-    	        else {
-    	            unsigned frs1 = unbox_s(F[rs1]);
-    	            unsigned frs2 = unbox_s(F[rs2]);
-    	            X[rd]=fcmp_s(frs1, frs2, 1U);
-    	        }
-                unsigned flags = fget_flags();
+                if (FLEN == 32)
+                    X[rd] = fcmp_s(F[rs1], F[rs2], 1);
+                else {
+                    unsigned<32> frs1 = unbox_s(F[rs1]);
+                    unsigned<32> frs2 = unbox_s(F[rs2]);
+                    X[rd] = fcmp_s(frs1, frs2, 1);
+                }
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FCLASS_S {
             encoding: 0b1110000 :: 0b00000 :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}";
+            args_disass:"{name(rd)}, f {rs1}";
             behavior: {
-                X[rd]=fclass_s(unbox_s(F[rs1]));
+                X[rd] = fclass_s(unbox_s(F[rs1]));
             }
         }
+
         FCVT_S_W {
             encoding: 0b1101000 :: 0b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            args_disass:"{name(rm)}, f {rd}, {name(rs1)}";
             behavior: {
-                if(FLEN==32)
-    	            F[rd]  = fcvt_s((unsigned)X[rs1], 2U, rm);
+                if (FLEN == 32)
+                    F[rd] = fcvt_s((unsigned)X[rs1], 2, rm);
                 else { // NaN boxing
-                    unsigned res = fcvt_s((unsigned)X[rs1], 2U, rm);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> res = fcvt_s((unsigned)X[rs1], 2, rm);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
+
         FCVT_S_WU {
             encoding: 0b1101000 :: 0b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            args_disass:"{name(rm)}, f {rd}, {name(rs1)}";
             behavior: {
-                if(FLEN==32)
-        	        F[rd]  =fcvt_s((unsigned)X[rs1], 3U, rm);
+                if (FLEN == 32)
+                    F[rd] = fcvt_s((unsigned)X[rs1], 3, rm);
                 else { // NaN boxing
-                    unsigned res =fcvt_s((unsigned)X[rs1], 3U, rm);
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                    unsigned<32> res = fcvt_s((unsigned)X[rs1], 3, rm);
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
+
         FMV_X_W {
             encoding: 0b1110000 :: 0b00000 :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}";
+            args_disass:"{name(rd)}, f {rs1}";
             behavior: {
-                X[rd]=F[rs1];
+                X[rd] = F[rs1];
             }
         }
+
         FMV_W_X {
             encoding: 0b1111000 :: 0b00000 :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, {name(rs1)}";
+            args_disass:"f {rd}, {name(rs1)}";
             behavior: {
-                if(FLEN==32)
+                if (FLEN == 32)
                     F[rd] = X[rs1];
                 else { // NaN boxing
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)X[rs1];
+                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)X[rs1];
                 }
             }
         }
     }
 }
 
-InstructionSet RV64F extends RV32F{
-
-    instructions{
+InstructionSet RV64F extends RV32F {
+    instructions {
         FCVT_L_S { // fp to 64bit signed integer
             encoding: 0b1100000 :: 0b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            args_disass:"{name(rm)}, {name(rd)}, f {rs1}";
             behavior: {
-                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 0U, rm);
-                X[rd]= res;
-                unsigned flags = fget_flags();
+                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 0, rm);
+                X[rd] = res;
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
+
         FCVT_LU_S { // fp to 64bit unsigned integer
             encoding: 0b1100000 :: 0b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            args_disass:"{name(rm)}, {name(rd)}, f {rs1}";
             behavior: {
-                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 1U, rm);
-                X[rd]= res;
-                unsigned flags = fget_flags();
+                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 1, rm);
+                X[rd] = res;
+                unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-        FCVT_S_L { // 64bit signed int to to fp 
+
+        FCVT_S_L { // 64bit signed int to to fp
             encoding: 0b1101000 :: 0b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            args_disass:"{name(rm)}, f {rd}, {name(rs1)}";
             behavior: {
-                unsigned res = fcvt_64_32(X[rs1], 2U, rm);
-                if(FLEN==32)
+                unsigned<32> res = fcvt_64_32(X[rs1], 2, rm);
+                if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                        F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                        F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
-        FCVT_S_LU { // 64bit unsigned int to to fp 
+
+        FCVT_S_LU { // 64bit unsigned int to to fp
             encoding: 0b1101000 :: 0b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            args_disass:"{name(rm)}, f {rd}, {name(rs1)}";
             behavior: {
-                unsigned res =fcvt_64_32(X[rs1], 3U, rm);
-                if(FLEN==32)
+                unsigned<32> res = fcvt_64_32(X[rs1], 3, rm);
+                if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                        F[rd] = (-1<<32) | (unsigned<FLEN>)res;
+                        F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
-	}
+    }
 }
-    

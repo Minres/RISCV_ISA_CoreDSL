@@ -1,252 +1,270 @@
 import "RISCVBase.core_desc"
 
 InstructionSet RV32A extends RISCVBase {
-     
-    instructions{
+    instructions {
         LRW {
-            encoding: 0b00010 :: aq[0:0] :: rl[0:0]  :: 0b00000 :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
+            encoding: 0b00010 :: aq[0:0] :: rl[0:0] :: 0b00000 :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(aq)}, {name(rl)}";
-            behavior: if(rd!=0){
+            behavior: if (rd != 0) {
                 unsigned<XLEN> offs = X[rs1];
-                X[rd] = (int<32>)MEM[offs];
-                RES[offs]=-1;
+                X[rd] = (signed<32>)MEM[offs];
+                RES[offs] = -1;
             }
         }
+
         SCW {
             encoding: 0b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}, {name(aq)}, {name(rl)}";
-            behavior:  {
-				unsigned<XLEN> offs = X[rs1];
-            	unsigned<32>  res1 = RES[offs];
-            	if(res1!=0)
-                	MEM[offs] = X[rs2];
-            	if(rd!=0)
-            		X[rd] = res1? 0: 1;
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<32> res1 = RES[offs];
+                if (res1 != 0)
+                    MEM[offs] = X[rs2];
+                if (rd != 0)
+                    X[rd] = res1 ? 0 : 1;
             }
         }
-        AMOSWAPW{
+
+        AMOSWAPW {
             encoding: 0b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN> offs=X[rs1];
-	            if(rd!=0) X[rd]=(signed<32>)MEM[offs];
-	            MEM[offs]=X[rs2];
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                if (rd != 0) X[rd] = (signed<32>)MEM[offs];
+                MEM[offs] = X[rs2];
             }
         }
-        AMOADDW{
+
+        AMOADDW {
             encoding: 0b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs=X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd]=res1;
-	            unsigned<XLEN>  res2 =res1 + X[rs2];
-	            MEM[offs]=res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1 + X[rs2];
+                MEM[offs] = res2;
             }
         }
-        AMOXORW{
+
+        AMOXORW {
             encoding: 0b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN> offs = X[rs1];
-	            signed<XLEN> res1 = MEM[offs];
-	            if(rd!=0) X[rd]=res1;
-	            unsigned<XLEN>  res2 =res1 ^ X[rs2];
-	            MEM[offs]=res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1 ^ X[rs2];
+                MEM[offs] = res2;
             }
         }
-        AMOANDW{
+
+        AMOANDW {
             encoding: 0b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN> offs=X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd]=res1;
-	            unsigned<XLEN>  res2 =res1 & X[rs2];
-	            MEM[offs]=res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1 & X[rs2];
+                MEM[offs] = res2;
             }
         }
+
         AMOORW {
             encoding: 0b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs=X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd]=res1;
-	            unsigned<XLEN>  res2=res1 :: X[rs2];
-	            MEM[offs]=res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1 | X[rs2];
+                MEM[offs] = res2;
             }
         }
-        AMOMINW{
+
+        AMOMINW {
             encoding: 0b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs=X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd] = res1;
-	            unsigned<XLEN>  res2 = (signed<XLEN>)res1 > (signed<XLEN>)X[rs2]? X[rs2]: res1;
-	            MEM[offs] = res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = (signed<XLEN>)res1 > (signed<XLEN>)X[rs2] ? X[rs2] : res1;
+                MEM[offs] = res2;
             }
         }
-        AMOMAXW{
+
+        AMOMAXW {
             encoding: 0b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs=X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd]=res1;
-	            unsigned<XLEN>  res2= res1<(signed<XLEN>) X[rs2]? X[rs2] : res1;
-	            MEM[offs]=res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1<(signed<XLEN>) X[rs2] ? X[rs2] : res1;
+                MEM[offs] = res2;
             }
         }
-        AMOMINUW{
+
+        AMOMINUW {
             encoding: 0b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs=X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd]=res1;
-	            unsigned<XLEN>  res2= res1>(signed<XLEN>)X[rs2]? X[rs2] : res1;
-	            MEM[offs]=res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1>(signed<XLEN>)X[rs2] ? X[rs2] : res1;
+                MEM[offs] = res2;
             }
         }
-        AMOMAXUW{
+
+        AMOMAXUW {
             encoding: 0b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs=X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd] = res1;
-	            unsigned<XLEN>  res2 = res1 < X[rs2]? X[rs2] : res1;
-	            MEM[offs] = res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1 < X[rs2] ? X[rs2] : res1;
+                MEM[offs] = res2;
             }
         }
     }
 }
 
 InstructionSet RV64A extends RV32A {
-     
-    instructions{
+    instructions {
         LRD {
-            encoding: 0b00010 :: aq[0:0] :: rl[0:0]  :: 0b00000 :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
+            encoding: 0b00010 :: aq[0:0] :: rl[0:0] :: 0b00000 :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}";
-            behavior:  {
-	            if(rd!=0){
-	                unsigned<XLEN>  offs = X[rs1];
-	                X[rd]= (signed<XLEN> )MEM[offs];
-	                RES[offs]=-1;
-	            }
+            behavior: {
+                if (rd != 0) {
+                    unsigned<XLEN> offs = X[rs1];
+                    X[rd] = (signed<XLEN>)MEM[offs];
+                    RES[offs] = -1;
+                }
             }
         }
+
         SCD {
             encoding: 0b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior:  {
-            unsigned<XLEN>  offs = X[rs1];
-            unsigned<XLEN>  res[64] = RES[offs];
-	            if(res!=0){
-	                MEM[offs] = X[rs2];
-	                if(rd!=0) X[rd]=0;
-	            } else{ 
-	                if(rd!=0) X[rd]= 1;
-	            }
+            behavior: {
+            unsigned<XLEN> offs = X[rs1];
+            unsigned<XLEN> res[64] = RES[offs];
+                if (res != 0) {
+                    MEM[offs] = X[rs2];
+                    if (rd != 0) X[rd] = 0;
+                } else {
+                    if (rd != 0) X[rd] = 1;
+                }
             }
         }
-        AMOSWAPD{
+
+        AMOSWAPD {
             encoding: 0b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            if(rd!=0) X[rd] = MEM[offs];
-	            MEM[offs] = X[rs2];            
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                if (rd != 0) X[rd] = MEM[offs];
+                MEM[offs] = X[rs2];
             }
         }
-        AMOADDD{
+
+        AMOADDD {
             encoding: 0b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            signed<XLEN>  res = MEM[offs];
-	            if(rd!=0) X[rd]=res;
-	            unsigned<XLEN>  res2 = res + X[rs2];
-	            MEM[offs]=res2;            
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res = MEM[offs];
+                if (rd != 0) X[rd] = res;
+                unsigned<XLEN> res2 = res + X[rs2];
+                MEM[offs] = res2;
             }
         }
-        AMOXORD{
+
+        AMOXORD {
             encoding: 0b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            signed<XLEN>  res = MEM[offs];
-	            if(rd!=0) X[rd] = res;
-	            unsigned<XLEN>  res2 = res ^ X[rs2];
-	            MEM[offs] = res2;            
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res = MEM[offs];
+                if (rd != 0) X[rd] = res;
+                unsigned<XLEN> res2 = res ^ X[rs2];
+                MEM[offs] = res2;
             }
         }
-        AMOANDD{
+
+        AMOANDD {
             encoding: 0b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            signed<XLEN>  res = MEM[offs];
-	            if(rd!=0) X[rd] = res;
-	            unsigned<XLEN>  res2 = res & X[rs2];
-	            MEM[offs] = res2;            
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res = MEM[offs];
+                if (rd != 0) X[rd] = res;
+                unsigned<XLEN> res2 = res & X[rs2];
+                MEM[offs] = res2;
             }
         }
+
         AMOORD {
             encoding: 0b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            signed<XLEN>  res = MEM[offs];
-	            if(rd!=0) X[rd] = res;
-	            unsigned<XLEN>  res2 = res :: X[rs2];
-	            MEM[offs] = res2;            
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res = MEM[offs];
+                if (rd != 0) X[rd] = res;
+                unsigned<XLEN> res2 = res :: X[rs2];
+                MEM[offs] = res2;
             }
         }
-        AMOMIND{
+
+        AMOMIND {
             encoding: 0b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            signed<XLEN>  res1 = MEM[offs];
-	            if(rd!=0) X[rd] = res1;
-	            unsigned<XLEN>  res2 = res1 > (signed<XLEN> )X[rs2]? X[rs2] : res1;
-	            MEM[offs] = res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1 > (signed<XLEN> )X[rs2] ? X[rs2] : res1;
+                MEM[offs] = res2;
             }
         }
-        AMOMAXD{
+
+        AMOMAXD {
             encoding: 0b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            signed<XLEN>  res = MEM[offs];
-	            if(rd!=0) X[rd] = res;
-	            unsigned<XLEN>  res2 = res < (signed<XLEN>)X[rs2]? X[rs2] : res;            
-	            MEM[offs] = res2;            
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                signed<XLEN> res = MEM[offs];
+                if (rd != 0) X[rd] = res;
+                unsigned<XLEN> res2 = res < (signed<XLEN>)X[rs2] ? X[rs2] : res;
+                MEM[offs] = res2;
             }
         }
-        AMOMINUD{
+
+        AMOMINUD {
             encoding: 0b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            unsigned<XLEN>  res = MEM[offs];
-	            if(rd!=0) X[rd] = res;
-	            unsigned<XLEN>  res2 = res > X[rs2]? X[rs2] : res;            
-	            MEM[offs] = res2;            
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<XLEN> res = MEM[offs];
+                if (rd != 0) X[rd] = res;
+                unsigned<XLEN> res2 = res > X[rs2] ? X[rs2] : res;
+                MEM[offs] = res2;
             }
         }
-        AMOMAXUD{
+
+        AMOMAXUD {
             encoding: 0b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0101111;
-            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu={aq},rel={rl})";
-            behavior:  {
-	            unsigned<XLEN>  offs = X[rs1];
-	            unsigned<XLEN> res1 = MEM[offs];
-	            if(rd!=0) X[rd] = res1;
-	            unsigned<XLEN>  res2 = res1 < X[rs2]? X[rs2] : res1;
-	            MEM[offs] = res2;
+            args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            behavior: {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<XLEN> res1 = MEM[offs];
+                if (rd != 0) X[rd] = res1;
+                unsigned<XLEN> res2 = res1 < X[rs2] ? X[rs2] : res1;
+                MEM[offs] = res2;
             }
         }
     }
