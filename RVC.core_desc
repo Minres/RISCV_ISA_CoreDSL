@@ -249,171 +249,181 @@ InstructionSet RV32IC extends RV32I {
     }
 }
 
-/*
 InstructionSet RV32FC extends RV32F {
-    constants {
-        FLEN
-    }
-    registers {
-        [31:0] F[FLEN]
-    }
     instructions {
         CFLW {
             encoding: 0b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 0b00;
             args_disass:"f(8+{rd}), {uimm}({name(8+rs1)})";
-            val offs[XLEN] < = X[rs1+8]+uimm;
-            val res[32] < = MEM[offs]{32};
-            if (FLEN == 32)
-                F[rd+8] < = res;
-            else { // NaN boxing
-                val upper[FLEN] < = -1;
-                F[rd+8] < = (upper<<32) :: zext(res, FLEN);
+            behavior: {
+                unsigned<XLEN> offs = X[rs1+8]+uimm;
+                unsigned<32> res = (unsigned<32>)MEM[offs];
+                if (FLEN == 32)
+                    F[rd + 8] = res;
+                else { // NaN boxing
+                    unsigned<FLEN> upper = -1;
+                    F[rd + 8] = (upper << 32) | res;
+                }
             }
         }
+
         CFSW {
             encoding: 0b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 0b00;
             args_disass:"f(8+{rs2}), {uimm}({name(8+rs1)})";
-            val offs[XLEN] < = X[rs1+8]+uimm;
-            MEM[offs]{32} <= F[rs2+8]{32};
-        }
-        CFLWSP {
-            encoding:b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 0b10;
-            args_disass:"f {rd}, {uimm}(x2)";
-            val offs[XLEN] < = X[2]+uimm;
-            val res[32] < = MEM[offs]{32};
-            if (FLEN == 32)
-                F[rd] < = res;
-            else { // NaN boxing
-                val upper[FLEN] < = -1;
-                F[rd] < = (upper<<32) :: zext(res, FLEN);
+            behavior: {
+                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
+                MEM[offs] = (unsigned<32>)F[rs2 + 8];
             }
         }
+
+        CFLWSP {
+            encoding: 0b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 0b10;
+            args_disass:"f {rd}, {uimm}(x2)";
+            behavior: {
+                unsigned<XLEN> offs = X[2]+uimm;
+                unsigned<32> res = (unsigned<32>)MEM[offs];
+                if (FLEN == 32)
+                    F[rd] = res;
+                else { // NaN boxing
+                    unsigned<FLEN> upper = -1;
+                    F[rd] = (upper << 32) | res;
+                }
+            }
+        }
+
         CFSWSP {
-            encoding:b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 0b10;
+            encoding: 0b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 0b10;
             args_disass:"f {rs2}, {uimm}(x2), ";
-            val offs[XLEN] < = X[2]+uimm;
-            MEM[offs]{32} <= F[rs2]{32};
+            behavior: {
+                unsigned<XLEN> offs = X[2] + uimm;
+                MEM[offs] = (unsigned<32>)F[rs2];
+            }
         }
     }
 }
 
 InstructionSet RV32DC extends RV32D {
-    constants {
-        FLEN
-    }
-    registers {
-        [31:0] F[FLEN]
-    }
     instructions {
         CFLD { //(RV32/64)
             encoding: 0b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 0b00;
             args_disass:"f(8+{rd}), {uimm}({name(8+rs1)})";
-            val offs[XLEN] < = X[rs1+8]+uimm;
-            val res[64] < = MEM[offs]{64};
-            if (FLEN == 64)
-                F[rd+8] < = res;
-            else { // NaN boxing
-                val upper[FLEN] < = -1;
-                F[rd+8] < = (upper<<64) :: res;
+            behavior: {
+                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
+                unsigned<64> res = (unsigned<64>)MEM[offs];
+                if (FLEN == 64)
+                    F[rd+8] = res;
+                else { // NaN boxing
+                    unsigned<FLEN> upper = -1;
+                    F[rd+8] = (upper << 64) | res;
+                }
             }
-         }
+        }
+
         CFSD { //(RV32/64)
             encoding: 0b101 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 0b00;
             args_disass:"f(8+{rs2}), {uimm}({name(8+rs1)})";
-            val offs[XLEN] < = X[rs1+8]+uimm;
-            MEM[offs]{64} <= F[rs2+8]{64};
-        }
-        CFLDSP {//(RV32/64)
-            encoding:b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 0b10;
-            args_disass:"f {rd}, {uimm}(x2)";
-            val offs[XLEN] < = X[2]+uimm;
-            val res[64] < = MEM[offs]{64};
-            if (FLEN == 64)
-                F[rd] < = res;
-            else { // NaN boxing
-                val upper[FLEN] < = -1;
-                F[rd] < = (upper<<64) :: zext(res, FLEN);
+            behavior: {
+                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
+                MEM[offs] = (unsigned<64>)F[rs2 + 8];
             }
         }
+
+        CFLDSP {//(RV32/64)
+            encoding: 0b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 0b10;
+            args_disass:"f {rd}, {uimm}(x2)";
+            behavior: {
+                unsigned<XLEN> offs = X[2] + uimm;
+                unsigned<64> res = (unsigned<64>)MEM[offs];
+                if (FLEN == 64)
+                    F[rd] = res;
+                else { // NaN boxing
+                    unsigned<FLEN> upper = -1;
+                    F[rd] = (upper << 64) | res;
+                }
+            }
+        }
+
         CFSDSP {//(RV32/64)
-            encoding:b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 0b10;
+            encoding: 0b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 0b10;
             args_disass:"f {rs2}, {uimm}(x2), ";
-            val offs[XLEN] < = X[2]+uimm;
-            MEM[offs]{64} <= F[rs2]{64};
+            behavior: {
+                unsigned<XLEN> offs = X[2] + uimm;
+                MEM[offs] = (unsigned<64>)F[rs2];
+            }
         }
     }
 }
 
+/*
 InstructionSet RV64IC extends RV32IC {
 
     instructions {
         CLD {//(RV64/128)
             encoding:b011 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 0b00;
             args_disass: "{name(8+rd)}, {uimm},({name(8+rs1)})";
-            val offs[XLEN] < = X[rs1+8] + uimm;
-            X[rd+8] <= sext(MEM[offs]{64});
+            unsigned<XLEN> offs = X[rs1+8] + uimm;
+            X[rd+8] = (signed<64>)MEM[offs];
         }
         CSD { //(RV64/128)
             encoding:b111 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 0b00;
             args_disass: "{name(8+rs2)}, {uimm},({name(8+rs1)})";
-            val offs[XLEN] < = X[rs1+8] + uimm;
-            MEM[offs]{64} < = X[rs2+8];
+            unsigned<XLEN> offs = X[rs1+8] + uimm;
+            MEM[offs] = (signed<64>)X[rs2+8];
         }
         CSUBW {//(RV64/128, RV32 res)
             encoding:b100 :: 0b1 :: 0b11 :: rd[2:0] :: 0b00 :: rs2[2:0] :: 0b01;
             args_disass: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
-            val res[32] < = X[rd+8]{32} - X[rs2+8]{32};
-            X[rd+8] < = sext(res);
+            unsigned<32> res = (unsigned<32>)X[rd+8] - (unsigned<32>)X[rs2+8];
+            X[rd+8] = (signed)res;
         }
         CADDW {//(RV64/128 RV32 res)
             encoding:b100 :: 0b1 :: 0b11 :: rd[2:0] :: 0b01 :: rs2[2:0] :: 0b01;
             args_disass: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
-            val res[32] < = X[rd+8]{32} + X[rs2+8]{32};
-            X[rd+8] < = sext(res);
+            unsigned<32> res = (unsigned<32>)X[rd+8] + (unsigned<32>)X[rs2+8];
+            X[rd+8] = (signed)res;
         }
         CADDIW {//(RV64/128)
-            encoding:b001 :: imm[5:5]s :: rs1[4:0] :: imm[4:0]s :: 0b01;
+            encoding:b001 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 0b01;
             args_disass: "{name(rs1)}, {imm:#05x}";
             if (rs1 != 0) {
-                val res[32] < = X[rs1]{32}'s + imm;
-                X[rs1] < = sext(res);
+                unsigned<32> res = (signed)X[rs1] + (signed)imm;
+                X[rs1] = (signed)res;
             }
         }
         CSRLI {//(RV64)
             encoding:b100 :: shamt[5:5] :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] < = rs1+8;
-            X[rs1_idx] < = shrl(X[rs1_idx], shamt);
+            val rs1_idx[5] = rs1+8;
+            X[rs1_idx] = shrl(X[rs1_idx], shamt);
         }
         CSRLI64 {//(RV64)
             encoding:b1000 :: 0b00 :: rs1[2:0] :: 00000 :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] < = rs1+8;
-            X[rs1_idx] < = shrl(X[rs1_idx], shamt);
+            val rs1_idx[5] = rs1+8;
+            X[rs1_idx] = shrl(X[rs1_idx], shamt);
         }
         CSRAI {//(RV64)
             encoding:b100 :: shamt[5:5] :: 0b01 :: rs1[2:0] :: shamt[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] < = rs1+8;
-            X[rs1_idx] < = shra(X[rs1_idx], shamt);
+            val rs1_idx[5] = rs1+8;
+            X[rs1_idx] = shra(X[rs1_idx], shamt);
         }
         CSLLI {//(RV64)
             encoding:b000 :: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 0b10;
             args_disass: "{name(rs1)}, {shamt}";
             if (rs1 == 0) raise(0, 2);
-            X[rs1] < = shll(X[rs1], shamt);
+            X[rs1] = shll(X[rs1], shamt);
         }
         CLDSP {//(RV64/128
             encoding:b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 0b10;
             args_disass:"{name(rd)}, {uimm}(sp)";
-            val offs[XLEN] < = X[2] + uimm;
-            if (rd != 0) X[rd] <= sext(MEM[offs]{64});
+            unsigned<XLEN> offs = X[2] + uimm;
+            if (rd != 0) X[rd] = sext(MEM[offs]{64});
         }
         CSDSP {//(RV64/128)
             encoding:b111 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 0b10;
             args_disass:"{name(rs2)}, {uimm}(sp)";
-            val offs[XLEN] < = X[2] + uimm;
-            MEM[offs]{64} < = X[rs2];
+            unsigned<XLEN> offs = X[2] + uimm;
+            MEM[offs]{64} = X[rs2];
         }
     }
 }
@@ -424,20 +434,20 @@ InstructionSet RV128IC extends RV64IC {
         CSRLI {//(RV128)
             encoding:b100 :: shamt[5:5] :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] < = rs1+8;
-            X[rs1_idx] < = shrl(X[rs1_idx], shamt);
+            val rs1_idx[5] = rs1+8;
+            X[rs1_idx] = shrl(X[rs1_idx], shamt);
         }
         CSRAI {//(RV128)
             encoding:b100 :: shamt[5:5] :: 0b01 :: rs1[2:0] :: shamt[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] < = rs1+8;
-            X[rs1_idx] < = shra(X[rs1_idx], shamt);
+            val rs1_idx[5] = rs1+8;
+            X[rs1_idx] = shra(X[rs1_idx], shamt);
         }
         CSLLI {//(RV128)
             encoding:b000 :: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 0b10;
             args_disass: "{name(rs1)}, {shamt}";
             if (rs1 == 0) raise(0, 2);
-            X[rs1] < = shll(X[rs1], shamt);
+            X[rs1] = shll(X[rs1], shamt);
         }
         CLQ { //(RV128)
              encoding:b001 :: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 0b00;
