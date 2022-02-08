@@ -10,7 +10,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 0b000 :: imm[5:4] :: imm[9:6] :: imm[2:2] :: imm[3:3] :: rd[2:0] :: 0b00;
             args_disass: "{name(rd)}, {imm:#05x}";
             behavior:
-                if (imm) X[rd+8] = X[2] + imm;
+                if (imm) X[rd + 8] = X[2] + imm;
                 else raise(0, 2);
         }
 
@@ -18,8 +18,8 @@ InstructionSet RV32IC extends RV32I {
             encoding: 0b010 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 0b00;
             args_disass: "{name(8+rd)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> load_address = X[rs1+8] + uimm;
-                X[rd+8] = (signed<32>)MEM[load_address];
+                unsigned<XLEN> load_address = X[rs1 + 8] + uimm;
+                X[rd + 8] = (signed<32>)MEM[load_address];
             }
         }
 
@@ -162,7 +162,7 @@ InstructionSet RV32IC extends RV32I {
         CBEQZ [[no_cont]] [[cond]] {//(RV32)
             encoding: 0b110 :: imm[8:8] :: imm[4:3] :: rs1[2:0] :: imm[7:6] :: imm[2:1] :: imm[5:5] :: 0b01;
             args_disass: "{name(8+rs1)}, {imm:#05x}";
-            behavior: if (X[rs1+8] == 0) PC = PC + (signed<9>)imm;
+            behavior: if (X[rs1 + 8] == 0) PC = PC + (signed<9>)imm;
         }
 
         CBNEZ [[no_cont]] [[cond]] {//(RV32)

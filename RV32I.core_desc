@@ -35,7 +35,7 @@ InstructionSet RV32I extends RISCVBase {
                 if (new_pc % INSTR_ALIGNMENT) {
                     raise(0, 0);
                 } else {
-                    if (rd != 0) X[rd] = PC+4;
+                    if (rd != 0) X[rd] = PC + 4;
                     PC = new_pc & ~0x1;
                 }
             }
@@ -211,13 +211,13 @@ InstructionSet RV32I extends RISCVBase {
         SLTI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if (rd != 0) X[rd] = (signed<XLEN>)X[rs1] < (signed<12>)imm? 1 : 0;
+            behavior: if (rd != 0) X[rd] = ((signed<XLEN>)X[rs1] < (signed<12>)imm) ? 1 : 0;
         }
 
         SLTIU {
             encoding: imm[11:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if (rd != 0) X[rd] = (X[rs1] < (unsigned<XLEN>)((signed<12>)imm))? 1 : 0;
+            behavior: if (rd != 0) X[rd] = (X[rs1] < (unsigned<XLEN>)((signed<12>)imm)) ? 1 : 0;
         }
 
         XORI {
@@ -367,10 +367,10 @@ InstructionSet RV32I extends RISCVBase {
         DRET {
             encoding: 0b01111011001000000000000001110011;
             behavior: {
-                if(PRIV<4)
+                if (PRIV < 4)
                     raise(0, 2);
                 else {
-                    PC=DPC;
+                    PC = DPC;
                     PRIV &= 0x3;
                 }
             }
