@@ -241,31 +241,19 @@ InstructionSet RV32I extends RISCVBase {
         SLLI {
             encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if (shamt > 31) {
-                raise(0,0);
-            } else {
-                if (rd != 0) X[rd] = X[rs1] << shamt;
-            }
+            behavior: if (rd != 0) X[rd] = X[rs1] << shamt;
         }
 
         SRLI {
             encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if (shamt > 31) {
-                raise(0,0);
-            } else {
-                if (rd != 0) X[rd] = X[rs1] >> shamt;
-            }
+            behavior: if (rd != 0) X[rd] = X[rs1] >> shamt;
         }
 
         SRAI {
             encoding: 0b0100000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
             args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if (shamt > 31) {
-                raise(0,0);
-            } else {
-                if (rd != 0) X[rd] = (signed<XLEN>)X[rs1] >> shamt;
-            }
+            behavior: if (rd != 0) X[rd] = (signed<XLEN>)X[rs1] >> shamt;
         }
 
         ADD {
