@@ -33,7 +33,7 @@ InstructionSet RV32F extends Zicsr {
             args_disass:"f {rd}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                unsigned<XLEN> res = MEM[offs];
+                unsigned<32> res = (unsigned<32>)MEM[offs];
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing

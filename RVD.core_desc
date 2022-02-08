@@ -24,7 +24,7 @@ InstructionSet RV32D extends RV32F {
             args_disass:"f {rd}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                unsigned<64> res = MEM[offs];
+                unsigned<64> res = (unsigned<64>)MEM[offs];
                 if (FLEN == 64)
                     F[rd] = res;
                 else { // NaN boxing
