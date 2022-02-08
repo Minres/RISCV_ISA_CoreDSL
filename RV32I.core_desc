@@ -21,7 +21,7 @@ InstructionSet RV32I extends RISCVBase {
                 if (imm % INSTR_ALIGNMENT) {
                     raise(0, 0);
                 } else {
-                    if (rd != 0) X[rd] = PC+4;
+                    if (rd != 0) X[rd] = PC + 4;
                     PC = PC + (signed<21>)imm;
                 }
             }
