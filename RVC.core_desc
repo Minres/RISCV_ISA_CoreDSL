@@ -27,8 +27,8 @@ InstructionSet RV32IC extends RV32I {
             encoding: 0b110 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 0b00;
             args_disass: "{name(8+rs2)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> load_address = X[rs1+8] + uimm;
-                MEM[load_address] = X[rs2 + 8];
+                unsigned<XLEN> load_address = X[rs1 + 8] + uimm;
+                MEM[load_address] = (signed<32>)X[rs2 + 8];
             }
         }
 

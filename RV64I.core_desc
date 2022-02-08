@@ -7,7 +7,8 @@ InstructionSet RV64I extends RV32I {
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                if (rd != 0) X[rd] = (unsigned<32>)MEM[offs];
+                unsigned<32> res = (unsigned<32>)MEM[offs];
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
         }
 
@@ -16,7 +17,8 @@ InstructionSet RV64I extends RV32I {
             args_disass:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                if (rd != 0) X[rd] = (unsigned<64>)MEM[offs];
+                signed<64> res = (signed<64>)MEM[offs];
+                if (rd != 0) X[rd] = (signed<XLEN>)res;
             }
         }
 
@@ -25,7 +27,7 @@ InstructionSet RV64I extends RV32I {
             args_disass:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                MEM[offs] = X[rs2];
+                MEM[offs] = (signed<64>)X[rs2];
             }
         }
 

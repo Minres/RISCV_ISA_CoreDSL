@@ -131,7 +131,7 @@ InstructionSet RV32I extends RISCVBase {
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
                 signed<8> res = (signed<8>)MEM[load_address];
-                if(rd != 0) X[rd] = res;
+                if(rd != 0) X[rd] = (signed<XLEN>)res;
             }
         }
 
@@ -141,7 +141,7 @@ InstructionSet RV32I extends RISCVBase {
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
                 signed<16> res = (signed<16>)MEM[load_address];
-                if (rd != 0) X[rd] = res;
+                if (rd != 0) X[rd] = (signed<XLEN>)res;
              }
         }
 
@@ -151,7 +151,7 @@ InstructionSet RV32I extends RISCVBase {
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
                 signed<32> res = (signed<32>)MEM[load_address];
-                if (rd != 0) X[rd] = (unsigned<32>)res;
+                if (rd != 0) X[rd] = (signed<XLEN>)res;
             }
         }
 
@@ -161,7 +161,7 @@ InstructionSet RV32I extends RISCVBase {
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
                 unsigned<8> res = (unsigned<8>)MEM[load_address];
-                if (rd != 0) X[rd] = res;
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
         }
 
@@ -171,7 +171,7 @@ InstructionSet RV32I extends RISCVBase {
             behavior: {
                 unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
                 unsigned<16> res = (unsigned<16>)MEM[load_address];
-                if(rd != 0) X[rd] = res;
+                if(rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
         }
 
@@ -198,7 +198,7 @@ InstructionSet RV32I extends RISCVBase {
             args_disass:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> store_address = X[rs1] + (signed<12>)imm;
-                MEM[store_address] = X[rs2];
+                MEM[store_address] = (signed<32>)X[rs2];
             }
         }
 
