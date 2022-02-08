@@ -222,7 +222,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 0b100 :: 0b1 :: rs1[4:0] :: 0b00000 :: 0b10;
             args_disass: "{name(rs1)}";
             behavior: {
-                signed<XLEN> new_pc = X[rs1];
+                unsigned<XLEN> new_pc = X[rs1];
                 X[1] = PC + 2;
                 PC = new_pc & ~0x1;
             }
