@@ -47,7 +47,7 @@ InstructionSet RV32F extends Zicsr {
             args_disass:"f {rs2}, {imm}({name(rs1)])";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                MEM[offs] = F[rs2];
+                MEM[offs] = (unsigned<32>)F[rs2];
             }
         }
 
