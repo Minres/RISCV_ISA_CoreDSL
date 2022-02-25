@@ -40,9 +40,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
+                signed<32> res1 = MEM[offs];
                 if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = res1 + X[rs2];
+                unsigned<32> res2 = res1 + X[rs2];
                 MEM[offs] = res2;
             }
         }
@@ -52,9 +52,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
+                signed<32> res1 = MEM[offs];
                 if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = res1 ^ X[rs2];
+                unsigned<32> res2 = res1 ^ X[rs2];
                 MEM[offs] = res2;
             }
         }
@@ -64,9 +64,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
+                signed<32> res1 = MEM[offs];
                 if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = res1 & X[rs2];
+                unsigned<32> res2 = res1 & X[rs2];
                 MEM[offs] = res2;
             }
         }
@@ -76,9 +76,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
+                signed<32> res1 = MEM[offs];
                 if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = res1 | X[rs2];
+                unsigned<32> res2 = res1 | X[rs2];
                 MEM[offs] = res2;
             }
         }
@@ -88,9 +88,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
+                signed<32> res1 = MEM[offs];
                 if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = (signed<XLEN>)res1 > (signed<XLEN>)X[rs2] ? X[rs2] : res1;
+                unsigned<32> res2 = res1 > (signed<32>)X[rs2] ? X[rs2] : res1;
                 MEM[offs] = res2;
             }
         }
@@ -100,9 +100,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
+                signed<32> res1 = MEM[offs];
                 if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = res1<(signed<XLEN>) X[rs2] ? X[rs2] : res1;
+                unsigned<32> res2 = res1 < (signed<32>)X[rs2] ? X[rs2] : res1;
                 MEM[offs] = res2;
             }
         }
@@ -112,9 +112,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
-                if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = res1>(signed<XLEN>)X[rs2] ? X[rs2] : res1;
+                unsigned<32> res1 = MEM[offs];
+                if (rd != 0) X[rd] = (signed<32>)res1;
+                unsigned<32> res2 = res1 > X[rs2] ? X[rs2] : res1;
                 MEM[offs] = res2;
             }
         }
@@ -124,9 +124,9 @@ InstructionSet RV32A extends RISCVBase {
             args_disass: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1];
-                signed<XLEN> res1 = MEM[offs];
-                if (rd != 0) X[rd] = res1;
-                unsigned<XLEN> res2 = res1 < X[rs2] ? X[rs2] : res1;
+                unsigned<32> res1 = MEM[offs];
+                if (rd != 0) X[rd] = (signed<32>)res1;
+                unsigned<32> res2 = res1 < X[rs2] ? X[rs2] : res1;
                 MEM[offs] = res2;
             }
         }
