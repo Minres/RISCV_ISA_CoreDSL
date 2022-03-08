@@ -190,10 +190,7 @@ InstructionSet RV32D extends RV32F {
             encoding: 0b0010001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
             args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                unsigned<64> ONE = 1;
-                unsigned<64> MSK1 = ONE<<63;
-                unsigned<64> MSK2 = MSK1-1;
-                unsigned<64> res = ((unsigned<64>)F[rs1] & MSK2) | ((unsigned<64>)F[rs2] & MSK1);
+                unsigned<64> res = F[rs2][63:63] :: F[rs1][62:0];
                 if (FLEN == 64)
                     F[rd] = res;
                 else { // NaN boxing
@@ -206,10 +203,7 @@ InstructionSet RV32D extends RV32F {
             encoding: 0b0010001 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
             args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                unsigned<64> ONE = 1;
-                unsigned<64> MSK1 = ONE<<63;
-                unsigned<64> MSK2 = MSK1-1;
-                unsigned<64> res = ((unsigned<64>)F[rs1] & MSK2) | (~(unsigned<64>)F[rs2] & MSK1);
+                unsigned<64> res = ~F[rs2][63:63] :: F[rs1][62:0];
                 if (FLEN == 64)
                     F[rd] = res;
                 else { // NaN boxing
@@ -222,9 +216,7 @@ InstructionSet RV32D extends RV32F {
             encoding: 0b0010001 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b1010011;
             args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
-                unsigned<64> ONE = 1;
-                unsigned<64> MSK1 = ONE<<63;
-                unsigned<64> res = (unsigned<64>)F[rs1] ^ ((unsigned<64>)F[rs2] & MSK1);
+                unsigned<64> res = (unsigned<64>)F[rs1] ^ ((unsigned<64>)F[rs2] & (1 << 63));
                 if (FLEN == 64)
                     F[rd] = res;
                 else { // NaN boxing
@@ -271,7 +263,7 @@ InstructionSet RV32D extends RV32F {
             behavior: {
                 unsigned<32> res = fconv_d2f(F[rs1], rm);
                 // NaN boxing
-                F[rd] = (-1<<64) + res;
+                F[rd] = (-1 << 32) + res;
             }
         }
 
@@ -283,7 +275,7 @@ InstructionSet RV32D extends RV32F {
                 if (FLEN == 64) {
                     F[rd] = res;
                 } else {
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (-1 << 64) + res;
                 }
             }
         }

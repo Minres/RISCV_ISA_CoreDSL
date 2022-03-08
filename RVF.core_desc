@@ -215,12 +215,12 @@ InstructionSet RV32F extends Zicsr {
             args_disass:"f {rd}, f {rs1}, f {rs2}";
             behavior: {
                 if (FLEN == 32)
-                    F[rd] = F[rs2][31] :: F[rs1][30:0];
+                    F[rd] = F[rs2][31:31] :: F[rs1][30:0];
                 else { // NaN boxing
                     unsigned<32> frs1 = unbox_s(F[rs1]);
                     unsigned<32> frs2 = unbox_s(F[rs2]);
-                    unsigned<32> res = (frs1 & 0x7fffffff) :: (frs2 & 0x80000000);
-                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
+                    unsigned<32> res = frs2[31:31] :: frs1[30:0];
+                    F[rd] = (-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
@@ -234,8 +234,8 @@ InstructionSet RV32F extends Zicsr {
                 else { // NaN boxing
                     unsigned<32> frs1 = unbox_s(F[rs1]);
                     unsigned<32> frs2 = unbox_s(F[rs2]);
-                    unsigned<32> res = (frs1 & 0x7fffffff) :: (~frs2 & 0x80000000);
-                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
+                    unsigned<32> res = ~frs2[31:31] :: frs1[30:0];
+                    F[rd] = (-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
@@ -375,7 +375,10 @@ InstructionSet RV32F extends Zicsr {
             encoding: 0b1110000 :: 0b00000 :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
             args_disass:"{name(rd)}, f {rs1}";
             behavior: {
-                X[rd] = fclass_s(unbox_s(F[rs1]));
+                if (FLEN == 32)
+                    X[rd] = fclass_s(F[rs1]);
+                else
+                    X[rd] = fclass_s(unbox_s(F[rs1]));
             }
         }
 

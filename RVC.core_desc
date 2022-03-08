@@ -260,8 +260,7 @@ InstructionSet RV32FC extends RV32F {
                 if (FLEN == 32)
                     F[rd + 8] = res;
                 else { // NaN boxing
-                    unsigned<FLEN> upper = -1;
-                    F[rd + 8] = (upper << 32) | res;
+                    F[rd + 8] = (-1 << 32) | res;
                 }
             }
         }
@@ -284,8 +283,7 @@ InstructionSet RV32FC extends RV32F {
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                    unsigned<FLEN> upper = -1;
-                    F[rd] = (upper << 32) | res;
+                    F[rd] = (-1 << 32) | res;
                 }
             }
         }
@@ -312,8 +310,7 @@ InstructionSet RV32DC extends RV32D {
                 if (FLEN == 64)
                     F[rd+8] = res;
                 else { // NaN boxing
-                    unsigned<FLEN> upper = -1;
-                    F[rd+8] = (upper << 64) | res;
+                    F[rd+8] = (-1 << 64) | res;
                 }
             }
         }
@@ -336,8 +333,7 @@ InstructionSet RV32DC extends RV32D {
                 if (FLEN == 64)
                     F[rd] = res;
                 else { // NaN boxing
-                    unsigned<FLEN> upper = -1;
-                    F[rd] = (upper << 64) | res;
+                    F[rd] = (-1 << 64) | res;
                 }
             }
         }
