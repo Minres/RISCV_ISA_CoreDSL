@@ -6,7 +6,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: imm[11:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1100111;
             assembly: "{name(rd)}, {name(rs1)}, {imm:#0x}";
             behavior: {
-                int<XLEN> new_pc = X[rs1] + (signed<12>)imm;
+                signed<XLEN> new_pc = X[rs1] + (signed<12>)imm;
                 if(rd!=0) X[rd] = PC+4;
                 PC=new_pc & ~0x1;
             }
@@ -87,7 +87,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 3'b100 :: 1'b0 :: 2'b00 :: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
-                unsigned rs1_idx = rs1+8;
+                unsigned<5> rs1_idx = rs1+8;
                 X[rs1_idx] = X[rs1_idx] >> shamt;
             }
         }
@@ -95,10 +95,10 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 3'b100 :: 1'b0 :: 2'b01 :: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: if(shamt){
-                unsigned rs1_idx = rs1+8;
+                unsigned<5> rs1_idx = rs1+8;
                 X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> shamt;
             } else if(XLEN==128){
-                unsigned rs1_idx = rs1+8;
+                unsigned<5> rs1_idx = rs1+8;
                 X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> 64;
             }
         }
@@ -106,7 +106,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 3'b100 :: imm[5:5] :: 2'b10 :: rs1[2:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
             behavior: {
-                unsigned rs1_idx = rs1 + 8;
+                unsigned<5> rs1_idx = rs1 + 8;
                 X[rs1_idx] = X[rs1_idx] & (signed<6>)imm;
             }
         }
@@ -114,7 +114,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b00 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned rd_idx = rd + 8;
+                unsigned<5> rd_idx = rd + 8;
                 X[rd_idx] = X[rd_idx] - X[rs2 + 8];
             }
         }
@@ -122,7 +122,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b01 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned rd_idx = rd + 8;
+                unsigned<5> rd_idx = rd + 8;
                 X[rd_idx] = X[rd_idx] ^ X[rs2 + 8];
             }
         }
@@ -130,7 +130,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned rd_idx = rd + 8;
+                unsigned<5> rd_idx = rd + 8;
                 X[rd_idx] = X[rd_idx] | X[rs2 + 8];
             }
         }
@@ -138,7 +138,7 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b11 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned rd_idx = rd + 8;
+                unsigned<5> rd_idx = rd + 8;
                 X[rd_idx] = X[rd_idx] & X[rs2 + 8];
             }
         }
@@ -222,6 +222,11 @@ InstructionSet RV32IC extends RISCVBase{
         }
     }
 }
+
+//===---------------------------------------------------------------------===//
+// Definitions below are not yet valid CoreDSL 2 syntax
+//===---------------------------------------------------------------------===//
+
 /*
 InstructionSet RV32FC extends RISCVBase{
     constants {

@@ -1,11 +1,11 @@
 InstructionSet RISCVBase {
     architectural_state {
-        unsigned XLEN;
-        unsigned CSR_SIZE=4096;
-        unsigned fence=0;
-        unsigned fencei=1;
-        unsigned fencevmal=2;
-        unsigned fencevmau=3;
+        unsigned int XLEN;
+        unsigned int CSR_SIZE=4096;
+        unsigned int fence=0;
+        unsigned int fencei=1;
+        unsigned int fencevmal=2;
+        unsigned int fencevmau=3;
         // core registers
         register unsigned<XLEN>  X[32];
         register unsigned<XLEN>  PC [[is_pc]];

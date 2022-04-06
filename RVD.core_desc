@@ -3,28 +3,28 @@ import "RISCVBase.core_desc"
 // TODO: review instruction description wrt. Spec after type system is fixed
 InstructionSet RV32D extends RISCVBase{
     architectural_state {
-        unsigned FLEN;
-        unsigned FFLAG_MASK = 0x1f;
+        unsigned int FLEN;
+        unsigned int FFLAG_MASK = 0x1f;
         unsigned<FLEN> F[32];
         unsigned<32> FCSR;
     }
     functions {
-        extern unsigned fadd_d(unsigned, unsigned, unsigned char);
-        extern unsigned fsub_d(unsigned, unsigned, unsigned char);
-        extern unsigned fmul_d(unsigned, unsigned, unsigned char);
-        extern unsigned fdiv_d(unsigned, unsigned, unsigned char);
-        extern unsigned fmadd_d(unsigned, unsigned, unsigned, unsigned, unsigned char);
-        extern unsigned fsel_d(unsigned, unsigned, unsigned);
-        extern unsigned fsqrt_d(unsigned, unsigned char);
-        extern unsigned fcmp_d(unsigned, unsigned, unsigned);
-        extern unsigned fcvt_d(unsigned, unsigned, unsigned char);
-        extern unsigned fconv_d2f(unsigned long);
-        extern unsigned long fconv_f2d(unsigned);
-        extern unsigned long fcvt_32_64(unsigned, unsigned, unsigned char);
-        extern unsigned long fcvt_64_32(unsigned, unsigned, unsigned char);
-        extern unsigned unbox_d(unsigned long);
-        extern unsigned fclass_d(unsigned);
-        extern unsigned fget_flags();
+        extern unsigned int fadd_d(unsigned int, unsigned int, unsigned char);
+        extern unsigned int fsub_d(unsigned int, unsigned int, unsigned char);
+        extern unsigned int fmul_d(unsigned int, unsigned int, unsigned char);
+        extern unsigned int fdiv_d(unsigned int, unsigned int, unsigned char);
+        extern unsigned int fmadd_d(unsigned int, unsigned int, unsigned int, unsigned int, unsigned char);
+        extern unsigned int fsel_d(unsigned int, unsigned int, unsigned int);
+        extern unsigned int fsqrt_d(unsigned int, unsigned char);
+        extern unsigned int fcmp_d(unsigned int, unsigned int, unsigned int);
+        extern unsigned int fcvt_d(unsigned int, unsigned int, unsigned char);
+        extern unsigned int fconv_d2f(unsigned long);
+        extern unsigned long fconv_f2d(unsigned int);
+        extern unsigned long fcvt_32_64(unsigned int, unsigned int, unsigned char);
+        extern unsigned long fcvt_64_32(unsigned int, unsigned int, unsigned char);
+        extern unsigned int unbox_d(unsigned long);
+        extern unsigned int fclass_d(unsigned int);
+        extern unsigned int fget_flags();
     }
     instructions{
         FLD {
@@ -59,7 +59,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -74,7 +74,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -89,7 +89,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -104,7 +104,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -119,7 +119,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -134,7 +134,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -149,7 +149,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -164,7 +164,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -179,7 +179,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -238,7 +238,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -253,7 +253,7 @@ InstructionSet RV32D extends RISCVBase{
                 else { // NaN boxing
                     F[rd] = (-1LL<<64) + res;
                 }
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -261,7 +261,7 @@ InstructionSet RV32D extends RISCVBase{
             encoding: 7'b0100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rm)}, f{rd}, f{rs1}";
             behavior: {
-                unsigned res = fconv_d2f(F[rs1], rm);
+                unsigned int res = fconv_d2f(F[rs1], rm);
                 // NaN boxing
                 F[rd] = (-1LL<<64) + res;
             }
@@ -283,7 +283,7 @@ InstructionSet RV32D extends RISCVBase{
             assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 X[rd]=fcmp_d((unsigned long)F[rs1], (unsigned long)F[rs2], 0U);
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -292,7 +292,7 @@ InstructionSet RV32D extends RISCVBase{
             assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 X[rd]=fcmp_d((unsigned long)F[rs1], (unsigned long)F[rs2], 2U);
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -301,7 +301,7 @@ InstructionSet RV32D extends RISCVBase{
             assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 X[rd]=fcmp_d((unsigned long)F[rs1], (unsigned long)F[rs2], 1U);
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -317,7 +317,7 @@ InstructionSet RV32D extends RISCVBase{
             assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 X[rd]= fcvt_64_32((unsigned long)F[rs1], 0U, rm);
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -327,7 +327,7 @@ InstructionSet RV32D extends RISCVBase{
             behavior: {
                 //FIXME: should be zext accodring to spec but needs to be sext according to tests
                 X[rd]= fcvt_64_32((unsigned long)F[rs1], 1U, rm);
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -364,7 +364,7 @@ InstructionSet RV64D extends RV32D{
             assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 X[rd]= fcvt_d((unsigned long)F[rs1], 0U, rm);
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
@@ -373,7 +373,7 @@ InstructionSet RV64D extends RV32D{
             assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 X[rd]= fcvt_d((unsigned long)F[rs1], 1U, rm);
-                unsigned flags = fget_flags();
+                unsigned int flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }

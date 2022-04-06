@@ -7,7 +7,7 @@ InstructionSet RV32A extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}, {name(aq)}, {name(rl)}";
             behavior: if(rd!=0){
                 unsigned<XLEN> offs = X[rs1];
-                X[rd] = (int<32>)MEM[offs];
+                X[rd] = (signed<32>)MEM[offs];
                 RES[offs]=-1;
             }
         }
