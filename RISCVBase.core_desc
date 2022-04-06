@@ -52,8 +52,8 @@ InstructionSet RISCVBase {
     }
 
     functions {
-    	extern void raise(int irq, int mcause);
-    	extern void leave(int priv_lvl);
-    	extern void wait(int flag);
+        extern void raise(int irq, int mcause);
+        extern void leave(int priv_lvl);
+        extern void wait(int flag);
     }
 }

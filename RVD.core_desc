@@ -5,10 +5,9 @@ InstructionSet RV32D extends RISCVBase{
     architectural_state {
         unsigned FLEN;
         unsigned FFLAG_MASK = 0x1f;
-
-	   	unsigned<FLEN> F[32];
-       	unsigned<32> FCSR;
-    }    
+        unsigned<FLEN> F[32];
+        unsigned<32> FCSR;
+    }
     functions {
         extern unsigned fadd_d(unsigned, unsigned, unsigned char);
         extern unsigned fsub_d(unsigned, unsigned, unsigned char);
@@ -359,7 +358,6 @@ InstructionSet RV32D extends RISCVBase{
     }
 }
 InstructionSet RV64D extends RV32D{
-
     instructions{
         FCVT_L_D {
             encoding: 0b1100001 :: 0b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
@@ -419,5 +417,4 @@ InstructionSet RV64D extends RV32D{
         }
     }
 }
-    
-    
+

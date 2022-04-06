@@ -1,13 +1,12 @@
 import "RISCVBase.core_desc"
 
 InstructionSet RV32IC extends RISCVBase{
-
     instructions{
          JALR[[no_cont]]{ // overwriting the implementation if rv32i, alignment does not need to be word
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1100111;
             args_disass: "{name(rd)}, {name(rs1)}, {imm:#0x}";
             behavior: {
-	            int<XLEN> new_pc = X[rs1] + (signed<12>)imm;
+                int<XLEN> new_pc = X[rs1] + (signed<12>)imm;
                 if(rd!=0) X[rd] = PC+4;
                 PC=new_pc & ~0x1;
             }
@@ -16,15 +15,15 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b000 :: imm[5:4] :: imm[9:6] :: imm[2:2] :: imm[3:3] :: rd[2:0] :: 0b00;
             args_disass: "{name(rd)}, {imm:#05x}";
             behavior:
-            	if(imm) X[rd+8] = X[2] + imm;
-            	else raise(0, 2);
+                if(imm) X[rd+8] = X[2] + imm;
+                else raise(0, 2);
         }
         CLW { // (RV32)
             encoding: 0b010 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 0b00;
             args_disass: "{name(8+rd)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> load_address = X[rs1+8] + uimm;
-	            X[rd+8] = (signed<32>)MEM[load_address];
+                X[rd+8] = (signed<32>)MEM[load_address];
             }
         }
         CSW {//(RV32)
@@ -51,16 +50,16 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b001 :: imm[11:11] :: imm[4:4] :: imm[9:8] :: imm[10:10] :: imm[6:6] :: imm[7:7] :: imm[3:1] :: imm[5:5] :: 0b01;
             args_disass: "{imm:#05x}";
             behavior: {
-	            X[1] = PC+2;
-	            PC=PC+(signed<12>)imm;
+                X[1] = PC+2;
+                PC=PC+(signed<12>)imm;
             }
         }
         CLI {//(RV32)
             encoding: 0b010 :: imm[5:5] :: rd[4:0] :: imm[4:0] :: 0b01;
             args_disass: "{name(rd)}, {imm:#05x}";
             behavior: {
-	            if(rd != 0)   //rd==0 is a hint, so no trap
-	               X[rd] = (unsigned<XLEN>)(signed)imm;
+                if(rd != 0)   //rd==0 is a hint, so no trap
+                   X[rd] = (unsigned<XLEN>)(signed)imm;
             }
         }
         // order matters here as CADDI16SP overwrites CLUI for rd==2
@@ -69,14 +68,14 @@ InstructionSet RV32IC extends RISCVBase{
             args_disass: "{name(rd)}, {imm:#05x}";
             behavior: {
                 if(imm == 0) raise(0, 2);
-                if(rd != 0) 
+                if(rd != 0)
                     X[rd] = (signed<18>)imm;
             }
         }
         CADDI16SP {//(RV32)
             encoding: 0b011 :: nzimm[9:9] :: 0b00010 :: nzimm[4:4] :: nzimm[6:6] :: nzimm[8:7] :: nzimm[5:5] :: 0b01;
             args_disass: "{nzimm:#05x}";
-            behavior:  
+            behavior:
                 if(nzimm) X[2] = X[2] + (signed<10>)nzimm;
                 else raise(0, 2);
         }
@@ -88,59 +87,59 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b100 :: 0b0 :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
             behavior: {
-	            unsigned rs1_idx = rs1+8;
-	            X[rs1_idx] = X[rs1_idx] >> shamt;
+                unsigned rs1_idx = rs1+8;
+                X[rs1_idx] = X[rs1_idx] >> shamt;
             }
         }
         CSRAI {//(RV32)
             encoding: 0b100 :: 0b0 :: 0b01 :: rs1[2:0] :: shamt[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {shamt}";
             behavior: if(shamt){
-	            unsigned rs1_idx = rs1+8;
-	            X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> shamt;
+                unsigned rs1_idx = rs1+8;
+                X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> shamt;
             } else if(XLEN==128){
                 unsigned rs1_idx = rs1+8;
-                X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> 64;               
-            } 
+                X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> 64;
+            }
         }
         CANDI {//(RV32)
             encoding: 0b100 :: imm[5:5] :: 0b10 :: rs1[2:0] :: imm[4:0] :: 0b01;
             args_disass: "{name(8+rs1)}, {imm:#05x}";
             behavior: {
-	            unsigned rs1_idx = rs1 + 8;
-	            X[rs1_idx] = X[rs1_idx] & (signed<6>)imm;
+                unsigned rs1_idx = rs1 + 8;
+                X[rs1_idx] = X[rs1_idx] & (signed<6>)imm;
             }
         }
         CSUB {//(RV32)
             encoding: 0b100 :: 0b0 :: 0b11 :: rd[2:0] :: 0b00 :: rs2[2:0] :: 0b01;
             args_disass: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-            	unsigned rd_idx = rd + 8;
-            	X[rd_idx] = X[rd_idx] - X[rs2 + 8];
+                unsigned rd_idx = rd + 8;
+                X[rd_idx] = X[rd_idx] - X[rs2 + 8];
             }
         }
         CXOR {//(RV32)
             encoding: 0b100 :: 0b0 :: 0b11 :: rd[2:0] :: 0b01 :: rs2[2:0] :: 0b01;
             args_disass: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-            	unsigned rd_idx = rd + 8;
-            	X[rd_idx] = X[rd_idx] ^ X[rs2 + 8];
+                unsigned rd_idx = rd + 8;
+                X[rd_idx] = X[rd_idx] ^ X[rs2 + 8];
             }
         }
         COR {//(RV32)
             encoding: 0b100 :: 0b0 :: 0b11 :: rd[2:0] :: 0b10 :: rs2[2:0] :: 0b01;
             args_disass: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-	            unsigned rd_idx = rd + 8;
-            	X[rd_idx] = X[rd_idx] | X[rs2 + 8];
+                unsigned rd_idx = rd + 8;
+                X[rd_idx] = X[rd_idx] | X[rs2 + 8];
             }
         }
         CAND {//(RV32)
             encoding: 0b100 :: 0b0 :: 0b11 :: rd[2:0] :: 0b11 :: rs2[2:0] :: 0b01;
             args_disass: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-            	unsigned rd_idx = rd + 8;
-            	X[rd_idx] = X[rd_idx] & X[rs2 + 8];
+                unsigned rd_idx = rd + 8;
+                X[rd_idx] = X[rd_idx] & X[rs2 + 8];
             }
         }
         CJ[[no_cont]] {//(RV32)
@@ -167,9 +166,9 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 0b10;
             args_disass: "{name(rd)}, sp, {uimm:#05x}";
             behavior: if(rd){
-    	        unsigned<XLEN> offs = X[2] + uimm;
+                unsigned<XLEN> offs = X[2] + uimm;
                 X[rd] = (signed<32>)MEM[offs];
-            } else 
+            } else
                 raise(0,2);
         }
         // order matters as CJR is a special case of CMV
@@ -213,8 +212,8 @@ InstructionSet RV32IC extends RISCVBase{
             encoding: 0b110 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 0b10;
             args_disass: "{name(rs2)}, {uimm:#05x}(sp)";
             behavior: {
-	            unsigned<XLEN> offs = X[2] + uimm;
-	            MEM[offs] = (unsigned<32>)X[rs2];
+                unsigned<XLEN> offs = X[2] + uimm;
+                MEM[offs] = (unsigned<32>)X[rs2];
             }
         }
         DII[[no_cont]] { // Defined Illegal Instruction
@@ -228,7 +227,7 @@ InstructionSet RV32FC extends RISCVBase{
     constants {
         FLEN
     }
-    registers { 
+    registers {
         [31:0]   F[FLEN]
     }
     instructions{
@@ -243,7 +242,7 @@ InstructionSet RV32FC extends RISCVBase{
                 val upper[FLEN] <= -1;
                 F[rd+8] <= (upper<<32) :: zext(res, FLEN);
             }
-        } 
+        }
         CFSW {
             encoding: 0b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 0b00;
             args_disass:"f(8+{rs2}), {uimm}({name(8+rs1)})";
@@ -267,7 +266,7 @@ InstructionSet RV32FC extends RISCVBase{
             args_disass:"f{rs2}, {uimm}(x2), ";
             val offs[XLEN] <= X[2]+uimm;
             MEM[offs]{32}<=F[rs2]{32};
-        }        
+        }
     }
 }
 
@@ -275,7 +274,7 @@ InstructionSet RV32DC extends RISCVBase{
     constants {
         FLEN
     }
-    registers { 
+    registers {
         [31:0]   F[FLEN]
     }
     instructions{
@@ -296,7 +295,7 @@ InstructionSet RV32DC extends RISCVBase{
             args_disass:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             val offs[XLEN] <= X[rs1+8]+uimm;
             MEM[offs]{64}<=F[rs2+8]{64};
-        } 
+        }
         CFLDSP {//(RV32/64)
             encoding:b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 0b10;
             args_disass:"f{rd}, {uimm}(x2)";
@@ -319,15 +318,14 @@ InstructionSet RV32DC extends RISCVBase{
 }
 
 InstructionSet RV64IC extends RV32IC {
-
     instructions{
-        CLD {//(RV64/128) 
+        CLD {//(RV64/128)
             encoding:b011 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 0b00;
             args_disass: "{name(8+rd)}, {uimm},({name(8+rs1)})";
             val offs[XLEN] <= X[rs1+8] + uimm;
             X[rd+8]<=sext(MEM[offs]{64});
         }
-        CSD { //(RV64/128) 
+        CSD { //(RV64/128)
             encoding:b111 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 0b00;
             args_disass: "{name(8+rs2)}, {uimm},({name(8+rs1)})";
             val offs[XLEN] <= X[rs1+8] + uimm;
@@ -341,7 +339,7 @@ InstructionSet RV64IC extends RV32IC {
         }
         CADDW {//(RV64/128 RV32 res)
             encoding:b100 :: 0b1 :: 0b11 :: rd[2:0] :: 0b01 :: rs2[2:0] :: 0b01;
-            args_disass: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";   
+            args_disass: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
             val res[32] <= X[rd+8]{32} + X[rs2+8]{32};
             X[rd+8] <= sext(res);
         }
@@ -351,7 +349,7 @@ InstructionSet RV64IC extends RV32IC {
             if(rs1 != 0){
                 val res[32] <= X[rs1]{32}'s + imm;
                 X[rs1] <= sext(res);
-            } 
+            }
         }
         CSRLI {//(RV64)
             encoding:b100 :: shamt[5:5] :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
@@ -393,7 +391,6 @@ InstructionSet RV64IC extends RV32IC {
 }
 
 InstructionSet RV128IC extends RV64IC {
-
     instructions{
         CSRLI {//(RV128)
             encoding:b100 :: shamt[5:5] :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
@@ -416,7 +413,7 @@ InstructionSet RV128IC extends RV64IC {
         CLQ { //(RV128)
              encoding:b001 :: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 0b00;
         }
-        CSQ { //(RV128) 
+        CSQ { //(RV128)
             encoding:b101 :: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 0b00;
         }
         CSQSP {//(RV128)

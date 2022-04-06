@@ -4,61 +4,61 @@ InstructionSet RV32M extends RISCVBase {
     architectural_state {
         unsigned MUL_LEN=2*XLEN;
     }
-    instructions{       
+    instructions{
         MUL{
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2];
-	                X[rd]= (unsigned<XLEN>)res;
-	            }
+                if(rd != 0){
+                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2];
+                    X[rd]= (unsigned<XLEN>)res;
+                }
             }
         }
         MULH {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2];
-	                X[rd]= (unsigned<XLEN>)(res >> XLEN);
-	            }
+                if(rd != 0){
+                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2];
+                    X[rd]= (unsigned<XLEN>)(res >> XLEN);
+                }
             }
         }
         MULHSU {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	            	signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (unsigned<MUL_LEN>)X[rs2];
-		                X[rd]= (unsigned<XLEN>)(res >> XLEN);
-	            }
+                if(rd != 0){
+                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (unsigned<MUL_LEN>)X[rs2];
+                        X[rd]= (unsigned<XLEN>)(res >> XLEN);
+                }
             }
         }
         MULHU {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)X[rs1] * (unsigned<MUL_LEN>)X[rs2];
-	                X[rd]= (unsigned<XLEN>)(res >> XLEN);
-	            }
+                if(rd != 0){
+                    unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)X[rs1] * (unsigned<MUL_LEN>)X[rs2];
+                    X[rd]= (unsigned<XLEN>)(res >> XLEN);
+                }
             }
         }
         DIV {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                if(X[rs2]!=0){
-	                    unsigned<XLEN> MMIN = 1<<(XLEN-1);
-	                    if(X[rs1]==MMIN && (signed<XLEN>)X[rs2]==-1)
-	                        X[rd] = MMIN;
-	                    else
-	                        X[rd] = (signed<XLEN>)X[rs1] / (signed<XLEN>)X[rs2];
-	                }else 
-	                    X[rd] = -1;
-	            }
+                if(rd != 0){
+                    if(X[rs2]!=0){
+                        unsigned<XLEN> MMIN = 1<<(XLEN-1);
+                        if(X[rs1]==MMIN && (signed<XLEN>)X[rs2]==-1)
+                            X[rd] = MMIN;
+                        else
+                            X[rd] = (signed<XLEN>)X[rs1] / (signed<XLEN>)X[rs2];
+                    }else
+                        X[rd] = -1;
+                }
             }
         }
         DIVU {
@@ -68,7 +68,7 @@ InstructionSet RV32M extends RISCVBase {
             if(rd != 0){
                 if(X[rs2]!=0)
                     X[rd] = X[rs1] / X[rs2];
-                else 
+                else
                     X[rd] = -1;
             }
             }
@@ -77,16 +77,16 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0110011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                if(X[rs2]!=0) {
-	                    unsigned<XLEN> MMIN = 1<<(XLEN-1);
-	                    if(X[rs1]==MMIN && (signed<XLEN>)X[rs2]==-1)
-	                        X[rd] = 0;
-	                    else
-	                        X[rd] = (signed<XLEN>)X[rs1] % (signed<XLEN>)X[rs2];
-	                } else 
-	                    X[rd] = X[rs1];
-	            }
+                if(rd != 0){
+                    if(X[rs2]!=0) {
+                        unsigned<XLEN> MMIN = 1<<(XLEN-1);
+                        if(X[rs1]==MMIN && (signed<XLEN>)X[rs2]==-1)
+                            X[rd] = 0;
+                        else
+                            X[rd] = (signed<XLEN>)X[rs1] % (signed<XLEN>)X[rs2];
+                    } else
+                        X[rd] = X[rs1];
+                }
             }
         }
         REMU {
@@ -96,7 +96,7 @@ InstructionSet RV32M extends RISCVBase {
             if(rd != 0){
                 if(X[rs2]!=0)
                     X[rd] = X[rs1] % X[rs2];
-                else 
+                else
                     X[rd] = X[rs1];
             }
             }
@@ -105,72 +105,71 @@ InstructionSet RV32M extends RISCVBase {
 }
 
 InstructionSet RV64M extends RV32M {
-    instructions{       
+    instructions{
         MULW{
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                X[rd]= (signed<MUL_LEN>)(signed<32>)X[rs1] * (signed<MUL_LEN>)(signed<32>)X[rs2];
-	            }
+                if(rd != 0){
+                    X[rd]= (signed<MUL_LEN>)(signed<32>)X[rs1] * (signed<MUL_LEN>)(signed<32>)X[rs2];
+                }
             }
         }
         DIVW {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                if(X[rs2]!=0){
-	                    signed<32> MMIN = 1<<31;
-	                    if((signed<32>)X[rs1]==MMIN && (signed<32>)X[rs2]==-1)
-	                        X[rd] = -1<<31;
-	                    else
-	                        X[rd] = (signed<XLEN>)((signed<32>)X[rs1] / (signed<32>)X[rs2]);
-	                }else 
-	                    X[rd] = -1;
-	            }
+                if(rd != 0){
+                    if(X[rs2]!=0){
+                        signed<32> MMIN = 1<<31;
+                        if((signed<32>)X[rs1]==MMIN && (signed<32>)X[rs2]==-1)
+                            X[rd] = -1<<31;
+                        else
+                            X[rd] = (signed<XLEN>)((signed<32>)X[rs1] / (signed<32>)X[rs2]);
+                    }else
+                        X[rd] = -1;
+                }
             }
         }
         DIVUW {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-		            if((unsigned<32>)X[rs2]!=0)
-		                X[rd] = (signed<XLEN>)((unsigned<32>)X[rs1] / (unsigned<32>)X[rs2]);
-		            else 
-		                X[rd] = -1;
-		        }
-	        }
+                if(rd != 0){
+                    if((unsigned<32>)X[rs2]!=0)
+                        X[rd] = (signed<XLEN>)((unsigned<32>)X[rs1] / (unsigned<32>)X[rs2]);
+                    else
+                        X[rd] = -1;
+                }
+            }
         }
         REMW {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-	                if(X[rs2]!=0) {
-	                    signed<32> MMIN = 1<<31;
-	                    if((signed<32>)X[rs1]==MMIN && (signed<32>)X[rs2]==-1)
-	                        X[rd] = 0;
-	                    else
-	                        X[rd] = (signed<XLEN>)((signed<32>)X[rs1] % (signed<32>)X[rs2]);
-	                } else 
-	                    X[rd] = (signed<XLEN>)((signed<32>)X[rs1]);
-	            }
+                if(rd != 0){
+                    if(X[rs2]!=0) {
+                        signed<32> MMIN = 1<<31;
+                        if((signed<32>)X[rs1]==MMIN && (signed<32>)X[rs2]==-1)
+                            X[rd] = 0;
+                        else
+                            X[rd] = (signed<XLEN>)((signed<32>)X[rs1] % (signed<32>)X[rs2]);
+                    } else
+                        X[rd] = (signed<XLEN>)((signed<32>)X[rs1]);
+                }
             }
         }
         REMUW {
             encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: 0b111 :: rd[4:0] :: 0b0111011;
             args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if(rd != 0){
-		            if((unsigned<32>)X[rs2]!=0)
-		                X[rd] = (signed<XLEN>)((unsigned<32>)X[rs1] % (unsigned<32>)X[rs2]);
-		            else 
-	                    X[rd] = (signed<XLEN>)((signed<32>)X[rs1]);
-        	    }
+                if(rd != 0){
+                    if((unsigned<32>)X[rs2]!=0)
+                        X[rd] = (signed<XLEN>)((unsigned<32>)X[rs1] % (unsigned<32>)X[rs2]);
+                    else
+                        X[rd] = (signed<XLEN>)((signed<32>)X[rs1]);
+                }
             }
         }
     }
 }
-
