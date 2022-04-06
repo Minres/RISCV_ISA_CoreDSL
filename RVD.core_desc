@@ -28,8 +28,8 @@ InstructionSet RV32D extends RISCVBase{
     }
     instructions{
         FLD {
-            encoding: imm[11:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0000111;
-            args_disass:"f{rd}, {imm}({name(rs1)})";
+            encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0000111;
+            assembly: "f{rd}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
                 unsigned long res = MEM[offs];
@@ -41,16 +41,16 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FSD {
-            encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: imm[4:0] :: 0b0100111;
-            args_disass:"f{rs2}, {imm}({name(rs1)})";
+            encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100111;
+            assembly: "f{rs2}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
                 MEM[offs]=F[rs2];
             }
         }
         FMADD_D {
-            encoding: rs3[4:0] :: 0b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1000011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
             behavior: {
                 //F[rd]f= F[rs1]f * F[rs2]f + F[rs3]f;
                 unsigned long res = fmadd_d((unsigned long)F[rs1], (unsigned long)F[rs2], (unsigned long)F[rs3], 0U, rm<7? rm: (unsigned char)FCSR);
@@ -64,8 +64,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FMSUB_D {
-            encoding: rs3[4:0] :: 0b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1000111;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
             behavior: {
                 //F[rd]f=F[rs1]f * F[rs2]f - F[rs3]f;
                 unsigned long res = fmadd_d((unsigned long)F[rs1], (unsigned long)F[rs2], (unsigned long)F[rs3], 1U, rm<7? rm: (unsigned char)FCSR);
@@ -79,8 +79,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FNMADD_D {
-            encoding: rs3[4:0] :: 0b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1001111;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
             behavior: {
                 //F[rd]f=-F[rs1]f * F[rs2]f + F[rs3]f;
                 unsigned long res = fmadd_d((unsigned long)F[rs1], (unsigned long)F[rs2], (unsigned long)F[rs3], 2U, rm<7? rm: (unsigned char)FCSR);
@@ -94,8 +94,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FNMSUB_D {
-            encoding: rs3[4:0] :: 0b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1001011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}, f{rs3}";
             behavior: {
                 //F[rd]f=-F[rs1]f * F[rs2]f - F[rs3]f;
                 unsigned long res = fmadd_d((unsigned long)F[rs1], (unsigned long)F[rs2], (unsigned long)F[rs3], 3U, rm<7? rm: (unsigned char)FCSR);
@@ -109,8 +109,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FADD_D {
-            encoding: 0b0000001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
+            encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f + F[rs2]f;
                 unsigned long res = fadd_d((unsigned long)F[rs1], (unsigned long)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -124,8 +124,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FSUB_D {
-            encoding: 0b0000101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f - F[rs2]f;
                 unsigned long res = fsub_d((unsigned long)F[rs1], (unsigned long)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -139,8 +139,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FMUL_D {
-            encoding: 0b0001001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
+            encoding: 7'b0001001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f * F[rs2]f;
                 unsigned long res = fmul_d((unsigned long)F[rs1], (unsigned long)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -154,8 +154,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FDIV_D {
-            encoding: 0b0001101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
+            encoding: 7'b0001101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 // F[rd]f = F[rs1]f / F[rs2]f;
                 unsigned long res = fdiv_d((unsigned long)F[rs1], (unsigned long)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -169,8 +169,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FSQRT_D {
-            encoding: 0b0101101 :: 0b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            encoding: 7'b0101101 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 //F[rd]f=sqrt(F[rs1]f);
                 unsigned long res = fsqrt_d((unsigned long)F[rs1], rm<7? rm: (unsigned char)FCSR);
@@ -184,8 +184,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FSGNJ_D {
-            encoding: 0b0010001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "f{rd}, f{rs1}, f{rs2}";
             behavior: {
                 unsigned long ONE = 1;
                 unsigned long MSK1 = ONE<<63;
@@ -199,8 +199,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FSGNJN_D {
-            encoding: 0b0010001 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "f{rd}, f{rs1}, f{rs2}";
             behavior: {
                 unsigned long ONE = 1;
                 unsigned long MSK1 = ONE<<63;
@@ -214,8 +214,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FSGNJX_D {
-            encoding: 0b0010001 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
+            assembly: "f{rd}, f{rs1}, f{rs2}";
             behavior: {
                 unsigned long ONE = 1;
                 unsigned long MSK1 = ONE<<63;
@@ -228,8 +228,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FMIN_D  {
-            encoding: 0b0010101 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "f{rd}, f{rs1}, f{rs2}";
             behavior: {
                 //F[rd]f= choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
                 unsigned long res = fsel_d((unsigned long)F[rs1], (unsigned long)F[rs2], 0U);
@@ -243,8 +243,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FMAX_D {
-            encoding: 0b0010101 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, f{rs1}, f{rs2}";
+            encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "f{rd}, f{rs1}, f{rs2}";
             behavior: {
                 //F[rd]f= choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
                 unsigned long res = fsel_d((unsigned long)F[rs1], (unsigned long)F[rs2], 1U);
@@ -258,8 +258,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FCVT_S_D {
-            encoding: 0b0100000 :: 0b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, f{rs1}";
+            encoding: 7'b0100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, f{rd}, f{rs1}";
             behavior: {
                 unsigned res = fconv_d2f(F[rs1], rm);
                 // NaN boxing
@@ -267,8 +267,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FCVT_D_S {
-            encoding: 0b0100001 :: 0b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, f{rs1}";
+            encoding: 7'b0100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, f{rd}, f{rs1}";
             behavior: {
                 unsigned long res = fconv_f2d((unsigned)F[rs1], rm);
                 if(FLEN==64){
@@ -279,8 +279,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FEQ_D {
-            encoding: 0b1010001 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
+            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 X[rd]=fcmp_d((unsigned long)F[rs1], (unsigned long)F[rs2], 0U);
                 unsigned flags = fget_flags();
@@ -288,8 +288,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FLT_D {
-            encoding: 0b1010001 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
+            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 X[rd]=fcmp_d((unsigned long)F[rs1], (unsigned long)F[rs2], 2U);
                 unsigned flags = fget_flags();
@@ -297,8 +297,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FLE_D {
-            encoding: 0b1010001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}, f{rs2}";
+            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
                 X[rd]=fcmp_d((unsigned long)F[rs1], (unsigned long)F[rs2], 1U);
                 unsigned flags = fget_flags();
@@ -306,15 +306,15 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FCLASS_D {
-            encoding: 0b1110001 :: 0b00000 :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}";
+            encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, f{rs1}";
             behavior: {
                 X[rd]=fclass_d((unsigned long)F[rs1]);
             }
         }
         FCVT_W_D {
-            encoding: 0b1100001 :: 0b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            encoding: 7'b1100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 X[rd]= fcvt_64_32((unsigned long)F[rs1], 0U, rm);
                 unsigned flags = fget_flags();
@@ -322,8 +322,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FCVT_WU_D {
-            encoding: 0b1100001 :: 0b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            encoding: 7'b1100001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 //FIXME: should be zext accodring to spec but needs to be sext according to tests
                 X[rd]= fcvt_64_32((unsigned long)F[rs1], 1U, rm);
@@ -332,8 +332,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FCVT_D_W {
-            encoding: 0b1101001 :: 0b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            encoding: 7'b1101001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
                 unsigned long res = fcvt_32_64((unsigned)X[rs1], 2U, rm);
                 if(FLEN==64)
@@ -344,8 +344,8 @@ InstructionSet RV32D extends RISCVBase{
             }
         }
         FCVT_D_WU {
-            encoding: 0b1101001 :: 0b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            encoding: 7'b1101001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
                 unsigned long res =fcvt_32_64((unsigned)X[rs1], 3U, rm);
                 if(FLEN==64)
@@ -360,8 +360,8 @@ InstructionSet RV32D extends RISCVBase{
 InstructionSet RV64D extends RV32D{
     instructions{
         FCVT_L_D {
-            encoding: 0b1100001 :: 0b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            encoding: 7'b1100001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 X[rd]= fcvt_d((unsigned long)F[rs1], 0U, rm);
                 unsigned flags = fget_flags();
@@ -369,8 +369,8 @@ InstructionSet RV64D extends RV32D{
             }
         }
         FCVT_LU_D {
-            encoding: 0b1100001 :: 0b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, {name(rd)}, f{rs1}";
+            encoding: 7'b1100001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
                 X[rd]= fcvt_d((unsigned long)F[rs1], 1U, rm);
                 unsigned flags = fget_flags();
@@ -378,8 +378,8 @@ InstructionSet RV64D extends RV32D{
             }
         }
         FCVT_D_L {
-            encoding: 0b1101001 :: 0b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            encoding: 7'b1101001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
                 unsigned long res = fcvt_d(X[rs1], 2U, rm);
                 if(FLEN==64)
@@ -390,8 +390,8 @@ InstructionSet RV64D extends RV32D{
             }
         }
         FCVT_D_LU {
-            encoding: 0b1101001 :: 0b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rm)}, f{rd}, {name(rs1)}";
+            encoding: 7'b1101001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
                 unsigned long res =fcvt_d(X[rs1], 3U, rm);
                 if(FLEN==64)
@@ -402,15 +402,15 @@ InstructionSet RV64D extends RV32D{
             }
         }
         FMV_X_D {
-            encoding: 0b1110001 :: 0b00000 :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"{name(rd)}, f{rs1}";
+            encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, f{rs1}";
             behavior: {
                 X[rd]=F[rs1]; //FIXME: sign extend
             }
         }
         FMV_D_X {
-            encoding: 0b1111001 :: 0b00000 :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1010011;
-            args_disass:"f{rd}, {name(rs1)}";
+            encoding: 7'b1111001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "f{rd}, {name(rs1)}";
             behavior: {
                 F[rd] = X[rs1];
             }
