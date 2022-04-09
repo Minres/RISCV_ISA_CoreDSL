@@ -5,240 +5,285 @@ InstructionSet RV32I extends RISCVBase {
     instructions { 
         LUI{
             encoding: imm[31:12] :: rd[4:0] :: 0b0110111;
-            args_disass: "{name(rd)}, {imm:#05x}";
-            behavior: if(rd!=0) X[rd] = (signed<XLEN>)imm;
+            assembly: "{name(rd)}, {imm:#05x}";
+            behavior: if((rd%RFS)!=0) X[rd%RFS] = (signed<XLEN>)imm;
         }
         AUIPC{
             encoding: imm[31:12] :: rd[4:0] :: 0b0010111;
-            args_disass: "{name(rd)}, {imm:#08x}";
-            behavior: if(rd!=0) X[rd] = PC+(signed<XLEN>)imm;
+            assembly: "{name(rd)}, {imm:#08x}";
+            behavior: if((rd%RFS)!=0) X[rd%RFS] = PC+(signed<XLEN>)imm;
         }
         JAL[[no_cont]]{
             encoding: imm[20:20] :: imm[10:1] :: imm[11:11] :: imm[19:12] :: rd[4:0] :: 0b1101111;
-            args_disass: "{name(rd)}, {imm:#0x}";
+            assembly: "{name(rd)}, {imm:#0x}";
             behavior: {
-            	if(rd!=0) X[rd] = PC+4;
+                if(imm % INSTR_ALIGNMENT) {
+                    raise(0, 0);
+                } else {
+                    if((rd%RFS)!=0) X[rd%RFS] = PC+4;
             	PC=PC+(signed<21>)imm;
-        	}
+                }
+            }
         }
         JALR[[no_cont]]{
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b1100111;
-            args_disass: "{name(rd)}, {name(rs1)}, {imm:#0x}";
+            assembly: "{name(rd)}, {name(rs1)}, {imm:#0x}";
             behavior: {
-	            signed<XLEN> new_pc = X[rs1] + (signed<12>)imm;
-	            signed<XLEN> align = new_pc & 0x2;
-	            if(align != 0){
+	        signed<XLEN> new_pc = (X[rs1%RFS] + (signed<12>)imm) & ~1;
+                if(new_pc % INSTR_ALIGNMENT) {
 	                raise(0, 0);
 	            } else {
-	                if(rd!=0) X[rd] = PC+4;
+	                if((rd%RFS)!=0) X[rd%RFS] = PC+4;
 	                PC=new_pc & ~0x1;
 	            }	            
             }
         }
         BEQ[[no_cont]] [[cond]]{
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b000 :: imm[4:1] :: imm[11:11] :: 0b1100011;
-            args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]==X[rs2]) PC = PC + (signed<13>)imm;
+            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: {
+                if(X[rs1%RFS]==X[rs2%RFS])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else {
+                        PC = PC + (signed<13>)imm;
+                    }
+            }
         }
         BNE[[no_cont]] [[cond]]{
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b001 :: imm[4:1] :: imm[11:11] :: 0b1100011;
-            args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]!=X[rs2]) PC = PC + (signed<13>)imm;
+            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: {
+                if(X[rs1%RFS]!=X[rs2%RFS])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else {
+                        PC = PC + (signed<13>)imm;
+                    }
+            }
         }
         BLT[[no_cont]] [[cond]]{
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b100 :: imm[4:1] :: imm[11:11] :: 0b1100011;
-            args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if((signed<XLEN>)X[rs1] < (signed<XLEN>)X[rs2]) PC = PC + (signed<13>)imm;
+            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: {
+                if((signed<XLEN>)X[rs1%RFS] < (signed<XLEN>)X[rs2%RFS])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else {
+                        PC = PC + (signed<13>)imm;
+                    }
+            }
         }
         BGE[[no_cont]] [[cond]] {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b101 :: imm[4:1] :: imm[11:11] :: 0b1100011;
-            args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if((signed<XLEN>)X[rs1] >= (signed<XLEN>)X[rs2]) PC = PC + (signed<13>)imm;
+            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: {
+                if((signed<XLEN>)X[rs1%RFS] >= (signed<XLEN>)X[rs2%RFS])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else {
+                        PC = PC + (signed<13>)imm;
+                    }
+            }
         }
         BLTU[[no_cont]] [[cond]] {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b110 :: imm[4:1] :: imm[11:11] :: 0b1100011;
-            args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]<X[rs2]) PC = PC + (signed<13>)imm;
+            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: {
+                if(X[rs1%RFS]<X[rs2%RFS])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else {
+                        PC = PC + (signed<13>)imm;
+                    }
+            }
         }
         BGEU[[no_cont]] [[cond]] {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 0b111 :: imm[4:1] :: imm[11:11] :: 0b1100011;
-            args_disass:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(X[rs1]>=X[rs2]) PC = PC + (signed<13>)imm;
+            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: {
+                if(X[rs1%RFS]>=X[rs2%RFS])
+                    if(imm % INSTR_ALIGNMENT) {
+                        raise(0, 0);
+                    } else { 
+                        PC = PC + (signed<13>)imm;
+                    }
+            }
         }
         LB {
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0000011;
-            args_disass:"{name(rd)}, {imm}({name(rs1)})";
+            assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-                signed<8> res = (signed<8>)MEM[X[rs1] + (signed<12>)imm];
-                if(rd!=0) X[rd]=res;
+                signed<8> res = (signed<8>)MEM[X[rs1%RFS] + (signed<12>)imm];
+                if((rd%RFS)!=0) X[rd%RFS]=res;
             }
         }
         LH {
             encoding: imm[11:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0000011;
-            args_disass:"{name(rd)}, {imm}({name(rs1)})";
+            assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
-                signed<16> res = (signed<16>)MEM[X[rs1] + (signed<12>)imm];
-                if(rd!=0) X[rd]=res;
+                unsigned<XLEN> load_address = X[rs1%RFS] + (signed<12>)imm;
+                signed<16> res = (signed<16>)MEM[load_address];
+                if((rd%RFS)!=0) X[rd%RFS]=res;
              }    
         }
         LW {
             encoding: imm[11:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0000011;
-            args_disass:"{name(rd)}, {imm}({name(rs1)})";
+            assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
-                signed<32> res = (signed<32>)MEM[X[rs1] + (signed<12>)imm];
-                if(rd!=0) X[rd]=(unsigned<32>)res;
+                unsigned<XLEN> load_address = X[rs1%RFS] + (signed<12>)imm;
+                signed<32> res = (signed<32>)MEM[load_address];
+                if((rd%RFS)!=0) X[rd%RFS]=(unsigned<32>)res;
             } 
         }
         LBU {
             encoding: imm[11:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0000011;
-            args_disass:"{name(rd)}, {imm}({name(rs1)})";
+            assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<8> res = (unsigned<8>)MEM[X[rs1] + (signed<12>)imm];
-                if(rd!=0) X[rd]=res;
+                unsigned<8> res = (unsigned<8>)MEM[X[rs1%RFS] + (signed<12>)imm];
+                if((rd%RFS)!=0) X[rd%RFS]=res;
             }
         }
         LHU {
             encoding: imm[11:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0000011;
-            args_disass:"{name(rd)}, {imm}({name(rs1)})";
+            assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<XLEN> load_address = X[rs1] + (signed<12>)imm;
-                unsigned<16> res = (unsigned<16>)MEM[X[rs1] + (signed<12>)imm];
-                if(rd!=0) X[rd]=res;
+                unsigned<XLEN> load_address = X[rs1%RFS] + (signed<12>)imm;
+                unsigned<16> res = (unsigned<16>)MEM[load_address];
+                if((rd%RFS)!=0) X[rd%RFS]=res;
             }
         }
         SB {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b000 :: imm[4:0] :: 0b0100011;
-            args_disass:"{name(rs2)}, {imm}({name(rs1)})";
-            behavior: MEM[X[rs1] + (signed<12>)imm] = (char)X[rs2];
+            assembly:"{name(rs2)}, {imm}({name(rs1)})";
+            behavior: MEM[X[rs1%RFS] + (signed<12>)imm] = (char)X[rs2%RFS];
         }
         SH {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b001 :: imm[4:0] :: 0b0100011;
-            args_disass:"{name(rs2)}, {imm}({name(rs1)})";
+            assembly:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: { 
-                unsigned<XLEN> store_address = X[rs1] + (signed<12>)imm;
-                MEM[store_address] = (short)X[rs2];
+                unsigned<XLEN> store_address = X[rs1%RFS] + (signed<12>)imm;
+                MEM[store_address] = (short)X[rs2%RFS];
             }
         }
         SW {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b010 :: imm[4:0] :: 0b0100011;
-            args_disass:"{name(rs2)}, {imm}({name(rs1)})";
+            assembly:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<XLEN> store_address = X[rs1] + (signed<12>)imm;
-                MEM[store_address] = X[rs2];
+                unsigned<XLEN> store_address = X[rs1%RFS] + (signed<12>)imm;
+                MEM[store_address] = X[rs2%RFS];
             }
         }
         ADDI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd != 0) X[rd] = X[rs1] + (signed<12>)imm;
+            assembly:"{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] + (signed<12>)imm;
         }
         SLTI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if (rd != 0) X[rd] = (signed<XLEN>)X[rs1] < (signed<12>)imm? 1 : 0;
+            assembly:"{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if ((rd%RFS) != 0) X[rd%RFS] = (signed<XLEN>)X[rs1%RFS] < (signed<12>)imm? 1 : 0;
         }
         SLTIU {
             encoding: imm[11:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if (rd != 0) X[rd] = (X[rs1] < (unsigned<XLEN>)((signed<12>)imm))? 1 : 0;
+            assembly:"{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if ((rd%RFS) != 0) X[rd%RFS] = (X[rs1%RFS] < (unsigned<XLEN>)((signed<12>)imm))? 1 : 0;
         }
         XORI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd != 0) X[rd] = X[rs1] ^ (signed<12>)imm;
+            assembly:"{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] ^ (signed<12>)imm;
         }
         ORI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd != 0) X[rd] = X[rs1] | (signed<12>)imm;
+            assembly:"{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] | (signed<12>)imm;
         }
         ANDI {
             encoding: imm[11:0] :: rs1[4:0] :: 0b111 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd != 0) X[rd] = X[rs1] & (signed<12>)imm;
+            assembly:"{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] & (signed<12>)imm;
         }
         SLLI {
             encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(shamt > 31){
                 raise(0,0);
             } else {
-                if(rd != 0) X[rd] = X[rs1] << shamt;
+                if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] << shamt;
             }
         }
         SRLI {
             encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(shamt > 31){
                 raise(0,0);
             } else {
-                if(rd != 0) X[rd] = X[rs1] >> shamt;
+                if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] >> shamt;
             }
         }
         SRAI {
             encoding: 0b0100000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(shamt > 31){
                 raise(0,0);
             } else {
-                if(rd != 0) X[rd] = (signed<XLEN>)X[rs1] >> shamt;
+                if((rd%RFS) != 0) X[rd%RFS] = (signed<XLEN>)X[rs1%RFS] >> shamt;
             }
         }
         ADD {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = X[rs1] + X[rs2];
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] + X[rs2%RFS];
         }
         SUB {
             encoding: 0b0100000 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = X[rs1] - X[rs2];
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] - X[rs2%RFS];
         }
         SLL {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = X[rs1]<< (X[rs2]&(XLEN-1));
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS]<< (X[rs2%RFS]&(XLEN-1));
         }
         SLT {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if (rd != 0) X[rd] = (signed<XLEN>)X[rs1] < (signed<XLEN>)X[rs2]? 1 : 0;
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if ((rd%RFS) != 0) X[rd%RFS] = (signed<XLEN>)X[rs1%RFS] < (signed<XLEN>)X[rs2%RFS]? 1 : 0;
         }
         SLTU {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-           	behavior: if (rd != 0) X[rd] = (unsigned<XLEN>)X[rs1] < (unsigned<XLEN>)X[rs2]? 1 : 0;
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+           	behavior: if ((rd%RFS) != 0) X[rd%RFS] = (unsigned<XLEN>)X[rs1%RFS] < (unsigned<XLEN>)X[rs2%RFS]? 1 : 0;
         }
         XOR {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b100 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = X[rs1] ^ X[rs2];
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] ^ X[rs2%RFS];
         }
         SRL {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = X[rs1] >> (X[rs2]&(XLEN-1));
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] >> (X[rs2%RFS]&(XLEN-1));
         }
         SRA {
             encoding: 0b0100000 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = (signed<XLEN>)X[rs1] >> (X[rs2]&(XLEN-1));
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = (signed<XLEN>)X[rs1%RFS] >> (X[rs2%RFS]&(XLEN-1));
         }
         OR {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = X[rs1] | X[rs2];
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] | X[rs2%RFS];
         }
         AND {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b111 :: rd[4:0] :: 0b0110011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd != 0) X[rd] = X[rs1] & X[rs2];
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if((rd%RFS) != 0) X[rd%RFS] = X[rs1%RFS] & X[rs2%RFS];
         }
         FENCE {
             encoding: fm[3:0] :: pred[3:0] :: succ[3:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0001111;
-            args_disass:"{pred}, {succ} ({fm} , {name(rs1)}, {name(rd)})";
+            assembly:"{pred}, {succ} ({fm} , {name(rs1)}, {name(rd)})";
             behavior: FENCE[fence] = pred<<4 | succ;
         }
         ECALL[[no_cont]] {
@@ -265,16 +310,32 @@ InstructionSet RV32I extends RISCVBase {
             encoding: 0b0001000 :: 0b00101 :: 0b00000 :: 0b000 :: 0b00000 :: 0b1110011;
             behavior: wait(1);
         }
+        DRET {
+            encoding: 0b01111011001000000000000001110011;
+            behavior: {
+                if(PRIV<4)
+                    raise(0, 2);
+                else {
+                    PC=DPC;
+                    PRIV &= 0x3;                    
+                }
+            }
+        }
+    }
+}
+
+InstructionSet Zicsr extends RISCVBase {
+    instructions {
         CSRRW {
             encoding: csr[11:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b1110011;
-            args_disass:"{name(rd)}, {csr}, {name(rs1)}";
+            assembly:"{name(rd)}, {csr}, {name(rs1)}";
             behavior: {
-	            unsigned<XLEN> xrs1 = X[rs1];
-	            if(rd!=0){
+	            unsigned<XLEN> xrs1 = X[rs1%RFS];
+	            if((rd%RFS)!=0){
 	                unsigned<XLEN> xrd = CSR[csr];
 	                CSR[csr] = xrs1; 
 	                // make sure Xrd is updated once CSR write succeeds
-	                X[rd] = xrd;
+	                X[rd%RFS] = xrd;
 	            } else {
 	                CSR[csr] = xrs1;
 	            }
@@ -282,49 +343,49 @@ InstructionSet RV32I extends RISCVBase {
         }
         CSRRS {
             encoding: csr[11:0] :: rs1[4:0] :: 0b010 :: rd[4:0] :: 0b1110011;
-            args_disass:"{name(rd)}, {csr}, {name(rs1)}";
+            assembly:"{name(rd)}, {csr}, {name(rs1)}";
             behavior: {
 	            unsigned<XLEN> xrd = CSR[csr];
-	            unsigned<XLEN> xrs1 = X[rs1];
+	            unsigned<XLEN> xrs1 = X[rs1%RFS];
                 if(rs1!=0) CSR[csr] = xrd | xrs1;    
-	            if(rd!=0) X[rd] = xrd;
+	            if((rd%RFS)!=0) X[rd%RFS] = xrd;
             }
         }
         CSRRC {
             encoding: csr[11:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b1110011;
-            args_disass:"{name(rd)}, {csr}, {name(rs1)}";
+            assembly:"{name(rd)}, {csr}, {name(rs1)}";
             behavior: {
 	            unsigned<XLEN> xrd = CSR[csr];
-	            unsigned<XLEN> xrs1 = X[rs1];
+	            unsigned<XLEN> xrs1 = X[rs1%RFS];
                 if(rs1!=0) CSR[csr] = xrd & ~xrs1;
-	            if(rd!=0) X[rd] = xrd;
+	            if((rd%RFS)!=0) X[rd%RFS] = xrd;
             }
         }
         CSRRWI {
             encoding: csr[11:0] :: zimm[4:0] :: 0b101 :: rd[4:0] :: 0b1110011;
-            args_disass:"{name(rd)}, {csr}, {zimm:#0x}";
+            assembly:"{name(rd)}, {csr}, {zimm:#0x}";
             behavior: {
                 unsigned<XLEN> xrd = CSR[csr];
 	            CSR[csr] = (unsigned<XLEN>)zimm;    
-                if(rd!=0) X[rd] = xrd;
+                if((rd%RFS)!=0) X[rd%RFS] = xrd;
             }
         }
         CSRRSI {
             encoding: csr[11:0] :: zimm[4:0] :: 0b110 :: rd[4:0] :: 0b1110011;
-            args_disass:"{name(rd)}, {csr}, {zimm:#0x}";
+            assembly:"{name(rd)}, {csr}, {zimm:#0x}";
             behavior: {
 	            unsigned<XLEN> xrd = CSR[csr];
 	            if(zimm!=0) CSR[csr] = xrd | (unsigned<XLEN>)zimm;
-	            if(rd!=0) X[rd] = xrd;
+	            if((rd%RFS)!=0) X[rd%RFS] = xrd;
             }
         }
         CSRRCI {
             encoding: csr[11:0] :: zimm[4:0] :: 0b111 :: rd[4:0] :: 0b1110011;
-            args_disass:"{name(rd)}, {csr}, {zimm:#0x}";
+            assembly:"{name(rd)}, {csr}, {zimm:#0x}";
             behavior: {
 	            unsigned<XLEN> xrd = CSR[csr];
                 if(zimm!=0) CSR[csr] = xrd & ~((unsigned<XLEN>)zimm);    
-	            if(rd!=0) X[rd] = xrd;
+	            if((rd%RFS)!=0) X[rd%RFS] = xrd;
             }
         }   
     }
@@ -334,15 +395,15 @@ InstructionSet Zifencei extends RISCVBase {
     instructions {
         FENCE_I[[flush]] {
             encoding: imm[11:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0001111 ;
-            args_disass:"{name(rs1)}, {name(rd)}, {imm}";
+            assembly:"{name(rs1)}, {name(rd)}, {imm}";
             behavior: FENCE[fencei] = imm;
         }
         SFENCE_VMA {
             encoding: 0b0001001 :: rs2[4:0] :: rs1[4:0] :: 0b000 :: 0b00000 :: 0b1110011;
-            args_disass:"{name(rs2)}, {rs1}";
+            assembly:"{name(rs2)}, {rs1}";
             behavior: {
                 FENCE[fencevmal] = (unsigned)rs1;
-            FENCE[fencevmau] = (unsigned)rs2;
+                FENCE[fencevmau] = (unsigned)rs2;
             }
         }
      }

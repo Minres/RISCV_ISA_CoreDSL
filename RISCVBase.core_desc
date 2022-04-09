@@ -1,13 +1,16 @@
 InstructionSet RISCVBase {
     architectural_state {
+        unsigned RFS=32;
         unsigned XLEN;
         unsigned CSR_SIZE=4096;
+        unsigned INSTR_ALIGNMENT=4;
         unsigned fence=0;
         unsigned fencei=1;
         unsigned fencevmal=2;
         unsigned fencevmau=3;
+
         // core registers
-        register unsigned<XLEN>  X[32];
+        register unsigned<XLEN>  X[RFS];
         register unsigned<XLEN>  PC [[is_pc]];
         // register aliases
         unsigned<XLEN>& ZERO = X[0];
@@ -48,12 +51,39 @@ InstructionSet RISCVBase {
         extern unsigned<XLEN> FENCE[8];
         extern char RES[8]; // reservation address space
         // supplemental state register
-        register unsigned<2>    PRIV;
+        register unsigned<3>    PRIV=3;
+        register unsigned<XLEN> DPC=0;
     }
 
     functions {
     	extern void raise(int irq, int mcause);
     	extern void leave(int priv_lvl);
     	extern void wait(int flag);
+    }
+}
+
+InstructionSet RISCVFBase extends RISCVBase{
+    architectural_state {
+        unsigned FLEN;
+        unsigned FFLAG_MASK = 0x1f;
+
+        unsigned<FLEN> F[32];
+        unsigned<32> FCSR;
+    }    
+    functions {
+        extern unsigned fadd_s(unsigned, unsigned, unsigned char);
+        extern unsigned fsub_s(unsigned, unsigned, unsigned char);
+        extern unsigned fmul_s(unsigned, unsigned, unsigned char);
+        extern unsigned fdiv_s(unsigned, unsigned, unsigned char);
+        extern unsigned fmadd_s(unsigned, unsigned, unsigned, unsigned, unsigned char);
+        extern unsigned fsel_s(unsigned, unsigned, unsigned);
+        extern unsigned fsqrt_s(unsigned, unsigned char);
+        extern unsigned fcmp_s(unsigned, unsigned, unsigned);
+        extern unsigned fcvt_s(unsigned, unsigned, unsigned char);
+        extern unsigned long fcvt_32_64(unsigned, unsigned, unsigned char);
+        extern unsigned long fcvt_64_32(unsigned, unsigned, unsigned char);
+        extern unsigned unbox_s(unsigned long);
+        extern unsigned fclass_s(unsigned);
+        extern unsigned fget_flags();
     }
 }
