@@ -1,14 +1,13 @@
 InstructionSet RISCVBase {
     architectural_state {
-        unsigned RFS=32;
-        unsigned XLEN;
-        unsigned CSR_SIZE=4096;
-        unsigned INSTR_ALIGNMENT=4;
-        unsigned fence=0;
-        unsigned fencei=1;
-        unsigned fencevmal=2;
-        unsigned fencevmau=3;
-
+        unsigned int RFS=32;
+        unsigned int INSTR_ALIGNMENT=4;
+        unsigned int XLEN;
+        unsigned int CSR_SIZE=4096;
+        unsigned int fence=0;
+        unsigned int fencei=1;
+        unsigned int fencevmal=2;
+        unsigned int fencevmau=3;
         // core registers
         register unsigned<XLEN>  X[RFS];
         register unsigned<XLEN>  PC [[is_pc]];
@@ -56,34 +55,18 @@ InstructionSet RISCVBase {
     }
 
     functions {
-    	extern void raise(int irq, int mcause);
-    	extern void leave(int priv_lvl);
-    	extern void wait(int flag);
+        extern void raise(int irq, int mcause);
+        extern void leave(int priv_lvl);
+        extern void wait(int flag);
     }
 }
 
 InstructionSet RISCVFBase extends RISCVBase{
     architectural_state {
-        unsigned FLEN;
-        unsigned FFLAG_MASK = 0x1f;
+        unsigned int FLEN;
+        unsigned int FFLAG_MASK = 0x1f;
 
         unsigned<FLEN> F[32];
         unsigned<32> FCSR;
     }    
-    functions {
-        extern unsigned fadd_s(unsigned, unsigned, unsigned char);
-        extern unsigned fsub_s(unsigned, unsigned, unsigned char);
-        extern unsigned fmul_s(unsigned, unsigned, unsigned char);
-        extern unsigned fdiv_s(unsigned, unsigned, unsigned char);
-        extern unsigned fmadd_s(unsigned, unsigned, unsigned, unsigned, unsigned char);
-        extern unsigned fsel_s(unsigned, unsigned, unsigned);
-        extern unsigned fsqrt_s(unsigned, unsigned char);
-        extern unsigned fcmp_s(unsigned, unsigned, unsigned);
-        extern unsigned fcvt_s(unsigned, unsigned, unsigned char);
-        extern unsigned long fcvt_32_64(unsigned, unsigned, unsigned char);
-        extern unsigned long fcvt_64_32(unsigned, unsigned, unsigned char);
-        extern unsigned unbox_s(unsigned long);
-        extern unsigned fclass_s(unsigned);
-        extern unsigned fget_flags();
-    }
 }
