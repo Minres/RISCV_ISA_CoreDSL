@@ -285,6 +285,14 @@ InstructionSet RV32I extends RISCVBase {
             assembly: "{pred}, {succ} ({fm} , {name(rs1)}, {name(rd)})";
             behavior: FENCE[fence] = pred<<4 | succ;
         }
+//        SFENCE_VMA {
+//            encoding: 7'b0001001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: 5'b00000 :: 7'b1110011;
+//            assembly: "{name(rs2)}, {rs1}";
+//            behavior: {
+//                FENCE[fencevmal] = (unsigned)rs1;
+//                FENCE[fencevmau] = (unsigned)rs2;
+//            }
+//        }
         ECALL[[no_cont]] {
             encoding: 0b000000000000 :: 5'b00000 :: 3'b000 :: 5'b00000 :: 7'b1110011;
             behavior: raise(0, 11);
@@ -396,14 +404,6 @@ InstructionSet Zifencei extends RISCVBase {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0001111 ;
             assembly: "{name(rs1)}, {name(rd)}, {imm}";
             behavior: FENCE[fencei] = imm;
-        }
-        SFENCE_VMA {
-            encoding: 7'b0001001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: 5'b00000 :: 7'b1110011;
-            assembly: "{name(rs2)}, {rs1}";
-            behavior: {
-                FENCE[fencevmal] = (unsigned)rs1;
-                FENCE[fencevmau] = (unsigned)rs2;
-            }
         }
     }
 }
