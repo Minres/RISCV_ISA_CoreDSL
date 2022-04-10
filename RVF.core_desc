@@ -23,7 +23,7 @@ InstructionSet RV32F extends RISCVFBase{
             encoding: imm[11:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0000111;
             assembly: "f{rd}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
+                unsigned<XLEN> offs = X[rs1%RFS] + (signed<12>)imm;
                 unsigned<XLEN> res = MEM[offs];
                 if(FLEN==32)
                     F[rd] = res;
@@ -36,7 +36,7 @@ InstructionSet RV32F extends RISCVFBase{
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: imm[4:0] :: 7'b0100111;
             assembly: "f{rs2}, {imm}({name(rs1)])";
             behavior: {
-                unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
+                unsigned<XLEN> offs = X[rs1%RFS] + (signed<12>)imm;
                 MEM[offs]=F[rs2];
             }
         }
@@ -270,82 +270,92 @@ InstructionSet RV32F extends RISCVFBase{
             encoding: 7'b1100000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
-                if(FLEN==32)
-                    X[rd] = fcvt_s(F[rs1], 0U, rm);
-                else { // NaN boxing
-                    unsigned int frs1 = unbox_s(F[rs1]);
-                    X[rd]= fcvt_s(frs1, 0U, rm);
+                if((rd%RFS) != 0){
+	                if(FLEN==32)
+	                    X[rd%RFS] = fcvt_s(F[rs1], 0U, rm);
+	                else { // NaN boxing
+	                    unsigned int frs1 = unbox_s(F[rs1]);
+	                    X[rd%RFS]= fcvt_s(frs1, 0U, rm);
+	                }
+	                unsigned int flags = fget_flags();
+	                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                 }
-                unsigned int flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
         FCVT_WU_S {
             encoding: 7'b1100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
-                //FIXME: according to the spec it should be zero-extended not sign extended
-                if(FLEN==32)
-                     X[rd]= fcvt_s(F[rs1], 1U, rm);
-                else { // NaN boxing
-                    unsigned int frs1 = unbox_s(F[rs1]);
-                    X[rd]= fcvt_s(frs1, 1U, rm);
+                if((rd%RFS) != 0){
+	                //FIXME: according to the spec it should be zero-extended not sign extended
+	                if(FLEN==32)
+	                     X[rd%RFS]= fcvt_s(F[rs1], 1U, rm);
+	                else { // NaN boxing
+	                    unsigned int frs1 = unbox_s(F[rs1]);
+	                    X[rd%RFS]= fcvt_s(frs1, 1U, rm);
+	                }
+	                unsigned int flags = fget_flags();
+	                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                 }
-                unsigned int flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
         FEQ_S {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
-                if(FLEN==32)
-                    X[rd]=fcmp_s(F[rs1], F[rs2], 0U);
-                else {
-                    unsigned int frs1 = unbox_s(F[rs1]);
-                    unsigned int frs2 = unbox_s(F[rs2]);
-                    X[rd]=fcmp_s(frs1, frs2, 0U);
+                if((rd%RFS) != 0){
+	                if(FLEN==32)
+	                    X[rd%RFS]=fcmp_s(F[rs1], F[rs2], 0U);
+	                else {
+	                    unsigned int frs1 = unbox_s(F[rs1]);
+	                    unsigned int frs2 = unbox_s(F[rs2]);
+	                    X[rd%RFS]=fcmp_s(frs1, frs2, 0U);
+	                }
+	                unsigned int flags = fget_flags();
+	                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                 }
-                unsigned int flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
         FLT_S {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
-                if(FLEN==32)
-                    X[rd]=fcmp_s(F[rs1], F[rs2], 2U);
-                else {
-                    unsigned int frs1 = unbox_s(F[rs1]);
-                    unsigned int frs2 = unbox_s(F[rs2]);
-                    X[rd]=fcmp_s(frs1, frs2, 2U);
+                if((rd%RFS) != 0){
+	                if(FLEN==32)
+	                    X[rd%RFS]=fcmp_s(F[rs1], F[rs2], 2U);
+	                else {
+	                    unsigned int frs1 = unbox_s(F[rs1]);
+	                    unsigned int frs2 = unbox_s(F[rs2]);
+	                    X[rd%RFS]=fcmp_s(frs1, frs2, 2U);
+	                }
+	                unsigned int flags = fget_flags();
+	                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                 }
-                X[rd]=fcmp_s((unsigned)F[rs1], (unsigned)F[rs2], 2U);
-                unsigned int flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
         FLE_S {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rd)}, f{rs1}, f{rs2}";
             behavior: {
-                if(FLEN==32)
-                    X[rd]=fcmp_s(F[rs1], F[rs2], 1U);
-                else {
-                    unsigned int frs1 = unbox_s(F[rs1]);
-                    unsigned int frs2 = unbox_s(F[rs2]);
-                    X[rd]=fcmp_s(frs1, frs2, 1U);
+                if((rd%RFS) != 0){
+	                if(FLEN==32)
+	                    X[rd%RFS]=fcmp_s(F[rs1], F[rs2], 1U);
+	                else {
+	                    unsigned int frs1 = unbox_s(F[rs1]);
+	                    unsigned int frs2 = unbox_s(F[rs2]);
+	                    X[rd%RFS]=fcmp_s(frs1, frs2, 1U);
+	                }
+	                unsigned int flags = fget_flags();
+	                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                 }
-                unsigned int flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
         FCLASS_S {
             encoding: 7'b1110000 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rd)}, f{rs1}";
             behavior: {
-                X[rd]=fclass_s(unbox_s(F[rs1]));
+                if((rd%RFS) != 0)
+                X[rd%RFS]=fclass_s(unbox_s(F[rs1]));
             }
         }
         FCVT_S_W {
@@ -353,9 +363,9 @@ InstructionSet RV32F extends RISCVFBase{
             assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
                 if(FLEN==32)
-                    F[rd]  = fcvt_s((unsigned)X[rs1], 2U, rm);
+                    F[rd]  = fcvt_s((unsigned)X[rs1%RFS], 2U, rm);
                 else { // NaN boxing
-                    unsigned int res = fcvt_s((unsigned)X[rs1], 2U, rm);
+                    unsigned int res = fcvt_s((unsigned)X[rs1%RFS], 2U, rm);
                     F[rd] = (-1<<32) | (unsigned<FLEN>)res;
                 }
             }
@@ -365,9 +375,9 @@ InstructionSet RV32F extends RISCVFBase{
             assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
                 if(FLEN==32)
-                    F[rd]  =fcvt_s((unsigned)X[rs1], 3U, rm);
+                    F[rd]  =fcvt_s((unsigned)X[rs1%RFS], 3U, rm);
                 else { // NaN boxing
-                    unsigned int res =fcvt_s((unsigned)X[rs1], 3U, rm);
+                    unsigned int res =fcvt_s((unsigned)X[rs1%RFS], 3U, rm);
                     F[rd] = (-1<<32) | (unsigned<FLEN>)res;
                 }
             }
@@ -376,7 +386,8 @@ InstructionSet RV32F extends RISCVFBase{
             encoding: 7'b1110000 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rd)}, f{rs1}";
             behavior: {
-                X[rd]=F[rs1];
+                if((rd%RFS) != 0)
+                	X[rd%RFS]=F[rs1];
             }
         }
         FMV_W_X {
@@ -384,9 +395,9 @@ InstructionSet RV32F extends RISCVFBase{
             assembly: "f{rd}, {name(rs1)}";
             behavior: {
                 if(FLEN==32)
-                    F[rd] = X[rs1];
+                    F[rd] = X[rs1%RFS];
                 else { // NaN boxing
-                    F[rd] = (-1<<32) | (unsigned<FLEN>)X[rs1];
+                    F[rd] = (-1<<32) | (unsigned<FLEN>)X[rs1%RFS];
                 }
             }
         }
@@ -399,27 +410,31 @@ InstructionSet RV64F extends RV32F{
             encoding: 7'b1100000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
-                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 0U, rm);
-                X[rd]= res;
-                unsigned int flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                if((rd%RFS) != 0){
+	                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 0U, rm);
+	                X[rd%RFS]= res;
+	                unsigned int flags = fget_flags();
+	                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                }
             }
         }
         FCVT_LU_S { // fp to 64bit unsigned integer
             encoding: 7'b1100000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rm)}, {name(rd)}, f{rs1}";
             behavior: {
-                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 1U, rm);
-                X[rd]= res;
-                unsigned int flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                if((rd%RFS) != 0){
+	                unsigned long res = fcvt_32_64(unbox_s(F[rs1]), 1U, rm);
+	                X[rd%RFS]= res;
+	                unsigned int flags = fget_flags();
+	                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                }
             }
         }
         FCVT_S_L { // 64bit signed int to to fp
             encoding: 7'b1101000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
-                unsigned int res = fcvt_64_32(X[rs1], 2U, rm);
+                unsigned int res = fcvt_64_32(X[rs1%RFS], 2U, rm);
                 if(FLEN==32)
                     F[rd] = res;
                 else { // NaN boxing
@@ -431,7 +446,7 @@ InstructionSet RV64F extends RV32F{
             encoding: 7'b1101000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rm)}, f{rd}, {name(rs1)}";
             behavior: {
-                unsigned int res =fcvt_64_32(X[rs1], 3U, rm);
+                unsigned int res =fcvt_64_32(X[rs1%RFS], 3U, rm);
                 if(FLEN==32)
                     F[rd] = res;
                 else { // NaN boxing
