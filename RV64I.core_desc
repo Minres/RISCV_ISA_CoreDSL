@@ -4,7 +4,7 @@ InstructionSet RV64I extends RV32I {
     instructions {
         LWU { // 80000104: 0000ef03 lwu t5,0(ra)
             encoding: imm[11:0] :: rs1[4:0] :: 0b110 :: rd[4:0] :: 0b0000011;
-            args_disass:"{name(rd)}, {imm}({name(rs1)})";
+            assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
                 unsigned<32> res = (unsigned<32>)MEM[offs];
@@ -14,7 +14,7 @@ InstructionSet RV64I extends RV32I {
 
         LD {
             encoding: imm[11:0] :: rs1[4:0] :: 0b011 :: rd[4:0] :: 0b0000011;
-            args_disass:"{name(rd)}, {imm}({name(rs1)})";
+            assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
                 signed<64> res = (signed<64>)MEM[offs];
@@ -24,7 +24,7 @@ InstructionSet RV64I extends RV32I {
 
         SD {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 0b011 :: imm[4:0] :: 0b0100011;
-            args_disass:"{name(rs2)}, {imm}({name(rs1)})";
+            assembly:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
                 MEM[offs] = (signed<64>)X[rs2];
@@ -33,25 +33,25 @@ InstructionSet RV64I extends RV32I {
 
         SLLI {
             encoding: 0b000000 :: shamt[5:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if (rd != 0) X[rd] = X[rs1] << shamt;
         }
 
         SRLI {
             encoding: 0b000000 :: shamt[5:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if (rd != 0) X[rd] = X[rs1] >> shamt;
         }
 
         SRAI {
             encoding: 0b010000 :: shamt[5:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0010011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if (rd != 0) X[rd] = ((signed<XLEN>)X[rs1]) >> shamt;
         }
 
         ADDIW {
             encoding: imm[11:0] :: rs1[4:0] :: 0b000 :: rd[4:0] :: 0b0011011;
-            args_disass:"{name(rd)}, {name(rs1)}, {imm}";
+            assembly:"{name(rd)}, {name(rs1)}, {imm}";
             behavior: {
                 if (rd != 0) {
                     signed<32> res = X[rs1] + (signed<12>)imm;
@@ -62,7 +62,7 @@ InstructionSet RV64I extends RV32I {
 
         SLLIW {
             encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0011011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: {
                 if (rd != 0) {
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) <<  shamt;
@@ -73,7 +73,7 @@ InstructionSet RV64I extends RV32I {
 
         SRLIW {
             encoding: 0b0000000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0011011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: {
                 if (rd != 0) {
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) >> shamt;
@@ -84,7 +84,7 @@ InstructionSet RV64I extends RV32I {
 
         SRAIW {
             encoding: 0b0100000 :: shamt[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0011011;
-            args_disass:"{name(rd)}, {name(rs1)}, {shamt}";
+            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: {
                 if (rd != 0) {
                     signed<32> sh_val = ((signed<32>)X[rs1]) >> shamt;
@@ -115,7 +115,7 @@ InstructionSet RV64I extends RV32I {
 
         SLLW {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b001 :: rd[4:0] :: 0b0111011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
                 if (rd != 0) {
                     unsigned<32> count = (unsigned)X[rs2] & 0x1f;
@@ -127,7 +127,7 @@ InstructionSet RV64I extends RV32I {
 
         SRLW {
             encoding: 0b0000000 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0111011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
                 if (rd != 0) {
                     unsigned<32> count = (unsigned)X[rs2] & 0x1f;
@@ -139,7 +139,7 @@ InstructionSet RV64I extends RV32I {
 
         SRAW {
             encoding: 0b0100000 :: rs2[4:0] :: rs1[4:0] :: 0b101 :: rd[4:0] :: 0b0111011;
-            args_disass:"{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
                 if (rd != 0) {
                     unsigned<32> count = (unsigned)X[rs2] & 0x1f;
