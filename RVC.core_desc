@@ -35,7 +35,7 @@ InstructionSet RV32IC extends RV32I {
         CADDI {//(RV32)
             encoding: 3'b000 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rs1)}, {imm:#05x}";
-            behavior: X[rs1] = X[rs1] + (signed<6>)imm;
+            behavior: if ((rs1 % RFS) != 0) X[rs1 % RFS] = X[rs1 % RFS] + (signed<6>)imm;
         }
 
         CNOP {
@@ -59,7 +59,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b010 :: imm[5:5] :: rd[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rd)}, {imm:#05x}";
             behavior: {
-                if (rd != 0) X[rd] = (signed<6>)imm;
+                if ((rd % RFS) != 0) X[rd % RFS] = (signed<6>)imm;
             }
         }
 
@@ -69,7 +69,7 @@ InstructionSet RV32IC extends RV32I {
             assembly: "{name(rd)}, {imm:#05x}";
             behavior: {
                 if (imm == 0) raise(0, 2);
-                if (rd != 0) X[rd] = (signed<18>)imm;
+                if ((rd % RFS) != 0) X[rd % RFS] = (signed<18>)imm;
             }
         }
 
@@ -90,8 +90,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: 1'b0 :: 2'b00 :: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
-                unsigned<32> rs1_idx = rs1 + 8;
-                X[rs1_idx] = X[rs1_idx] >> shamt;
+                X[rs1 + 8] = X[rs1 + 8] >> shamt;
             }
         }
 
@@ -99,11 +98,10 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: 1'b0 :: 2'b01 :: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
-                unsigned<32> rs1_idx = rs1+8;
                 if (shamt) {
-                    X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> shamt;
+                    X[rs1 + 8] = ((signed<XLEN>)X[rs1 + 8]) >> shamt;
                 } else if (XLEN == 128) {
-                    X[rs1_idx] = ((signed<XLEN>)X[rs1_idx]) >> 64;
+                    X[rs1 + 8] = ((signed<XLEN>)X[rs1 + 8]) >> 64;
                 }
             }
         }
@@ -112,8 +110,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: imm[5:5] :: 2'b10 :: rs1[2:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
             behavior: {
-                unsigned<32> rs1_idx = rs1 + 8;
-                X[rs1_idx] = X[rs1_idx] & (signed<6>)imm;
+                X[rs1 + 8] = X[rs1 + 8] & (signed<6>)imm;
             }
         }
 
@@ -121,8 +118,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b00 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned<32> rd_idx = rd + 8;
-                X[rd_idx] = X[rd_idx] - X[rs2 + 8];
+                X[rd + 8] = X[rd + 8] - X[rs2 + 8];
             }
         }
 
@@ -130,8 +126,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b01 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned<32> rd_idx = rd + 8;
-                X[rd_idx] = X[rd_idx] ^ X[rs2 + 8];
+                X[rd + 8] = X[rd + 8] ^ X[rs2 + 8];
             }
         }
 
@@ -139,8 +134,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned<32> rd_idx = rd + 8;
-                X[rd_idx] = X[rd_idx] | X[rs2 + 8];
+                X[rd + 8] = X[rd + 8] | X[rs2 + 8];
             }
         }
 
@@ -148,8 +142,7 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b11 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                unsigned<32> rd_idx = rd + 8;
-                X[rd_idx] = X[rd_idx] & X[rs2 + 8];
+                X[rd + 8] = X[rd + 8] & X[rs2 + 8];
             }
         }
 
@@ -168,25 +161,26 @@ InstructionSet RV32IC extends RV32I {
         CBNEZ [[no_cont]] [[cond]] {//(RV32)
             encoding: 3'b111 :: imm[8:8] :: imm[4:3] :: rs1[2:0] :: imm[7:6] :: imm[2:1] :: imm[5:5] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
-            behavior: if (X[rs1+8] != 0) PC = PC + (signed<9>)imm;
+            behavior: if (X[rs1 + 8] != 0) PC = PC + (signed<9>)imm;
         }
 
         CSLLI {//(RV32)
             encoding: 3'b000 :: 1'b0 :: rs1[4:0] :: nzuimm[4:0] :: 2'b10;
             assembly: "{name(rs1)}, {nzuimm}";
-            behavior: if (nzuimm) X[rs1] = X[rs1]<< nzuimm;
+            behavior: if (nzuimm) X[rs1 % RFS] = X[rs1 % RFS] << nzuimm;
         }
 
         CLWSP {//
             encoding: 3'b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly: "{name(rd)}, sp, {uimm:#05x}";
             behavior: {
-                if (rd) {
-                    unsigned<XLEN> offs = X[2] + uimm;
-                    X[rd] = (signed<32>)MEM[offs];
-                } else {
+                unsigned<XLEN> offs = X[2] + uimm;
+                signed<32> res = MEM[offs];
+
+                if (rd % RFS)
+                    X[rd % RFS] = res;
+                else
                     raise(0,2);
-                }
             }
         }
 
@@ -194,14 +188,14 @@ InstructionSet RV32IC extends RV32I {
         CMV {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
-            behavior: if (rd != 0) X[rd] = X[rs2];
+            behavior: if ((rd % RFS) != 0) X[rd % RFS] = X[rs2 % RFS];
         }
 
         CJR [[no_cont]] {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: if (rs1)
-                PC = X[rs1] & ~0x1;
+                PC = X[rs1 % RFS] & ~0x1;
             else
                 raise(0,2);
         }
@@ -215,14 +209,14 @@ InstructionSet RV32IC extends RV32I {
         CADD {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
-            behavior: if (rd != 0) X[rd] = X[rd] + X[rs2];
+            behavior: if ((rd % RFS) != 0) X[rd % RFS] = X[rd % RFS] + X[rs2 % RFS];
         }
 
         CJALR [[no_cont]] {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: {
-                unsigned<XLEN> new_pc = X[rs1];
+                unsigned<XLEN> new_pc = X[rs1 % RFS];
                 X[1] = PC + 2;
                 PC = new_pc & ~0x1;
             }
@@ -238,7 +232,7 @@ InstructionSet RV32IC extends RV32I {
             assembly: "{name(rs2)}, {uimm:#05x}(sp)";
             behavior: {
                 unsigned<XLEN> offs = X[2] + uimm;
-                MEM[offs] = (unsigned<32>)X[rs2];
+                MEM[offs] = (unsigned<32>)X[rs2 % RFS];
             }
         }
 
@@ -255,12 +249,12 @@ InstructionSet RV32FC extends RV32F {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1+8]+uimm;
+                unsigned<XLEN> offs = X[rs1 + 8]+uimm;
                 unsigned<32> res = (unsigned<32>)MEM[offs];
                 if (FLEN == 32)
                     F[rd + 8] = res;
                 else { // NaN boxing
-                    F[rd + 8] = (-1 << 32) | res;
+                    F[rd + 8] = ((signed<FLEN>)-1 << 32) | res;
                 }
             }
         }
@@ -278,12 +272,12 @@ InstructionSet RV32FC extends RV32F {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
-                unsigned<XLEN> offs = X[2]+uimm;
+                unsigned<XLEN> offs = X[2] + uimm;
                 unsigned<32> res = (unsigned<32>)MEM[offs];
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                    F[rd] = (-1 << 32) | res;
+                    F[rd] = ((signed<FLEN>)-1 << 32) | res;
                 }
             }
         }
@@ -308,9 +302,9 @@ InstructionSet RV32DC extends RV32D {
                 unsigned<XLEN> offs = X[rs1 + 8] + uimm;
                 unsigned<64> res = (unsigned<64>)MEM[offs];
                 if (FLEN == 64)
-                    F[rd+8] = res;
+                    F[rd + 8] = res;
                 else { // NaN boxing
-                    F[rd+8] = (-1 << 64) | res;
+                    F[rd + 8] = (-1 << 64) | res;
                 }
             }
         }
@@ -349,111 +343,135 @@ InstructionSet RV32DC extends RV32D {
     }
 }
 
-/*
 InstructionSet RV64IC extends RV32IC {
+    instructions{
+        CSRLI {//(RV32/RV64)
+            encoding: 3'b100:: nzuimm[5:5] :: 2'b00:: rs1[2:0] :: nzuimm[4:0] :: 2'b01;
+            assembly: "{name(8+rs1)}, {nzuimm}";
+            behavior: {
+                X[rs1 + 8] = X[rs1 + 8] >> nzuimm;
+            }
+        }
 
-    instructions {
+        CSRAI {//(RV32/RV64)
+            encoding: 3'b100:: shamt[5:5] :: 2'b01:: rs1[2:0] :: shamt[4:0] :: 2'b01;
+            assembly: "{name(8+rs1)}, {shamt}";
+            behavior: {
+                X[rs1 + 8] = ((signed<XLEN>)X[rs1 + 8]) >> shamt;
+            }
+        }
+
+        CSLLI {//(RV32/RV64)
+            encoding: 3'b000:: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 2'b10;
+            assembly: "{name(rs1)}, {shamt}";
+            behavior: {
+                if(rs1 == 0) raise(0, 2);
+                X[rs1] = X[rs1] << shamt;
+            }
+        }
+
         CLD {//(RV64/128)
             encoding: 3'b011:: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {uimm},({name(8+rs1)})";
-            unsigned<XLEN> offs = X[rs1+8] + uimm;
-            X[rd+8] = (signed<64>)MEM[offs];
+            behavior: {
+                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
+                X[rd + 8] = (signed<64>)MEM[offs];
+            }
         }
+
         CSD { //(RV64/128)
             encoding: 3'b111:: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly: "{name(8+rs2)}, {uimm},({name(8+rs1)})";
-            unsigned<XLEN> offs = X[rs1+8] + uimm;
-            MEM[offs] = (signed<64>)X[rs2+8];
+            behavior: {
+                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
+                MEM[offs]= (unsigned<64>)X[rs2 + 8];
+            }
         }
+
         CSUBW {//(RV64/128, RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b00:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
-            unsigned<32> res = (unsigned<32>)X[rd+8] - (unsigned<32>)X[rs2+8];
-            X[rd+8] = (signed)res;
+            behavior: {
+                unsigned<32> res = (unsigned<32>)X[rd + 8] - (unsigned<32>)X[rs2 + 8];
+                X[rd + 8] = (signed<XLEN>)res;
+            }
         }
+
         CADDW {//(RV64/128 RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b01:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
-            unsigned<32> res = (unsigned<32>)X[rd+8] + (unsigned<32>)X[rs2+8];
-            X[rd+8] = (signed)res;
+            behavior: {
+	            unsigned<32> res = (unsigned<32>)X[rd + 8] + (unsigned<32>)X[rs2 + 8];
+	            X[rd + 8] = (signed<XLEN>)res;
+            }
         }
+
         CADDIW {//(RV64/128)
             encoding: 3'b001 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rs1)}, {imm:#05x}";
-            if (rs1 != 0) {
-                unsigned<32> res = (signed)X[rs1] + (signed)imm;
-                X[rs1] = (signed)res;
-            }
+            behavior: if ((rs1 % RFS) != 0) X[rs1 % RFS] = (signed<32>)X[rs1 % RFS] + (signed<6>)imm;
         }
-        CSRLI {//(RV64)
-            encoding:b100 :: shamt[5:5] :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
-            assembly: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] = rs1+8;
-            X[rs1_idx] = shrl(X[rs1_idx], shamt);
-        }
-        CSRLI64 {//(RV64)
-            encoding:b1000 :: 0b00 :: rs1[2:0] :: 00000 :: 0b01;
-            assembly: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] = rs1+8;
-            X[rs1_idx] = shrl(X[rs1_idx], shamt);
-        }
-        CSRAI {//(RV64)
-            encoding:b100 :: shamt[5:5] :: 0b01 :: rs1[2:0] :: shamt[4:0] :: 0b01;
-            assembly: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] = rs1+8;
-            X[rs1_idx] = shra(X[rs1_idx], shamt);
-        }
-        CSLLI {//(RV64)
-            encoding:b000 :: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 0b10;
-            assembly: "{name(rs1)}, {shamt}";
-            if (rs1 == 0) raise(0, 2);
-            X[rs1] = shll(X[rs1], shamt);
-        }
+
         CLDSP {//(RV64/128
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
-            assembly:"{name(rd)}, {uimm}(sp)";
-            unsigned<XLEN> offs = X[2] + uimm;
-            if (rd != 0) X[rd] = sext(MEM[offs]{64});
+            assembly: "{name(rd)}, {uimm}(sp)";
+            behavior: {
+                unsigned<XLEN> offs = X[2] + uimm;
+                signed<64> res = MEM[offs];
+
+                if (rd % RFS)
+                    X[rd % RFS] = res;
+                else
+                    raise(0,2);
+            }
         }
+
         CSDSP {//(RV64/128)
             encoding: 3'b111 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
-            assembly:"{name(rs2)}, {uimm}(sp)";
-            unsigned<XLEN> offs = X[2] + uimm;
-            MEM[offs]{64} = X[rs2];
-        }
+            assembly: "{name(rs2)}, {uimm}(sp)";
+            behavior: {
+                unsigned<XLEN> offs = X[2] + uimm;
+                MEM[offs] = (unsigned<64>)X[rs2 % RFS];
+        	}
+		}
     }
 }
 
 InstructionSet RV128IC extends RV64IC {
-
-    instructions {
-        CSRLI {//(RV128)
-            encoding:b100 :: shamt[5:5] :: 0b00 :: rs1[2:0] :: shamt[4:0] :: 0b01;
-            assembly: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] = rs1+8;
-            X[rs1_idx] = shrl(X[rs1_idx], shamt);
+    instructions{
+        CSRAI64 {//(RV128)
+            encoding: 3'b100 :: 0b0 :: 2'b01:: rs1[2:0] :: 0b0000 :: 2'b01;
+            assembly: "{name(8+rs1)}";
+            behavior: {
+                X[rs1 + 8] = (signed<XLEN>)X[rs1 + 8] >> 64;
+            }
         }
-        CSRAI {//(RV128)
-            encoding:b100 :: shamt[5:5] :: 0b01 :: rs1[2:0] :: shamt[4:0] :: 0b01;
-            assembly: "{name(8+rs1)}, {shamt}";
-            val rs1_idx[5] = rs1+8;
-            X[rs1_idx] = shra(X[rs1_idx], shamt);
+        CSRLI64 {//(RV128)
+            encoding: 0b1000 :: 2'b00:: rs1[2:0] :: 00000 :: 2'b01;
+            assembly: "{name(8+rs1)}";
+            behavior: {
+                X[rs1 + 8] = X[rs1 + 8] << 64;
+            }
         }
-        CSLLI {//(RV128)
-            encoding:b000 :: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 0b10;
-            assembly: "{name(rs1)}, {shamt}";
-            if (rs1 == 0) raise(0, 2);
-            X[rs1] = shll(X[rs1], shamt);
+        CSLLI64 {//(RV128)
+            encoding: 3'b000:: 0b0 :: rs1[4:0] :: 0b0000 :: 2'b10;
+            assembly: "{name(rs1)}";
+            behavior: {
+                if(rs1 == 0) raise(0, 2);
+                X[rs1] = X[rs1] << 64;
+            }
         }
         CLQ { //(RV128)
-             encoding:b001 :: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 0b00;
+             encoding: 3'b001:: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
+             behavior: {}
         }
         CSQ { //(RV128)
-            encoding:b101 :: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 0b00;
+            encoding: 3'b101:: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
+            behavior: {}
         }
         CSQSP {//(RV128)
-            encoding:b101 :: uimm[5:4] :: uimm[9:6] :: rs2[4:0] :: 0b10;
+            encoding: 3'b101:: uimm[5:4] :: uimm[9:6] :: rs2[4:0] :: 2'b10;
+            behavior: {}
         }
     }
 }
-*/
