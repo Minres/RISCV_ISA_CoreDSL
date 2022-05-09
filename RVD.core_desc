@@ -7,19 +7,19 @@ InstructionSet RV32D extends RV32F {
     }
 
     functions {
-        extern unsigned<32> fadd_d(unsigned<32>, unsigned<32>, unsigned char);
-        extern unsigned<32> fsub_d(unsigned<32>, unsigned<32>, unsigned char);
-        extern unsigned<32> fmul_d(unsigned<32>, unsigned<32>, unsigned char);
-        extern unsigned<32> fdiv_d(unsigned<32>, unsigned<32>, unsigned char);
-        extern unsigned<32> fmadd_d(unsigned<32>, unsigned<32>, unsigned<32>, unsigned<32>, unsigned char);
-        extern unsigned<32> fsel_d(unsigned<32>, unsigned<32>, unsigned<32>);
-        extern unsigned<32> fsqrt_d(unsigned<32>, unsigned char);
-        extern unsigned<32> fcmp_d(unsigned<32>, unsigned<32>, unsigned<32>);
-        extern unsigned<32> fcvt_d(unsigned<32>, unsigned<32>, unsigned char);
-        extern unsigned<32> fconv_d2f(unsigned<64>);
-        extern unsigned<64> fconv_f2d(unsigned<32>);
-        extern unsigned<32> unbox_d(unsigned<64>);
-        extern unsigned<32> fclass_d(unsigned<32>);
+        extern unsigned<64> fadd_d(unsigned<64>, unsigned<64>, unsigned char);
+        extern unsigned<64> fsub_d(unsigned<64>, unsigned<64>, unsigned char);
+        extern unsigned<64> fmul_d(unsigned<64>, unsigned<64>, unsigned char);
+        extern unsigned<64> fdiv_d(unsigned<64>, unsigned<64>, unsigned char);
+        extern unsigned<64> fmadd_d(unsigned<64>, unsigned<64>, unsigned<64>, unsigned<32>, unsigned char);
+        extern unsigned<64> fsel_d(unsigned<64>, unsigned<64>, unsigned<32>);
+        extern unsigned<64> fsqrt_d(unsigned<64>, unsigned char);
+        extern unsigned<64> fcmp_d(unsigned<64>, unsigned<64>, unsigned<32>);
+        extern unsigned<64> fcvt_d(unsigned<64>, unsigned<32>, unsigned char);
+        extern unsigned<32> fconv_d2f(unsigned<64>, unsigned char);
+        extern unsigned<64> fconv_f2d(unsigned<32>, unsigned char);
+        extern unsigned<64> unbox_d(unsigned<64>);
+        extern unsigned<64> fclass_d(unsigned<64>);
     }
 
     instructions {

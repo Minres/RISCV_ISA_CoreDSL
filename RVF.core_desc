@@ -21,7 +21,7 @@ InstructionSet RV32F extends Zicsr {
         extern unsigned<32> fcmp_s(unsigned<32>, unsigned<32>, unsigned<32>);
         extern unsigned<32> fcvt_s(unsigned<32>, unsigned<32>, unsigned char);
         extern unsigned<64> fcvt_32_64(unsigned<32>, unsigned<32>, unsigned char);
-        extern unsigned<64> fcvt_64_32(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fcvt_64_32(unsigned<64>, unsigned<32>, unsigned char);
         extern unsigned<32> unbox_s(unsigned<64>);
         extern unsigned<32> fclass_s(unsigned<32>);
         extern unsigned<32> fget_flags();
