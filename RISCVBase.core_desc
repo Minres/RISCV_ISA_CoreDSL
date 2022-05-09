@@ -2,6 +2,7 @@ InstructionSet RISCVBase {
     architectural_state {
         unsigned int XLEN;
         unsigned int INSTR_ALIGNMENT = 4;
+        unsigned int RFS = 32;
 
         unsigned int fence = 0;
         unsigned int fencei = 1;
@@ -9,7 +10,7 @@ InstructionSet RISCVBase {
         unsigned int fencevmau = 3;
 
         // core registers
-        register unsigned<XLEN> X[32] [[is_main_reg]];
+        register unsigned<XLEN> X[RFS] [[is_main_reg]];
         register unsigned<XLEN> PC [[is_pc]];
 
         // register aliases
