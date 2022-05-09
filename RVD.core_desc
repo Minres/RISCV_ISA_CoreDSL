@@ -288,7 +288,15 @@ InstructionSet RV32D extends RV32F {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
             assembly:"{name(rd)}, f {rs1}, f {rs2}";
             behavior: {
-                X[rd] = fcmp_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], 0);
+                unsigned<64> res = 0;
+                if (FLEN == 64)
+                    res = fcmp_d(F[rs1], F[rs2], 0);
+                else {
+                    unsigned<64> frs1 = unbox_d(F[rs1]);
+                    unsigned<64> frs2 = unbox_d(F[rs2]);
+                    res = fcmp_d(frs1, frs2, 0);
+                }
+                if ((rd % RFS) != 0) X[rd % RFS] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -298,7 +306,15 @@ InstructionSet RV32D extends RV32F {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly:"{name(rd)}, f {rs1}, f {rs2}";
             behavior: {
-                X[rd] = fcmp_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], 2);
+                unsigned<64> res = 0;
+                if (FLEN == 64)
+                    res = fcmp_d(F[rs1], F[rs2], 2);
+                else {
+                    unsigned<64> frs1 = unbox_d(F[rs1]);
+                    unsigned<64> frs2 = unbox_d(F[rs2]);
+                    res = fcmp_d(frs1, frs2, 2);
+                }
+                if ((rd % RFS) != 0) X[rd % RFS] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -308,7 +324,15 @@ InstructionSet RV32D extends RV32F {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly:"{name(rd)}, f {rs1}, f {rs2}";
             behavior: {
-                X[rd] = fcmp_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], 1);
+                unsigned<64> res = 0;
+                if (FLEN == 64)
+                    res = fcmp_d(F[rs1], F[rs2], 1);
+                else {
+                    unsigned<64> frs1 = unbox_d(F[rs1]);
+                    unsigned<64> frs2 = unbox_d(F[rs2]);
+                    res = fcmp_d(frs1, frs2, 1);
+                }
+                if ((rd % RFS) != 0) X[rd % RFS] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -318,7 +342,7 @@ InstructionSet RV32D extends RV32F {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly:"{name(rd)}, f {rs1}";
             behavior: {
-                X[rd] = fclass_d((unsigned<64>)F[rs1]);
+                X[rd % RFS] = fclass_d((unsigned<64>)F[rs1]);
             }
         }
 
@@ -326,7 +350,14 @@ InstructionSet RV32D extends RV32F {
             encoding: 7'b1100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly:"{name(rm)}, {name(rd)}, f {rs1}";
             behavior: {
-                X[rd] = fcvt_64_32((unsigned<64>)F[rs1], 0, rm);
+                signed<64> res = 0;
+                if (FLEN == 64)
+                    res = fcvt_64_32(F[rs1], 0, rm);
+                else { // NaN boxing
+                    unsigned<64> frs1 = unbox_d(F[rs1]);
+                    res = fcvt_64_32(frs1, 0, rm);
+                }
+                if ((rd % RFS) != 0) X[rd % RFS] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -337,7 +368,14 @@ InstructionSet RV32D extends RV32F {
             assembly:"{name(rm)}, {name(rd)}, f {rs1}";
             behavior: {
                 //FIXME: should be zext accodring to spec but needs to be sext according to tests
-                X[rd] = fcvt_64_32((unsigned<64>)F[rs1], 1, rm);
+                unsigned<64> res = 0;
+                if (FLEN == 64)
+                    res = fcvt_64_32(F[rs1], 0, rm);
+                else { // NaN boxing
+                    unsigned<64> frs1 = unbox_d(F[rs1]);
+                    res = fcvt_64_32(frs1, 0, rm);
+                }
+                if ((rd % RFS) != 0) X[rd % RFS] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
