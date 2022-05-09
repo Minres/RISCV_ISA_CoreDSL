@@ -37,7 +37,7 @@ InstructionSet RV32F extends Zicsr {
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                    F[rd] = ((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
+                    F[rd] = ((signed<FLEN>)-1 << 32) | (unsigned<FLEN>)res;
                 }
             }
         }
