@@ -2,6 +2,10 @@ import "RVF.core_desc"
 
 // TODO: review instruction description wrt. Spec after type system is fixed
 InstructionSet RV32D extends RV32F {
+    architectural_state {
+        FLEN = 64;
+    }
+
     functions {
         extern unsigned<32> fadd_d(unsigned<32>, unsigned<32>, unsigned char);
         extern unsigned<32> fsub_d(unsigned<32>, unsigned<32>, unsigned char);

@@ -3,7 +3,7 @@ import "RV32I.core_desc"
 // TODO: review instruction description wrt. Spec after type system is fixed
 InstructionSet RV32F extends Zicsr {
     architectural_state {
-        unsigned<32> FLEN;
+        unsigned<32> FLEN = 32;
         unsigned<32> FFLAG_MASK = 0x1f;
 
         register unsigned<FLEN> F[32];
