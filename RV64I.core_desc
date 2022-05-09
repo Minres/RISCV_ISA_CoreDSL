@@ -1,6 +1,10 @@
 import "RV32I.core_desc"
 
 InstructionSet RV64I extends RV32I {
+    architectural_state {
+        XLEN = 64;
+    }
+
     instructions {
         LWU { // 80000104: 0000ef03 lwu t5,0(ra)
             encoding: imm[11:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0000011;
