@@ -199,7 +199,7 @@ InstructionSet RV32D extends RISCVFBase{
                 unsigned long ONE = 1;
                 unsigned long MSK1 = ONE<<63;
                 unsigned long MSK2 = MSK1-1;
-                unsigned long res = ((unsigned long)F[rs1] & MSK2) | (~(unsigned long)F[rs2] & MSK1);
+                unsigned long res = ((unsigned long)F[rs1] & MSK2) | (~((unsigned long)F[rs2] & MSK1));
                 if(FLEN==64)
                     F[rd] = res;
                 else { // NaN boxing

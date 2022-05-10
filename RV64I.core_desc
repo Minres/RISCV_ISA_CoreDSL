@@ -6,7 +6,7 @@ InstructionSet RV64I extends RV32I {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0000011;
             assembly: "{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-	            unsigned offs = X[rs1%RFS]+(signed<12>)imm;
+	            unsigned int offs = X[rs1%RFS]+(signed<12>)imm;
 	            if((rd%RFS) != 0) X[rd%RFS]=(unsigned<32>)MEM[offs];
             }
         }
@@ -14,7 +14,7 @@ InstructionSet RV64I extends RV32I {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0000011;
             assembly: "{name(rd)}, {imm}({name(rs1)})";
             behavior: {
-	            unsigned offs = X[rs1%RFS] + (signed<12>)imm;
+	            unsigned int offs = X[rs1%RFS] + (signed<12>)imm;
 	            if((rd%RFS) != 0) X[rd%RFS]=(unsigned<64>)MEM[offs];
             }
         }
@@ -22,7 +22,7 @@ InstructionSet RV64I extends RV32I {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100011;
             assembly: "{name(rs2)}, {imm}({name(rs1)})";
             behavior: {
-            	unsigned offs = X[rs1%RFS] + (signed<12>)imm;
+            	unsigned int offs = X[rs1%RFS] + (signed<12>)imm;
             	MEM[offs] = X[rs2%RFS];
             }
         }
@@ -104,7 +104,7 @@ InstructionSet RV64I extends RV32I {
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if((rd%RFS) != 0){
-	                unsigned count = (unsigned)X[rs2%RFS] & 0x1f;
+	                unsigned int count = (unsigned)X[rs2%RFS] & 0x1f;
 	                unsigned<32> sh_val =((unsigned<32>)X[rs1%RFS]) << count;
 	                X[rd%RFS] = (unsigned<64>)sh_val;
 	            } 
@@ -115,7 +115,7 @@ InstructionSet RV64I extends RV32I {
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
     	        if((rd%RFS) != 0){
-	                unsigned count = (unsigned)X[rs2%RFS] & 0x1f;
+	                unsigned int count = (unsigned)X[rs2%RFS] & 0x1f;
 	                unsigned<32> sh_val =((unsigned<32>)X[rs1%RFS]) >> count;
 	                X[rd%RFS] = (unsigned<64>)sh_val;
 	            } 
@@ -126,7 +126,7 @@ InstructionSet RV64I extends RV32I {
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
 	            if((rd%RFS) != 0){
-	                unsigned count = (unsigned)X[rs2%RFS] & 0x1f;
+	                unsigned int count = (unsigned)X[rs2%RFS] & 0x1f;
 	                signed<32> sh_val =((signed<32>)X[rs1%RFS]) >> count;
 	                X[rd%RFS] = (signed<64>)sh_val;
     	        } 
