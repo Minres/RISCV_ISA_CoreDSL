@@ -53,7 +53,7 @@ InstructionSet RV32IC extends RISCVBase{
             assembly: "{name(rd)}, {imm:#05x}";
             behavior: {
 	            if((rd%RFS) != 0)   //rd==0 is a hint, so no trap
-	               X[rd] = (unsigned<XLEN>)(signed)imm;
+	               X[rd%RFS] = (signed<6>)imm;
             }
         }
         // order matters here as CADDI16SP overwrites CLUI for rd==2
