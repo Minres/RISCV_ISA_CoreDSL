@@ -2,172 +2,184 @@ import "RISCVBase.core_desc"
 
 InstructionSet RV32M extends RISCVBase {
     architectural_state {
-        unsigned int MUL_LEN=2*XLEN;
+        unsigned<32> MUL_LEN = 2 * XLEN;
     }
-    instructions{
-        MUL{
+
+    instructions {
+        MUL {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1%RFS] * (signed<MUL_LEN>)(signed)X[rs2%RFS];
-	                X[rd%RFS]= (unsigned<XLEN>)res;
-	            }
+                if ((rd % RFS) != 0) {
+                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1 % RFS] * (signed<MUL_LEN>)(signed)X[rs2 % RFS];
+                    X[rd % RFS] = (unsigned<XLEN>)res;
+                }
             }
         }
+
         MULH {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1%RFS] * (signed<MUL_LEN>)(signed)X[rs2%RFS];
-	                X[rd%RFS]= (unsigned<XLEN>)(res >> XLEN);
-	            }
+                if ((rd % RFS) != 0) {
+                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1 % RFS] * (signed<MUL_LEN>)(signed)X[rs2 % RFS];
+                    X[rd % RFS] = (unsigned<XLEN>)(res >> XLEN);
+                }
             }
         }
+
         MULHSU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	            	signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1%RFS] * (unsigned<MUL_LEN>)X[rs2%RFS];
-		                X[rd%RFS]= (unsigned<XLEN>)(res >> XLEN);
-	            }
+                if ((rd % RFS) != 0) {
+                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1 % RFS] * (unsigned<MUL_LEN>)X[rs2 % RFS];
+                        X[rd % RFS] = (unsigned<XLEN>)(res >> XLEN);
+                }
             }
         }
+
         MULHU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)X[rs1%RFS] * (unsigned<MUL_LEN>)X[rs2%RFS];
-	                X[rd%RFS]= (unsigned<XLEN>)(res >> XLEN);
-	            }
+                if ((rd % RFS) != 0) {
+                    unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)X[rs1 % RFS] * (unsigned<MUL_LEN>)X[rs2 % RFS];
+                    X[rd % RFS] = (unsigned<XLEN>)(res >> XLEN);
+                }
             }
         }
+
         DIV {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                if(X[rs2%RFS]!=0){
-	                    unsigned<XLEN> MMIN = 1<<(XLEN-1);
-	                    if(X[rs1%RFS]==MMIN && (signed<XLEN>)X[rs2%RFS]==-1)
-	                        X[rd%RFS] = MMIN;
-	                    else
-	                        X[rd%RFS] = (signed<XLEN>)X[rs1%RFS] / (signed<XLEN>)X[rs2%RFS];
-	                }else 
-	                    X[rd%RFS] = -1;
-	            }
+                if ((rd % RFS) != 0) {
+                    if (X[rs2 % RFS] != 0) {
+                        unsigned<XLEN> MMIN = 1<<(XLEN-1);
+                        if (X[rs1 % RFS] == MMIN && (signed<XLEN>)X[rs2 % RFS] == -1)
+                            X[rd % RFS] = MMIN;
+                        else
+                            X[rd % RFS] = (signed<XLEN>)X[rs1 % RFS] / (signed<XLEN>)X[rs2 % RFS];
+                    }else
+                        X[rd % RFS] = -1;
+                }
             }
         }
+
         DIVU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-            if((rd%RFS) != 0){
-                if(X[rs2%RFS]!=0)
-                    X[rd%RFS] = X[rs1%RFS] / X[rs2%RFS];
-                else 
-                    X[rd%RFS] = -1;
-            }
+                if ((rd % RFS) != 0) {
+                    if (X[rs2 % RFS] != 0)
+                        X[rd % RFS] = X[rs1 % RFS] / X[rs2 % RFS];
+                    else
+                        X[rd % RFS] = -1;
+                }
             }
         }
+
         REM {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                if(X[rs2%RFS]!=0) {
-	                    unsigned<XLEN> MMIN = 1<<(XLEN-1);
-	                    if(X[rs1%RFS]==MMIN && (signed<XLEN>)X[rs2%RFS]==-1)
-	                        X[rd%RFS] = 0;
-	                    else
-	                        X[rd%RFS] = (signed<XLEN>)X[rs1%RFS] % (signed<XLEN>)X[rs2%RFS];
-	                } else 
-	                    X[rd%RFS] = X[rs1%RFS];
-	            }
+                if ((rd % RFS) != 0) {
+                    if (X[rs2 % RFS] != 0) {
+                        unsigned<XLEN> MMIN = 1<<(XLEN-1);
+                        if (X[rs1 % RFS] == MMIN && (signed<XLEN>)X[rs2 % RFS] == -1)
+                            X[rd % RFS] = 0;
+                        else
+                            X[rd % RFS] = (signed<XLEN>)X[rs1 % RFS] % (signed<XLEN>)X[rs2 % RFS];
+                    } else
+                        X[rd % RFS] = X[rs1 % RFS];
+                }
             }
         }
+
         REMU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-            if((rd%RFS) != 0){
-                if(X[rs2%RFS]!=0)
-                    X[rd%RFS] = X[rs1%RFS] % X[rs2%RFS];
-                else 
-                    X[rd%RFS] = X[rs1%RFS];
-            }
+                if ((rd % RFS) != 0) {
+                    if (X[rs2 % RFS] != 0)
+                        X[rd % RFS] = X[rs1 % RFS] % X[rs2 % RFS];
+                    else
+                        X[rd % RFS] = X[rs1 % RFS];
+                }
             }
         }
     }
 }
 
 InstructionSet RV64M extends RV32M {
-    instructions{
-        MULW{
+    instructions {
+        MULW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                X[rd%RFS]= (signed<MUL_LEN>)(signed<32>)X[rs1%RFS] * (signed<MUL_LEN>)(signed<32>)X[rs2%RFS];
+                if ((rd % RFS) != 0) {
+                    X[rd % RFS] = (signed<MUL_LEN>)(signed<32>)X[rs1 % RFS] * (signed<MUL_LEN>)(signed<32>)X[rs2 % RFS];
                 }
             }
         }
+
         DIVW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0111011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                if(X[rs2%RFS]!=0){
+                if ((rd % RFS) != 0) {
+                    if (X[rs2 % RFS] != 0) {
                         signed<32> MMIN = 1<<31;
-	                    if((signed<32>)X[rs1%RFS]==MMIN && (signed<32>)X[rs2%RFS]==-1)
-	                        X[rd%RFS] = -1<<31;
+                        if ((signed<32>)X[rs1 % RFS] == MMIN && (signed<32>)X[rs2 % RFS] == -1)
+                            X[rd % RFS] = -1<<31;
                         else
-	                        X[rd%RFS] = (signed<XLEN>)((signed<32>)X[rs1%RFS] / (signed<32>)X[rs2%RFS]);
+                            X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS] / (signed<32>)X[rs2 % RFS]);
                     }else
-	                    X[rd%RFS] = -1;
+                        X[rd % RFS] = -1;
                 }
             }
         }
+
         DIVUW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-		            if((unsigned<32>)X[rs2%RFS]!=0)
-		                X[rd%RFS] = (signed<XLEN>)((unsigned<32>)X[rs1%RFS] / (unsigned<32>)X[rs2%RFS]);
+                if ((rd % RFS) != 0) {
+                    if ((unsigned<32>)X[rs2 % RFS] != 0)
+                        X[rd % RFS] = (signed<XLEN>)((unsigned<32>)X[rs1 % RFS] / (unsigned<32>)X[rs2 % RFS]);
                     else
-		                X[rd%RFS] = -1;
+                        X[rd % RFS] = -1;
                 }
             }
         }
+
         REMW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0111011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-	                if(X[rs2%RFS]!=0) {
+                if ((rd % RFS) != 0) {
+                    if (X[rs2 % RFS] != 0) {
                         signed<32> MMIN = 1<<31;
-	                    if((signed<32>)X[rs1%RFS]==MMIN && (signed<32>)X[rs2%RFS]==-1)
-	                        X[rd%RFS] = 0;
+                        if ((signed<32>)X[rs1 % RFS] == MMIN && (signed<32>)X[rs2 % RFS] == -1)
+                            X[rd % RFS] = 0;
                         else
-	                        X[rd%RFS] = (signed<XLEN>)((signed<32>)X[rs1%RFS] % (signed<32>)X[rs2%RFS]);
+                            X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS] % (signed<32>)X[rs2 % RFS]);
                     } else
-	                    X[rd%RFS] = (signed<XLEN>)((signed<32>)X[rs1%RFS]);
+                        X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS]);
                 }
             }
         }
+
         REMUW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0111011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
-	            if((rd%RFS) != 0){
-		            if((unsigned<32>)X[rs2%RFS]!=0)
-		                X[rd%RFS] = (signed<XLEN>)((unsigned<32>)X[rs1%RFS] % (unsigned<32>)X[rs2%RFS]);
+                if ((rd % RFS) != 0) {
+                    if ((unsigned<32>)X[rs2 % RFS] != 0)
+                        X[rd % RFS] = (signed<XLEN>)((unsigned<32>)X[rs1 % RFS] % (unsigned<32>)X[rs2 % RFS]);
                     else
-	                    X[rd%RFS] = (signed<XLEN>)((signed<32>)X[rs1%RFS]);
+                        X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS]);
                 }
             }
         }
