@@ -174,12 +174,10 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly: "{name(rd)}, sp, {uimm:#05x}";
             behavior: {
-                unsigned<XLEN> offs = X[2] + uimm;
-                signed<32> res = MEM[offs];
-
-                if (rd % RFS)
-                    X[rd % RFS] = res;
-                else
+                if(rd % RFS) {
+                    signed<32> res = MEM[X[2] + uimm];
+                    X[rd % RFS] = (signed<XLEN>)res;
+                } else
                     raise(0,2);
             }
         }
