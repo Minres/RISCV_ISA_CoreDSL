@@ -1,4 +1,6 @@
 import "RV32I.core_desc"
+import "RVF.core_desc"
+import "RVD.core_desc"
 
 InstructionSet RV32IC extends RV32I {
     architectural_state {
