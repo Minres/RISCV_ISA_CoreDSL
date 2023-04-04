@@ -9,60 +9,54 @@ InstructionSet RV32M extends RISCVBase {
         MUL {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1 % RFS] * (signed<MUL_LEN>)(signed)X[rs2 % RFS];
-                    X[rd % RFS] = (unsigned<XLEN>)res;
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
+                signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2];
+                if(rd!=0) X[rd] = (unsigned<XLEN>)res;
             }
         }
 
         MULH {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1 % RFS] * (signed<MUL_LEN>)(signed)X[rs2 % RFS];
-                    X[rd % RFS] = (unsigned<XLEN>)(res >> XLEN);
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
+                signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2];
+                if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
 
         MULHSU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1 % RFS] * (unsigned<MUL_LEN>)X[rs2 % RFS];
-                        X[rd % RFS] = (unsigned<XLEN>)(res >> XLEN);
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
+                signed<MUL_LEN> res = (signed<MUL_LEN>)(signed)X[rs1] * (unsigned<MUL_LEN>)X[rs2];
+                    if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
 
         MULHU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)X[rs1 % RFS] * (unsigned<MUL_LEN>)X[rs2 % RFS];
-                    X[rd % RFS] = (unsigned<XLEN>)(res >> XLEN);
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
+                unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)X[rs1] * (unsigned<MUL_LEN>)X[rs2];
+                if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
 
         DIV {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if (X[rs2 % RFS] != 0) {
-                        unsigned<XLEN> MMIN = 1<<(XLEN-1);
-                        if (X[rs1 % RFS] == MMIN && (signed<XLEN>)X[rs2 % RFS] == -1)
-                            X[rd % RFS] = MMIN;
-                        else
-                            X[rd % RFS] = (signed<XLEN>)X[rs1 % RFS] / (signed<XLEN>)X[rs2 % RFS];
-                    }else
-                        X[rd % RFS] = -1;
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
+                signed<XLEN> dividend = (signed<XLEN>)X[rs1];
+                signed<XLEN> divisor = (signed<XLEN>)X[rs2];
+                if(rd != 0) {
+                    if (divisor != 0) {
+                        unsigned<XLEN> MMIN = ((unsigned<XLEN>)1)<<(XLEN-1);
+                        if (X[rs1] == MMIN && divisor == -1) {
+                            X[rd] = MMIN;
+                        } else
+                            X[rd] = dividend / divisor;
+                    } else
+                        X[rd] = (signed<XLEN>)-1;
                 }
             }
         }
@@ -70,42 +64,38 @@ InstructionSet RV32M extends RISCVBase {
         DIVU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if (X[rs2 % RFS] != 0)
-                        X[rd % RFS] = X[rs1 % RFS] / X[rs2 % RFS];
-                    else
-                        X[rd % RFS] = -1;
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
+                if (X[rs2] != 0) {
+                    if(rd!=0) X[rd] = X[rs1] / X[rs2];
+                } else
+                    if(rd!=0) X[rd] = (signed<XLEN>)-1;
             }
         }
 
         REM {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if (X[rs2 % RFS] != 0) {
-                        unsigned<XLEN> MMIN = 1<<(XLEN-1);
-                        if (X[rs1 % RFS] == MMIN && (signed<XLEN>)X[rs2 % RFS] == -1)
-                            X[rd % RFS] = 0;
-                        else
-                            X[rd % RFS] = (signed<XLEN>)X[rs1 % RFS] % (signed<XLEN>)X[rs2 % RFS];
-                    } else
-                        X[rd % RFS] = X[rs1 % RFS];
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
+                if (X[rs2] != 0) {
+                    unsigned<XLEN> MMIN = 1<<(XLEN-1);
+                    if (X[rs1] == MMIN && (signed<XLEN>)X[rs2] == -1) {
+                        if(rd!=0) X[rd] = 0;
+                    } else {
+                        if(rd!=0) X[rd] = (signed<XLEN>)X[rs1] % (signed<XLEN>)X[rs2];
+                    }
+                } else
+                    if(rd!=0) X[rd] = X[rs1];
             }
         }
 
         REMU {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if (X[rs2 % RFS] != 0)
-                        X[rd % RFS] = X[rs1 % RFS] % X[rs2 % RFS];
-                    else
-                        X[rd % RFS] = X[rs1 % RFS];
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
+                if (X[rs2] != 0) {
+                    if(rd!=0) X[rd] = X[rs1] % X[rs2];
+                } else {
+                    if(rd!=0) X[rd] = X[rs1];
                 }
             }
         }
@@ -117,70 +107,66 @@ InstructionSet RV64M extends RV32M {
         MULW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    X[rd % RFS] = (signed<MUL_LEN>)(signed<32>)X[rs1 % RFS] * (signed<MUL_LEN>)(signed<32>)X[rs2 % RFS];
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else   {
+                if(rd!=0) X[rd] = (signed<64>)((signed<32>)X[rs1] * (signed<32>)X[rs2]);
             }
         }
 
         DIVW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if (X[rs2 % RFS] != 0) {
-                        signed<32> MMIN = 1<<31;
-                        if ((signed<32>)X[rs1 % RFS] == MMIN && (signed<32>)X[rs2 % RFS] == -1)
-                            X[rd % RFS] = -1<<31;
-                        else
-                            X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS] / (signed<32>)X[rs2 % RFS]);
-                    }else
-                        X[rd % RFS] = -1;
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
+                signed<32> dividend = (signed<32>)X[rs1];
+                signed<32> divisor = (signed<32>)X[rs2];
+                if (divisor != 0) {
+                    signed<32> MMIN = 1<<31;
+                    if (dividend == MMIN && divisor == -1) {
+                        if(rd!=0) X[rd] = -1<<31;
+                    } else {
+                        if(rd!=0) X[rd] = (signed<XLEN>)(dividend / divisor);
+                    }
+                } else
+                    if(rd!=0) X[rd] = (signed<XLEN>)-1;
             }
         }
 
         DIVUW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if ((unsigned<32>)X[rs2 % RFS] != 0)
-                        X[rd % RFS] = (signed<XLEN>)((unsigned<32>)X[rs1 % RFS] / (unsigned<32>)X[rs2 % RFS]);
-                    else
-                        X[rd % RFS] = -1;
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
+                unsigned<32> dividend = (unsigned<32>)X[rs1];
+                unsigned<32> divisor = (unsigned<32>)X[rs2];
+                if (divisor != 0) {
+                    if(rd!=0) X[rd] = (unsigned<XLEN>)(dividend / divisor);
+                } else 
+                    if(rd!=0) X[rd] = (unsigned<32>)-1;
             }
         }
 
         REMW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if (X[rs2 % RFS] != 0) {
-                        signed<32> MMIN = 1<<31;
-                        if ((signed<32>)X[rs1 % RFS] == MMIN && (signed<32>)X[rs2 % RFS] == -1)
-                            X[rd % RFS] = 0;
-                        else
-                            X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS] % (signed<32>)X[rs2 % RFS]);
-                    } else
-                        X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS]);
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
+                if (((signed<32>)X[rs2]) != 0) {
+                    signed<32> SMIN = 1<<31;
+                    if ((signed<32>)X[rs1] == SMIN && (signed<32>)X[rs2] == -1) {
+                        if(rd!=0) X[rd] = 0;
+                    } else {
+                        if(rd!=0) X[rd] = (signed<XLEN>)((signed<32>)X[rs1] % (signed<32>)X[rs2]);
+                    }
+                } else
+                    if(rd!=0) X[rd] = (signed<XLEN>)((signed<32>)X[rs1]);
             }
         }
 
         REMUW {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    if ((unsigned<32>)X[rs2 % RFS] != 0)
-                        X[rd % RFS] = (signed<XLEN>)((unsigned<32>)X[rs1 % RFS] % (unsigned<32>)X[rs2 % RFS]);
-                    else
-                        X[rd % RFS] = (signed<XLEN>)((signed<32>)X[rs1 % RFS]);
-                }
+            behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
+                if ((unsigned<32>)X[rs2] != 0) {
+                    if(rd!=0) X[rd] = (unsigned<XLEN>)((unsigned<32>)X[rs1] % (unsigned<32>)X[rs2]);
+                } else
+                    if(rd!=0) X[rd] = (unsigned<XLEN>)((unsigned<32>)X[rs1]);
             }
         }
     }
