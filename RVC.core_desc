@@ -169,7 +169,7 @@ InstructionSet RV32IC extends RV32I {
         CSLLI {//(RV32)
             encoding: 3'b000 :: 1'b0 :: rs1[4:0] :: nzuimm[4:0] :: 2'b10;
             assembly: "{name(rs1)}, {nzuimm}";
-            behavior: if(rs1 >= RFS || nzuimm == 0) raise(0, 2); else  if(rs1 != 0) X[rs1] = X[rs1] << nzuimm;
+            behavior: if(rs1 >= RFS) raise(0, 2); else  if(rs1 != 0) X[rs1] = X[rs1] << nzuimm;
         }
 
         CLWSP {//
@@ -363,10 +363,7 @@ InstructionSet RV64IC extends RV32IC {
         CSLLI {//(RV32/RV64)
             encoding: 3'b000:: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 2'b10;
             assembly: "{name(rs1)}, {shamt}";
-            behavior: {
-                if(rs1 == 0 || rs1 >= RFS) raise(0, 2);
-                X[rs1] = X[rs1] << shamt;
-            }
+            behavior: if(rs1 >= RFS) raise(0, 2); else if (rs1 != 0) X[rs1] = X[rs1] << shamt;
         }
 
         CLD {//(RV64/128)
