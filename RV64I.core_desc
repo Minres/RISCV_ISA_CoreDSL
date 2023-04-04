@@ -63,7 +63,7 @@ InstructionSet RV64I extends RV32I {
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     signed<32> res = X[rs1] + (signed<12>)imm;
-                    X[rd] = (signed<64>)res;
+                    X[rd] = (signed<XLEN>)res;
                 }
             }
         }
@@ -96,7 +96,7 @@ InstructionSet RV64I extends RV32I {
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     signed<32> sh_val = ((signed<32>)X[rs1]) >> shamt;
-                    X[rd] = (signed<64>)sh_val;
+                    X[rd] = (signed<XLEN>)sh_val;
                 }
             }
         }
@@ -106,7 +106,7 @@ InstructionSet RV64I extends RV32I {
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     signed<32> res = (signed<32>)X[rs1] + (signed<32>)X[rs2];
-                    X[rd] = (signed<64>)res;
+                    X[rd] = (signed<XLEN>)res;
                 }
             }
         }
@@ -116,7 +116,7 @@ InstructionSet RV64I extends RV32I {
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     signed<32> res = (signed<32>)X[rs1] - (signed<32>)X[rs2];
-                    X[rd] = (signed<64>)res;
+                    X[rd] = (signed<XLEN>)res;
                 }
             }
         }
