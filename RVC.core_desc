@@ -246,7 +246,7 @@ InstructionSet RV32FC extends RV32F {
     instructions {
         CFLW {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
-            assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
+            assembly: "f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 + 8]+uimm;
                 unsigned<32> res = (unsigned<32>)MEM[offs];
@@ -260,7 +260,7 @@ InstructionSet RV32FC extends RV32F {
 
         CFSW {
             encoding: 3'b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
-            assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
+            assembly: "f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 + 8] + uimm;
                 MEM[offs] = (unsigned<32>)F[rs2 + 8];
@@ -269,7 +269,7 @@ InstructionSet RV32FC extends RV32F {
 
         CFLWSP {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
-            assembly:"f {rd}, {uimm}(x2)";
+            assembly: "f {rd}, {uimm}(x2)";
             behavior: {
                 unsigned<XLEN> offs = X[2] + uimm;
                 unsigned<32> res = (unsigned<32>)MEM[offs];
@@ -283,7 +283,7 @@ InstructionSet RV32FC extends RV32F {
 
         CFSWSP {
             encoding: 3'b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
-            assembly:"f {rs2}, {uimm}(x2), ";
+            assembly: "f {rs2}, {uimm}(x2), ";
             behavior: {
                 unsigned<XLEN> offs = X[2] + uimm;
                 MEM[offs] = (unsigned<32>)F[rs2];
@@ -296,7 +296,7 @@ InstructionSet RV32DC extends RV32D {
     instructions {
         CFLD { //(RV32/64)
             encoding: 3'b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
-            assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
+            assembly: "f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 + 8] + uimm;
                 unsigned<64> res = (unsigned<64>)MEM[offs];
@@ -310,7 +310,7 @@ InstructionSet RV32DC extends RV32D {
 
         CFSD { //(RV32/64)
             encoding: 3'b101 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
-            assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
+            assembly: "f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 + 8] + uimm;
                 MEM[offs] = (unsigned<64>)F[rs2 + 8];
@@ -319,7 +319,7 @@ InstructionSet RV32DC extends RV32D {
 
         CFLDSP {//(RV32/64)
             encoding: 3'b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
-            assembly:"f {rd}, {uimm}(x2)";
+            assembly: "f {rd}, {uimm}(x2)";
             behavior: {
                 unsigned<XLEN> offs = X[2] + uimm;
                 unsigned<64> res = (unsigned<64>)MEM[offs];
@@ -333,7 +333,7 @@ InstructionSet RV32DC extends RV32D {
 
         CFSDSP {//(RV32/64)
             encoding: 3'b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
-            assembly:"f {rs2}, {uimm}(x2), ";
+            assembly: "f {rs2}, {uimm}(x2), ";
             behavior: {
                 unsigned<XLEN> offs = X[2] + uimm;
                 MEM[offs] = (unsigned<64>)F[rs2];
