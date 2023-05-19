@@ -27,7 +27,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOSWAPW {
             encoding: 5'b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoswap.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 if ((rd % RFS) != 0) X[rd % RFS] = (signed<XLEN>)((signed<32>)MEM[offs]);
@@ -37,7 +37,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOADDW {
             encoding: 5'b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoadd.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<32> res1 = MEM[offs];
@@ -49,7 +49,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOXORW {
             encoding: 5'b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoxor.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<32> res1 = MEM[offs];
@@ -61,7 +61,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOANDW {
             encoding: 5'b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoand.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<32> res1 = MEM[offs];
@@ -73,7 +73,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOORW {
             encoding: 5'b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoor.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<32> res1 = MEM[offs];
@@ -85,7 +85,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOMINW {
             encoding: 5'b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amomin.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<32> res1 = MEM[offs];
@@ -97,7 +97,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOMAXW {
             encoding: 5'b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amomax.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<32> res1 = MEM[offs];
@@ -109,7 +109,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOMINUW {
             encoding: 5'b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amominu.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 unsigned<32> res1 = MEM[offs];
@@ -121,7 +121,7 @@ InstructionSet RV32A extends RISCVBase {
 
         AMOMAXUW {
             encoding: 5'b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amomaxu.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 unsigned<32> res1 = MEM[offs];
@@ -162,7 +162,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOSWAPD {
             encoding: 5'b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoswap.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 if ((rd % RFS) != 0) X[rd % RFS] = (signed<XLEN>)((signed<64>)MEM[offs]);
@@ -172,7 +172,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOADDD {
             encoding: 5'b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoadd.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<64> res = MEM[offs];
@@ -184,7 +184,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOXORD {
             encoding: 5'b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoxor.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<64> res = MEM[offs];
@@ -196,7 +196,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOANDD {
             encoding: 5'b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoand.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<64> res = MEM[offs];
@@ -208,7 +208,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOORD {
             encoding: 5'b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amoor.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<64> res = MEM[offs];
@@ -220,7 +220,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOMIND {
             encoding: 5'b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amomin.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<64> res1 = MEM[offs];
@@ -232,7 +232,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOMAXD {
             encoding: 5'b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amomax.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 signed<64> res = MEM[offs];
@@ -244,7 +244,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOMINUD {
             encoding: 5'b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amominu.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 unsigned<64> res = MEM[offs];
@@ -256,7 +256,7 @@ InstructionSet RV64A extends RV32A {
 
         AMOMAXUD {
             encoding: 5'b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})";
+            assembly: {"amomaxu.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS];
                 unsigned<64> res1 = MEM[offs];
