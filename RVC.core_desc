@@ -285,7 +285,7 @@ InstructionSet RV32FC extends RV32F {
 
         CFSWSP {
             encoding: 3'b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
-            assembly: {"c.fswsp", "f {rs2}, {uimm}(x2), "};
+            assembly: {"c.fswsp", "f {rs2}, {uimm}(x2)"};
             behavior: {
                 unsigned<XLEN> offs = X[2] + uimm;
                 MEM[offs] = (unsigned<32>)F[rs2];
@@ -335,7 +335,7 @@ InstructionSet RV32DC extends RV32D {
 
         CFSDSP {//(RV32/64)
             encoding: 3'b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
-            assembly: {"c.fsdsp", "f {rs2}, {uimm}(x2), "};
+            assembly: {"c.fsdsp", "f {rs2}, {uimm}(x2)"};
             behavior: {
                 unsigned<XLEN> offs = X[2] + uimm;
                 MEM[offs] = (unsigned<64>)F[rs2];
