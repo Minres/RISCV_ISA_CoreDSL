@@ -25,7 +25,7 @@ InstructionSet RV32D extends RV32F {
     instructions {
         FLD {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0000111;
-            assembly: "f {rd}, {imm}({name(rs1)})";
+            assembly: "{fname(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS] + (signed<12>)imm;
                 unsigned<64> res = (unsigned<64>)MEM[offs];
@@ -39,7 +39,7 @@ InstructionSet RV32D extends RV32F {
 
         FSD {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100111;
-            assembly: "f {rs2}, {imm}({name(rs1)})";
+            assembly: "{fname(rs2)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS] + (signed<12>)imm;
                 MEM[offs] = (unsigned<64>)F[rs2];
@@ -48,7 +48,7 @@ InstructionSet RV32D extends RV32F {
 
         FMADD_D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
-            assembly: {"fmadd.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}"};
+            assembly: {"fmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = F[rs1]f * F[rs2]f + F[rs3]f;
                 unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 0, rm<7? rm: (unsigned char)FCSR);
@@ -64,7 +64,7 @@ InstructionSet RV32D extends RV32F {
 
         FMSUB_D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
-            assembly: {"fmsub.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}"};
+            assembly: {"fmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = F[rs1]f * F[rs2]f - F[rs3]f;
                 unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 1, rm<7? rm: (unsigned char)FCSR);
@@ -80,7 +80,7 @@ InstructionSet RV32D extends RV32F {
 
         FNMADD_D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
-            assembly: {"fnmadd.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}"};
+            assembly: {"fnmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = -F[rs1]f * F[rs2]f + F[rs3]f;
                 unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 2, rm<7? rm: (unsigned char)FCSR);
@@ -96,7 +96,7 @@ InstructionSet RV32D extends RV32F {
 
         FNMSUB_D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
-            assembly: {"fnmsub.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}"};
+            assembly: {"fnmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = -F[rs1]f * F[rs2]f - F[rs3]f;
                 unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 3, rm<7? rm: (unsigned char)FCSR);
@@ -112,7 +112,7 @@ InstructionSet RV32D extends RV32F {
 
         FADD_D {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fadd.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"fadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f + F[rs2]f;
                 unsigned<64> res = fadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -128,7 +128,7 @@ InstructionSet RV32D extends RV32F {
 
         FSUB_D {
             encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsub.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"fsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f - F[rs2]f;
                 unsigned<64> res = fsub_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -144,7 +144,7 @@ InstructionSet RV32D extends RV32F {
 
         FMUL_D {
             encoding: 7'b0001001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmul.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"fmul.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f * F[rs2]f;
                 unsigned<64> res = fmul_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -160,7 +160,7 @@ InstructionSet RV32D extends RV32F {
 
         FDIV_D {
             encoding: 7'b0001101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fdiv.d", "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"fdiv.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f / F[rs2]f;
                 unsigned<64> res = fdiv_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
@@ -176,7 +176,7 @@ InstructionSet RV32D extends RV32F {
 
         FSQRT_D {
             encoding: 7'b0101101 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsqrt.d", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fsqrt.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 //F[rd]f = sqrt(F[rs1]f);
                 unsigned<64> res = fsqrt_d((unsigned<64>)F[rs1], rm<7? rm: (unsigned char)FCSR);
@@ -192,7 +192,7 @@ InstructionSet RV32D extends RV32F {
 
         FSGNJ_D {
             encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnj.d", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fsgnj.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<64> res = F[rs2][63:63] :: F[rs1][62:0];
                 if (FLEN == 64)
@@ -205,7 +205,7 @@ InstructionSet RV32D extends RV32F {
 
         FSGNJN_D {
             encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnjn.d", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fsgnjn.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2})"};
             behavior: {
                 unsigned<64> res = ~F[rs2][63:63] :: F[rs1][62:0];
                 if (FLEN == 64)
@@ -218,7 +218,7 @@ InstructionSet RV32D extends RV32F {
 
         FSGNJX_D {
             encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnjx.d", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fsgnjx.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<64> res = (unsigned<64>)F[rs1] ^ ((unsigned<64>)F[rs2] & (1 << 63));
                 if (FLEN == 64)
@@ -231,7 +231,7 @@ InstructionSet RV32D extends RV32F {
 
         FMIN_D {
             encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmin.d", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fmin.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 //F[rd]f = choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
                 unsigned<64> res = fsel_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], 0);
@@ -247,7 +247,7 @@ InstructionSet RV32D extends RV32F {
 
         FMAX_D {
             encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmax.d", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fmax.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 //F[rd]f = choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
                 unsigned<64> res = fsel_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], 1);
@@ -263,7 +263,7 @@ InstructionSet RV32D extends RV32F {
 
         FCVT_S_D {
             encoding: 7'b0100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.s.d", "{name(rm)}, f {rd}, f {rs1}"};
+            assembly: {"fcvt.s.d", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
                 unsigned<32> res = fconv_d2f(F[rs1], rm);
                 // NaN boxing
@@ -273,7 +273,7 @@ InstructionSet RV32D extends RV32F {
 
         FCVT_D_S {
             encoding: 7'b0100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.s", "{name(rm)}, f {rd}, f {rs1}"};
+            assembly: {"fcvt.d.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
                 unsigned<64> res = fconv_f2d((unsigned)F[rs1], rm);
                 if (FLEN == 64) {
@@ -286,7 +286,7 @@ InstructionSet RV32D extends RV32F {
 
         FEQ_D {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly: {"feq.d", "{name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"feq.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<64> res = 0;
                 if (FLEN == 64)
@@ -304,7 +304,7 @@ InstructionSet RV32D extends RV32F {
 
         FLT_D {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"flt.d", "{name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"flt.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<64> res = 0;
                 if (FLEN == 64)
@@ -322,7 +322,7 @@ InstructionSet RV32D extends RV32F {
 
         FLE_D {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fle.d", "{name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"fle.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<64> res = 0;
                 if (FLEN == 64)
@@ -340,7 +340,7 @@ InstructionSet RV32D extends RV32F {
 
         FCLASS_D {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"flass.d", "{name(rd)}, f {rs1}"};
+            assembly: {"flass.d", "{name(rd)}, {fname(rs1)}"};
             behavior: {
                 X[rd % RFS] = fclass_d((unsigned<64>)F[rs1]);
             }
@@ -348,7 +348,7 @@ InstructionSet RV32D extends RV32F {
 
         FCVT_W_D {
             encoding: 7'b1100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.w.d", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.w.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 signed<64> res = 0;
                 if (FLEN == 64)
@@ -365,7 +365,7 @@ InstructionSet RV32D extends RV32F {
 
         FCVT_WU_D {
             encoding: 7'b1100001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.wu.d", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.wu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 //FIXME: should be zext accodring to spec but needs to be sext according to tests
                 unsigned<64> res = 0;
@@ -383,7 +383,7 @@ InstructionSet RV32D extends RV32F {
 
         FCVT_D_W {
             encoding: 7'b1101001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.w", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.d.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 signed<64> res = fcvt_32_64((unsigned)X[rs1 % RFS], 2, rm);
                 if (FLEN == 64)
@@ -396,7 +396,7 @@ InstructionSet RV32D extends RV32F {
 
         FCVT_D_WU {
             encoding: 7'b1101001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.wu", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.d.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 unsigned<64> res = fcvt_32_64((unsigned)X[rs1 % RFS], 3, rm);
                 if (FLEN == 64)
@@ -413,7 +413,7 @@ InstructionSet RV64D extends RV32D {
     instructions {
         FCVT_L_D {
             encoding: 7'b1100001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.l.d", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.l.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 X[rd % RFS] = fcvt_d((unsigned<64>)F[rs1], 0, rm);
                 unsigned<32> flags = fget_flags();
@@ -423,7 +423,7 @@ InstructionSet RV64D extends RV32D {
 
         FCVT_LU_D {
             encoding: 7'b1100001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.lu.d", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.lu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 X[rd % RFS] = fcvt_d((unsigned<64>)F[rs1], 1, rm);
                 unsigned<32> flags = fget_flags();
@@ -433,7 +433,7 @@ InstructionSet RV64D extends RV32D {
 
         FCVT_D_L {
             encoding: 7'b1101001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.l", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.d.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 unsigned<64> res = fcvt_d(X[rs1 % RFS], 2, rm);
                 if (FLEN == 64)
@@ -446,7 +446,7 @@ InstructionSet RV64D extends RV32D {
 
         FCVT_D_LU {
             encoding: 7'b1101001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.lu", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.d.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 unsigned<64> res = fcvt_d(X[rs1 % RFS], 3, rm);
                 if (FLEN == 64)
@@ -459,7 +459,7 @@ InstructionSet RV64D extends RV32D {
 
         FMV_X_D {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmv.x.d", "{name(rd)}, f {rs1}"};
+            assembly: {"fmv.x.d", "{name(rd)}, {fname(rs1)}"};
             behavior: {
                 X[rd % RFS] = F[rs1]; //FIXME: sign extend
             }
@@ -467,7 +467,7 @@ InstructionSet RV64D extends RV32D {
 
         FMV_D_X {
             encoding: 7'b1111001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmv.d.x", "f {rd}, {name(rs1)}"};
+            assembly: {"fmv.d.x", "{fname(rd)}, {name(rs1)}"};
             behavior: {
                 F[rd] = X[rs1 % RFS];
             }

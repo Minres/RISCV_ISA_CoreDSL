@@ -30,7 +30,7 @@ InstructionSet RV32F extends Zicsr {
     instructions {
         FLW {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0000111;
-            assembly: "f {rd}, {imm}({name(rs1)})";
+            assembly: "{fname(rd)}, {imm}({name(rs1)})";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS] + (signed<12>)imm;
                 unsigned<32> res = (unsigned<32>)MEM[offs];
@@ -44,7 +44,7 @@ InstructionSet RV32F extends Zicsr {
 
         FSW {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: imm[4:0] :: 7'b0100111;
-            assembly: "f {rs2}, {imm}({name(rs1)])";
+            assembly: "{fname(rs2)}, {imm}({name(rs1)])";
             behavior: {
                 unsigned<XLEN> offs = X[rs1 % RFS] + (signed<12>)imm;
                 MEM[offs] = (unsigned<32>)F[rs2];
@@ -53,7 +53,7 @@ InstructionSet RV32F extends Zicsr {
 
         FMADD_S {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
-            assembly: "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
                 //F[rd]f = F[rs1]f * F[rs2]f + F[rs3]f;
                 if (FLEN == 32)
@@ -69,7 +69,7 @@ InstructionSet RV32F extends Zicsr {
 
         FMSUB_S {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
-            assembly: "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
                 //F[rd]f = F[rs1]f * F[rs2]f - F[rs3]f;
                 if (FLEN == 32)
@@ -85,7 +85,7 @@ InstructionSet RV32F extends Zicsr {
 
         FNMADD_S {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
-            assembly: "{name(rm)}, name(rd), f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, name(rd), {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
                 //F[rd]f = -F[rs1]f * F[rs2]f + F[rs3]f;
                 if (FLEN == 32)
@@ -104,7 +104,7 @@ InstructionSet RV32F extends Zicsr {
 
         FNMSUB_S {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
-            assembly: "{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
             //F[rd]f = -F[rs1]f * F[rs2]f - F[rs3]f;
                 if (FLEN == 32)
@@ -123,7 +123,7 @@ InstructionSet RV32F extends Zicsr {
 
         FADD_S {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fadd.s", "{name(rm)}, f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fadd.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f + F[rs2]f;
                 if (FLEN == 32)
@@ -141,7 +141,7 @@ InstructionSet RV32F extends Zicsr {
 
         FSUB_S {
             encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsub.s", "{name(rm)}, f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fsub.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f - F[rs2]f;
                 if (FLEN == 32)
@@ -159,7 +159,7 @@ InstructionSet RV32F extends Zicsr {
 
         FMUL_S {
             encoding: 7'b0001000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmul.s", "{name(rm)}, f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fmul.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f * F[rs2]f;
                 if (FLEN == 32)
@@ -177,7 +177,7 @@ InstructionSet RV32F extends Zicsr {
 
         FDIV_S {
             encoding: 7'b0001100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fdiv.s", "{name(rm)}, f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fdiv.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f / F[rs2]f;
                 if (FLEN == 32)
@@ -195,7 +195,7 @@ InstructionSet RV32F extends Zicsr {
 
         FSQRT_S {
             encoding: 7'b0101100 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsqrt.s", "{name(rm)}, f {rd}, f {rs1}"};
+            assembly: {"fsqrt.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
                 //F[rd]f = sqrt(F[rs1]f);
                 if (FLEN == 32)
@@ -212,7 +212,7 @@ InstructionSet RV32F extends Zicsr {
 
         FSGNJ_S {
             encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnj.s", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fsgnj.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 if (FLEN == 32)
                     F[rd] = F[rs2][31:31] :: F[rs1][30:0];
@@ -227,7 +227,7 @@ InstructionSet RV32F extends Zicsr {
 
         FSGNJN_S {
             encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnjn.s", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fsgnjn.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 if (FLEN == 32)
                     F[rd] = ~F[rs2][31:31] :: F[rs1][30:0];
@@ -242,7 +242,7 @@ InstructionSet RV32F extends Zicsr {
 
         FSGNJX_S {
             encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnjx.s", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fsgnjx.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 if (FLEN == 32)
                     F[rd] = F[rs1] ^ (F[rs2] & 0x80000000);
@@ -257,7 +257,7 @@ InstructionSet RV32F extends Zicsr {
 
         FMIN_S {
             encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmin.s", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fmin.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 //F[rd]f = choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
                 if (FLEN == 32)
@@ -275,7 +275,7 @@ InstructionSet RV32F extends Zicsr {
 
         FMAX_S {
             encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmax.s", "f {rd}, f {rs1}, f {rs2}"};
+            assembly: {"fmax.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 //F[rd]f = choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
                 if (FLEN == 32)
@@ -293,7 +293,7 @@ InstructionSet RV32F extends Zicsr {
 
         FCVT_W_S {
             encoding: 7'b1100000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.w.s", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.w.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 signed<32> res = 0;
                 if (FLEN == 32)
@@ -310,7 +310,7 @@ InstructionSet RV32F extends Zicsr {
 
         FCVT_WU_S {
             encoding: 7'b1100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.wu.s", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.wu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 //FIXME: according to the spec it should be zero-extended not sign extended
                 unsigned<32> res = 0;
@@ -328,7 +328,7 @@ InstructionSet RV32F extends Zicsr {
 
         FEQ_S {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly: {"feq.s", "{name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"feq.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<32> res = 0;
                 if (FLEN == 32)
@@ -346,7 +346,7 @@ InstructionSet RV32F extends Zicsr {
 
         FLT_S {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"flt.s", "{name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"flt.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<32> res = 0;
                 if (FLEN == 32)
@@ -364,7 +364,7 @@ InstructionSet RV32F extends Zicsr {
 
         FLE_S {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fle.s", "{name(rd)}, f {rs1}, f {rs2}"};
+            assembly: {"fle.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<32> res = 0;
                 if (FLEN == 32)
@@ -382,7 +382,7 @@ InstructionSet RV32F extends Zicsr {
 
         FCLASS_S {
             encoding: 7'b1110000 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fclass.s", "{name(rd)}, f {rs1}"};
+            assembly: {"fclass.s", "{name(rd)}, {fname(rs1)}"};
             behavior: {
                 unsigned<32> res = 0;
                 if (FLEN == 32)
@@ -395,7 +395,7 @@ InstructionSet RV32F extends Zicsr {
 
         FCVT_S_W {
             encoding: 7'b1101000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.s.w", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 if (FLEN == 32)
                     F[rd] = fcvt_s((unsigned)X[rs1 % RFS], 2, rm);
@@ -408,7 +408,7 @@ InstructionSet RV32F extends Zicsr {
 
         FCVT_S_WU {
             encoding: 7'b1101000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.s.wu", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 if (FLEN == 32)
                     F[rd] = fcvt_s((unsigned)X[rs1 % RFS], 3, rm);
@@ -421,7 +421,7 @@ InstructionSet RV32F extends Zicsr {
 
         FMV_X_W {
             encoding: 7'b1110000 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmv.x.w", "{name(rd)}, f {rs1}"};
+            assembly: {"fmv.x.w", "{name(rd)}, {fname(rs1)}"};
             behavior: {
                 if ((rd % RFS) != 0) X[rd % RFS] = F[rs1];
             }
@@ -429,7 +429,7 @@ InstructionSet RV32F extends Zicsr {
 
         FMV_W_X {
             encoding: 7'b1111000 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmv.w.x", "f {rd}, {name(rs1)}"};
+            assembly: {"fmv.w.x", "{fname(rd)}, {name(rs1)}"};
             behavior: {
                 if (FLEN == 32)
                     F[rd] = X[rs1 % RFS];
@@ -445,7 +445,7 @@ InstructionSet RV64F extends RV32F {
     instructions {
         FCVT_L_S { // fp to 64bit signed integer
             encoding: 7'b1100000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.l.s", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.l.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 signed<64> res = fcvt_32_64(unbox_s(F[rs1]), 0, rm);
                 if ((rd % RFS) != 0) X[rd % RFS] = res;
@@ -456,7 +456,7 @@ InstructionSet RV64F extends RV32F {
 
         FCVT_LU_S { // fp to 64bit unsigned integer
             encoding: 7'b1100000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.lu.s", "{name(rm)}, {name(rd)}, f {rs1}"};
+            assembly: {"fcvt.lu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 1, rm);
                 if ((rd % RFS) != 0) X[rd % RFS] = res;
@@ -467,7 +467,7 @@ InstructionSet RV64F extends RV32F {
 
         FCVT_S_L { // 64bit signed int to to fp
             encoding: 7'b1101000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.s.l", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.s.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 unsigned<32> res = fcvt_64_32(X[rs1 % RFS], 2, rm);
                 if (FLEN == 32)
@@ -480,7 +480,7 @@ InstructionSet RV64F extends RV32F {
 
         FCVT_S_LU { // 64bit unsigned int to to fp
             encoding: 7'b1101000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.s.lu", "{name(rm)}, f {rd}, {name(rs1)}"};
+            assembly: {"fcvt.s.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 unsigned<32> res = fcvt_64_32(X[rs1 % RFS], 3, rm);
                 if (FLEN == 32)
