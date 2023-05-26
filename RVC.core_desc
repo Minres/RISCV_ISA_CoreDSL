@@ -10,7 +10,7 @@ InstructionSet RV32IC extends RV32I {
     instructions{
         CADDI4SPN { //(RES, imm=0)
             encoding: 3'b000 :: imm[5:4] :: imm[9:6] :: imm[2:2] :: imm[3:3] :: rd[2:0] :: 2'b00;
-            assembly: "{name(rd)}, {imm:#05x}";
+            assembly: "{name(8+rd)}, {imm:#05x}";
             behavior:
                 if (imm) X[rd + 8] = X[2] + imm;
                 else raise(0, 2);
