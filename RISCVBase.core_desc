@@ -3,7 +3,6 @@ InstructionSet RISCVBase {
         unsigned int XLEN;
         unsigned int INSTR_ALIGNMENT = 4;
         unsigned int RFS = 32;
-        unsigned int BXLEN = XLEN/8;
         unsigned int fence = 0;
         unsigned int fencei = 1;
         unsigned int fencevmal = 2;
