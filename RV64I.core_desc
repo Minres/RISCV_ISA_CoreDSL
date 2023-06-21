@@ -10,7 +10,7 @@ InstructionSet RV64I extends RV32I {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0000011;
             assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
-                unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 unsigned<32> res = (unsigned<32>)MEM[offs];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
@@ -20,7 +20,7 @@ InstructionSet RV64I extends RV32I {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0000011;
             assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
-                unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 signed<64> res = (signed<64>)MEM[offs];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
@@ -30,8 +30,8 @@ InstructionSet RV64I extends RV32I {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100011;
             assembly:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
-                unsigned<XLEN> offs = X[rs1] + (signed<12>)imm;
-                MEM[offs] = (unsigned<XLEN>)X[rs2];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
+                MEM[offs+7:offs] = (unsigned<XLEN>)X[rs2];
             }
         }
 
@@ -54,7 +54,7 @@ InstructionSet RV64I extends RV32I {
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else
                 if (rd != 0)
-                    X[rd] = ((signed<XLEN>)X[rs1]) >> shamt;
+                    X[rd] = (unsigned<XLEN>)(((signed<XLEN>)X[rs1]) >> shamt);
         }
 
         ADDIW {
@@ -62,8 +62,8 @@ InstructionSet RV64I extends RV32I {
             assembly:"{name(rd)}, {name(rs1)}, {imm}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
-                    signed<32> res = X[rs1] + (signed<12>)imm;
-                    X[rd] = (signed<XLEN>)res;
+                    signed<32> res = (signed<32>)(X[rs1] + (signed<12>)imm);
+                    X[rd] = (unsigned<XLEN>)res;
                 }
             }
         }
@@ -74,7 +74,7 @@ InstructionSet RV64I extends RV32I {
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) <<  shamt;
-                    X[rd] = (signed<XLEN>)(signed)sh_val;
+                    X[rd] = (unsigned<XLEN>)(signed)sh_val;
                 }
             }
         }
@@ -85,7 +85,7 @@ InstructionSet RV64I extends RV32I {
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) >> shamt;
-                    X[rd] = (signed<XLEN>)(signed)sh_val;
+                    X[rd] = (unsigned<XLEN>)(signed)sh_val;
                 }
             }
         }
@@ -96,7 +96,7 @@ InstructionSet RV64I extends RV32I {
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     signed<32> sh_val = ((signed<32>)X[rs1]) >> shamt;
-                    X[rd] = (signed<XLEN>)sh_val;
+                    X[rd] = (unsigned<XLEN>)sh_val;
                 }
             }
         }
@@ -105,8 +105,8 @@ InstructionSet RV64I extends RV32I {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
-                    signed<32> res = (signed<32>)X[rs1] + (signed<32>)X[rs2];
-                    X[rd] = (signed<XLEN>)res;
+                    signed<32> res = (signed<32>)((signed<32>)X[rs1] + (signed<32>)X[rs2]);
+                    X[rd] = (unsigned<XLEN>)res;
                 }
             }
         }
@@ -115,8 +115,8 @@ InstructionSet RV64I extends RV32I {
             encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
-                    signed<32> res = (signed<32>)X[rs1] - (signed<32>)X[rs2];
-                    X[rd] = (signed<XLEN>)res;
+                    signed<32> res = (signed<32>)((signed<32>)X[rs1] - (signed<32>)X[rs2]);
+                    X[rd] = (unsigned<XLEN>)res;
                 }
             }
         }
@@ -126,9 +126,9 @@ InstructionSet RV64I extends RV32I {
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
-                    unsigned<32> count = (unsigned)X[rs2] & 0x1f;
+                    unsigned<32> count = (unsigned<32>)X[rs2] & 0x1f;
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) << count;
-                    X[rd] = (signed<XLEN>)(signed)sh_val;
+                    X[rd] = (unsigned<XLEN>)(signed)sh_val;
                 }
             }
         }
@@ -138,9 +138,9 @@ InstructionSet RV64I extends RV32I {
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
-                    unsigned<32> count = (unsigned)X[rs2] & 0x1f;
+                    unsigned<32> count = (unsigned<32>)X[rs2] & 0x1f;
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) >> count;
-                    X[rd] = (signed<XLEN>)(signed)sh_val;
+                    X[rd] = (unsigned<XLEN>)(signed)sh_val;
                 }
             }
         }
@@ -150,9 +150,9 @@ InstructionSet RV64I extends RV32I {
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
-                    unsigned<32> count = (unsigned)X[rs2] & 0x1f;
+                    unsigned<32> count = (unsigned<32>)X[rs2] & 0x1f;
                     signed<32> sh_val = ((signed<32>)X[rs1]) >> count;
-                    X[rd] = (signed<64>)sh_val;
+                    X[rd] = (unsigned<64>)sh_val;
                 }
             }
         }
