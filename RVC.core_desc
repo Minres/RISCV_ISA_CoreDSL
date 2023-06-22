@@ -30,7 +30,7 @@ InstructionSet RV32IC extends RV32I {
             assembly: "{name(8+rs2)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
-                MEM[load_address+3:load_address] = (unsigned<XLEN>)(signed<32>)X[rs2 + 8];
+                MEM[load_address+3:load_address] = (unsigned<32>)X[rs2 + 8];
             }
         }
 
