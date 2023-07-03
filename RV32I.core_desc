@@ -327,21 +327,21 @@ InstructionSet RV32I extends RISCVBase {
         }
 
         ECALL [[no_cont]] {
-            encoding: 0b000000000000 :: 5'b00000 :: 3'b000 :: 5'b00000 :: 7'b1110011;
+            encoding: 12'b0 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: raise(0, 11);
         }
 
         EBREAK [[no_cont]] {
-            encoding: 0b000000000001 :: 5'b00000 :: 3'b000 :: 5'b00000 :: 7'b1110011;
+            encoding: 12'b1 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: raise(0, 3);
         }
         MRET[[no_cont]] {
-            encoding: 7'b0011000 :: 5'b00010 :: 5'b00000 :: 3'b000 :: 5'b00000 :: 7'b1110011;
+            encoding: 7'b0011000 :: 5'b00010 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: leave(3);
         }
 
         WFI {
-            encoding: 7'b0001000 :: 5'b00101 :: 5'b00000 :: 3'b000 :: 5'b00000 :: 7'b1110011;
+            encoding: 7'b0001000 :: 5'b00101 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: wait(1);
         }
     }
