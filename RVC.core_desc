@@ -20,8 +20,8 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b010 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
-                X[rd + 8] = (unsigned<XLEN>)(signed<32>)MEM[load_address+3:load_address];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
+                X[rd + 8] = (unsigned<XLEN>)(signed<32>)MEM[offs+3:offs];
             }
         }
 
@@ -29,8 +29,8 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b110 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
             assembly: "{name(8+rs2)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
-                MEM[load_address+3:load_address] = (unsigned<32>)X[rs2 + 8];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
+                MEM[offs+3:offs] = (unsigned<32>)X[rs2 + 8];
             }
         }
 
@@ -177,8 +177,8 @@ InstructionSet RV32IC extends RV32I {
             assembly: "{name(rd)}, sp, {uimm:#05x}";
             behavior: {
                 if(rd >= RFS || rd == 0) raise(0, 2); else {
-                    signed<32> res = MEM[X[2] + uimm];
-                    X[rd] = (unsigned<XLEN>)res;
+                	unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
+                    X[rd] = (unsigned<XLEN>)(signed<32>)MEM[offs+3:offs];
                 } 
             }
         }
@@ -248,8 +248,8 @@ InstructionSet RV32FC extends RV32F {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1 + 8]+uimm;
-                unsigned<32> res = (unsigned<32>)MEM[offs];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8]+uimm);
+                unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
                 if (FLEN == 32)
                     F[rd + 8] = res;
                 else { // NaN boxing
@@ -262,8 +262,8 @@ InstructionSet RV32FC extends RV32F {
             encoding: 3'b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
-                MEM[offs] = (unsigned<32>)F[rs2 + 8];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
+                MEM[offs+3:offs] = (unsigned<32>)F[rs2 + 8];
             }
         }
 
@@ -271,8 +271,8 @@ InstructionSet RV32FC extends RV32F {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
-                unsigned<XLEN> offs = X[2] + uimm;
-                unsigned<32> res = (unsigned<32>)MEM[offs];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
+                unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
@@ -285,8 +285,8 @@ InstructionSet RV32FC extends RV32F {
             encoding: 3'b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
-                unsigned<XLEN> offs = X[2] + uimm;
-                MEM[offs] = (unsigned<32>)F[rs2];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
+                MEM[offs+3:offs] = (unsigned<32>)F[rs2];
             }
         }
     }
@@ -298,8 +298,8 @@ InstructionSet RV32DC extends RV32D {
             encoding: 3'b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
-                unsigned<64> res = (unsigned<64>)MEM[offs];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
+                unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
                 if (FLEN == 64)
                     F[rd + 8] = res;
                 else { // NaN boxing
@@ -312,8 +312,8 @@ InstructionSet RV32DC extends RV32D {
             encoding: 3'b101 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1 + 8] + uimm;
-                MEM[offs] = (unsigned<64>)F[rs2 + 8];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
+                MEM[offs+7:offs] = (unsigned<64>)F[rs2 + 8];
             }
         }
 
@@ -321,8 +321,8 @@ InstructionSet RV32DC extends RV32D {
             encoding: 3'b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
-                unsigned<XLEN> offs = X[2] + uimm;
-                unsigned<64> res = (unsigned<64>)MEM[offs];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
+                unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
                 if (FLEN == 64)
                     F[rd] = res;
                 else { // NaN boxing
@@ -335,8 +335,8 @@ InstructionSet RV32DC extends RV32D {
             encoding: 3'b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
-                unsigned<XLEN> offs = X[2] + uimm;
-                MEM[offs] = (unsigned<64>)F[rs2];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
+                MEM[offs+7:offs] = (unsigned<64>)F[rs2];
             }
         }
     }
@@ -415,7 +415,8 @@ InstructionSet RV64IC extends RV32IC {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly: "{name(rd)}, {uimm}(sp)";
             behavior: if(rd >= RFS || rd == 0) raise(0, 2); else {
-                unsigned<XLEN> res = MEM[X[2] + uimm];
+            	unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
+                unsigned<XLEN> res = MEM[offs+3:offs];
                 X[rd] = res;
             }
         }
