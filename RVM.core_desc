@@ -10,7 +10,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                signed<MUL_LEN> res = (signed<XLEN>)X[rs1] * (signed<XLEN>)X[rs2];
+                signed<MUL_LEN> res = (signed<MUL_LEN>)((signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2]);
                 if(rd!=0) X[rd] = (unsigned<XLEN>)res;
             }
         }
@@ -19,7 +19,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                signed<MUL_LEN> res = (signed<XLEN>)X[rs1] * (signed<XLEN>)X[rs2];
+                signed<MUL_LEN> res = (signed<MUL_LEN>)((signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2]);
                 if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
@@ -28,7 +28,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                signed<MUL_LEN> res = (signed<XLEN>)X[rs1] * X[rs2];
+                signed<MUL_LEN> res = (signed<MUL_LEN>)((signed<MUL_LEN>)(signed)X[rs1] * (unsigned<MUL_LEN>)X[rs2]);
                 if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
@@ -37,7 +37,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                unsigned<MUL_LEN> res = X[rs1] * X[rs2];
+                unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)((unsigned<MUL_LEN>)X[rs1] * (unsigned<MUL_LEN>)X[rs2]);
                 if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
