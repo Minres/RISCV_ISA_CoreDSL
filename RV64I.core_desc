@@ -11,7 +11,7 @@ InstructionSet RV64I extends RV32I {
             assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
-                unsigned<32> res = (unsigned<32>)MEM[offs];
+                unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
         }
@@ -21,7 +21,7 @@ InstructionSet RV64I extends RV32I {
             assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
-                signed<64> res = (signed<64>)MEM[offs];
+                signed<64> res = (signed<64>)MEM[offs+7:offs];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
         }
@@ -36,13 +36,13 @@ InstructionSet RV64I extends RV32I {
         }
 
         SLLI {
-            encoding: 0b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            encoding: 6'b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] << shamt;
         }
 
         SRLI {
-            encoding: 0b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            encoding: 6'b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else
                 if (rd != 0)
@@ -50,7 +50,7 @@ InstructionSet RV64I extends RV32I {
         }
 
         SRAI {
-            encoding: 0b010000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            encoding: 6'b010000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else
                 if (rd != 0)

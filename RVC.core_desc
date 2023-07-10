@@ -416,7 +416,7 @@ InstructionSet RV64IC extends RV32IC {
             assembly: "{name(rd)}, {uimm}(sp)";
             behavior: if(rd >= RFS || rd == 0) raise(0, 2); else {
             	unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
-                unsigned<XLEN> res = MEM[offs+3:offs];
+                unsigned<XLEN> res = MEM[offs+7:offs];
                 X[rd] = res;
             }
         }
