@@ -48,7 +48,7 @@ InstructionSet RV32IC extends RV32I {
         }
 
         // CJAL will be overwritten by CADDIW for RV64/128
-        CJAL [[no_cont]] {//(RV32)
+        CJAL {//(RV32)
             encoding: 3'b001 :: imm[11:11] :: imm[4:4] :: imm[9:8] :: imm[10:10] :: imm[6:6] :: imm[7:7] :: imm[3:1] :: imm[5:5] :: 2'b01;
             assembly: "{imm:#05x}";
             behavior: {
@@ -148,19 +148,19 @@ InstructionSet RV32IC extends RV32I {
             }
         }
 
-        CJ [[no_cont]] {//(RV32)
+        CJ {//(RV32)
             encoding: 3'b101 :: imm[11:11] :: imm[4:4] :: imm[9:8] :: imm[10:10] :: imm[6:6] :: imm[7:7] :: imm[3:1] :: imm[5:5] :: 2'b01;
             assembly: "{imm:#05x}";
             behavior: PC = (unsigned<XLEN>)(PC + (signed<12>)imm);
         }
 
-        CBEQZ [[no_cont]] [[cond]] {//(RV32)
+        CBEQZ {//(RV32)
             encoding: 3'b110 :: imm[8:8] :: imm[4:3] :: rs1[2:0] :: imm[7:6] :: imm[2:1] :: imm[5:5] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
             behavior: if (X[rs1 + 8] == 0) PC = (unsigned<XLEN>)(PC + (signed<9>)imm);
         }
 
-        CBNEZ [[no_cont]] [[cond]] {//(RV32)
+        CBNEZ {//(RV32)
             encoding: 3'b111 :: imm[8:8] :: imm[4:3] :: rs1[2:0] :: imm[7:6] :: imm[2:1] :: imm[5:5] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
             behavior: if (X[rs1 + 8] != 0) PC = (unsigned<XLEN>)(PC + (signed<9>)imm);
@@ -190,7 +190,7 @@ InstructionSet RV32IC extends RV32I {
             behavior: if(rd >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs2];
         }
 
-        CJR [[no_cont]] {//(RV32)
+        CJR {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: if (rs1 && rs1 < RFS)
@@ -211,7 +211,7 @@ InstructionSet RV32IC extends RV32I {
             behavior: if(rd >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rd] + X[rs2]);
         }
 
-        CJALR [[no_cont]] {//(RV32)
+        CJALR {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: if(rs1 >= RFS) raise(0, 2); else {
@@ -221,7 +221,7 @@ InstructionSet RV32IC extends RV32I {
             }
         }
 
-        CEBREAK [[no_cont]] {//(RV32)
+        CEBREAK {//(RV32)
             encoding: 3'b100 :: 1'b1 :: 5'b00000 :: 5'b00000 :: 2'b10;
             behavior: raise(0, 3);
         }
@@ -235,7 +235,7 @@ InstructionSet RV32IC extends RV32I {
             }
         }
 
-        DII [[no_cont]] { // Defined Illegal Instruction
+        DII { // Defined Illegal Instruction
             encoding: 3'b000 :: 1'b0 :: 5'b00000 :: 5'b00000 :: 2'b00;
             behavior: raise(0, 2);
         }

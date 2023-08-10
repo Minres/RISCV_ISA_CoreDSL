@@ -18,7 +18,7 @@ InstructionSet RV32I extends RISCVBase {
             behavior: if(rd >=RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(PC+(signed)imm);
         }
 
-        JAL [[no_cont]] {
+        JAL {
             encoding: imm[20:20] :: imm[10:1] :: imm[11:11] :: imm[19:12] :: rd[4:0] :: 7'b1101111;
             assembly: "{name(rd)}, {imm:#0x}";
             behavior: if(rd >=RFS) raise(0, 2); else {
@@ -31,7 +31,7 @@ InstructionSet RV32I extends RISCVBase {
             }
         }
 
-        JALR [[no_cont]] {
+        JALR {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1100111;
             assembly: "{name(rd)}, {name(rs1)}, {imm:#0x}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -45,7 +45,7 @@ InstructionSet RV32I extends RISCVBase {
             }
         }
 
-        BEQ [[no_cont]] [[cond]] {
+        BEQ {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
             assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else  {
@@ -59,7 +59,7 @@ InstructionSet RV32I extends RISCVBase {
             }
         }
 
-        BNE [[no_cont]] [[cond]] {
+        BNE {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
             assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -73,7 +73,7 @@ InstructionSet RV32I extends RISCVBase {
             }
         }
 
-        BLT [[no_cont]] [[cond]] {
+        BLT {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
             assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -87,7 +87,7 @@ InstructionSet RV32I extends RISCVBase {
             }
         }
 
-        BGE [[no_cont]] [[cond]] {
+        BGE {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
             assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -101,7 +101,7 @@ InstructionSet RV32I extends RISCVBase {
             }
         }
 
-        BLTU [[no_cont]] [[cond]] {
+        BLTU {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
             assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -115,7 +115,7 @@ InstructionSet RV32I extends RISCVBase {
             }
         }
 
-        BGEU [[no_cont]] [[cond]] {
+        BGEU {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
             assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -326,12 +326,12 @@ InstructionSet RV32I extends RISCVBase {
             behavior: FENCE[fence] = (unsigned<8>)pred << 4 | succ;
         }
 
-        ECALL [[no_cont]] {
+        ECALL {
             encoding: 12'b0 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: raise(0, 11);
         }
 
-        EBREAK [[no_cont]] {
+        EBREAK {
             encoding: 12'b1 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: raise(0, 3);
         }
