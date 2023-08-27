@@ -1,4 +1,4 @@
-import "RV32I.core_desc"
+import "RVI.core_desc"
 import "RVF.core_desc"
 import "RVD.core_desc"
 
