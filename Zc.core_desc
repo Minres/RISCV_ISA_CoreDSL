@@ -8,7 +8,7 @@ InstructionSet Zca extends RV32I {
     }
     
     instructions{
-        CADDI4SPN { //(RES, imm=0)
+        C__ADDI4SPN { //(RES, imm=0)
             encoding: 3'b000 :: imm[5:4] :: imm[9:6] :: imm[2:2] :: imm[3:3] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {imm:#05x}";
             behavior:
@@ -16,7 +16,7 @@ InstructionSet Zca extends RV32I {
                 else raise(0, 2);
         }
 
-        CLW { // (RV32)
+        C__LW { // (RV32)
             encoding: 3'b010 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
@@ -25,7 +25,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CLD [[enable=XLEN>32]] {//(RV64/128)
+        C__LD [[enable=XLEN>32]] {//(RV64/128)
             encoding: 3'b011:: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {uimm},({name(8+rs1)})";
             behavior: {
@@ -34,7 +34,7 @@ InstructionSet Zca extends RV32I {
             }
         }
         
-        CSW {//(RV32)
+        C__SW {//(RV32)
             encoding: 3'b110 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
             assembly: "{name(8+rs2)}, {uimm:#05x}({name(8+rs1)})";
             behavior: {
@@ -43,7 +43,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CSD [[enable=XLEN>32]] { //(RV64/128)
+        C__SD [[enable=XLEN>32]] { //(RV64/128)
             encoding: 3'b111:: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly: "{name(8+rs2)}, {uimm},({name(8+rs1)})";
             behavior: {
@@ -52,21 +52,21 @@ InstructionSet Zca extends RV32I {
             }
         }
  
-        CADDI {//(RV32)
+        C__ADDI {//(RV32)
             encoding: 3'b000 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rs1)}, {imm:#05x}";
             behavior: if(rs1 >= RFS) raise(0, 2); else if (rs1 != 0) X[rs1] = (unsigned<XLEN>)(X[rs1] + (signed<6>)imm);
         }
 
-        CNOP {
+        C__NOP {
             encoding: 3'b000 :: nzimm[5:5] :: 5'b00000 :: nzimm[4:0] :: 2'b01;
             behavior: {
                 //if (!nzimm) raise(0, 2);
             }
         }
 
-        // CJAL will be overwritten by CADDIW for RV64/128
-        CJAL [[enable=XLEN==32]] {//(RV32)
+        // C.JAL will be overwritten by C.ADDIW for RV64/128
+        C__JAL [[enable=XLEN==32]] {//(RV32)
             encoding: 3'b001 :: imm[11:11] :: imm[4:4] :: imm[9:8] :: imm[10:10] :: imm[6:6] :: imm[7:7] :: imm[3:1] :: imm[5:5] :: 2'b01;
             assembly: "{imm:#05x}";
             behavior: {
@@ -75,7 +75,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CADDIW [[enable=XLEN>32]] {//(RV64/128), overwrites C.JAL
+        C__ADDIW [[enable=XLEN>32]] {//(RV64/128), overwrites C.JAL
             encoding: 3'b001 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rs1)}, {imm:#05x}";
             behavior: if(rs1 >= RFS || rs1 == 0)
@@ -84,7 +84,7 @@ InstructionSet Zca extends RV32I {
                 X[rs1] = (unsigned<XLEN>)((signed<32>)X[rs1] + (signed<6>)imm);
         }
 
-        CLI {//(RV32)
+        C__LI {//(RV32)
             encoding: 3'b010 :: imm[5:5] :: rd[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rd)}, {imm:#05x}";
             behavior: if(rd >= RFS) raise(0, 2); else {
@@ -92,8 +92,8 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        // order matters here as CADDI16SP overwrites CLUI for rd == 2
-        CLUI {//(RV32)
+        // order matters here as C.ADDI16SP overwrites C.LUI for rd == 2
+        C__LUI {//(RV32)
             encoding: 3'b011 :: imm[17:17] :: rd[4:0] :: imm[16:12] :: 2'b01;
             assembly: "{name(rd)}, {imm:#05x}";
             behavior: {
@@ -102,7 +102,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CADDI16SP {//(RV32)
+        C__ADDI16SP {//(RV32)
             encoding: 3'b011 :: nzimm[9:9] :: 5'b00010 :: nzimm[4:4] :: nzimm[6:6] :: nzimm[8:7] :: nzimm[5:5] :: 2'b01;
             assembly: "{nzimm:#05x}";
             behavior:
@@ -115,7 +115,7 @@ InstructionSet Zca extends RV32I {
             behavior: raise(0, 2);
         }
 
-        CSRLI[[enable=XLEN==32]] {//(RV32 nse)
+        C__SRLI[[enable=XLEN==32]] {//(RV32 nse)
             encoding: 3'b100 :: 1'b0 :: 2'b00 :: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
@@ -123,7 +123,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CSRLI [[enable=XLEN>32]] {//RV64)
+        C__SRLI [[enable=XLEN>32]] {//RV64)
             encoding: 3'b100:: nzuimm[5:5] :: 2'b00:: rs1[2:0] :: nzuimm[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {nzuimm}";
             behavior: {
@@ -131,7 +131,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CSRAI [[enable=XLEN==32]] {//(RV32)
+        C__SRAI [[enable=XLEN==32]] {//(RV32)
             encoding: 3'b100 :: 1'b0 :: 2'b01 :: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
@@ -143,7 +143,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CSRAI [[enable=XLEN>32]] {//(RV32/RV64)
+        C__SRAI [[enable=XLEN>32]] {//(RV32/RV64)
             encoding: 3'b100:: shamt[5:5] :: 2'b01:: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
@@ -151,7 +151,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CANDI {//(RV32)
+        C__ANDI {//(RV32)
             encoding: 3'b100 :: imm[5:5] :: 2'b10 :: rs1[2:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
             behavior: {
@@ -159,7 +159,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CSUB {//(RV32)
+        C__SUB {//(RV32)
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b00 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
@@ -167,7 +167,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CXOR {//(RV32)
+        C__XOR {//(RV32)
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b01 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
@@ -175,7 +175,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        COR {//(RV32)
+        C__OR {//(RV32)
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
@@ -183,7 +183,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CAND {//(RV32)
+        C__AND {//(RV32)
             encoding: 3'b100 :: 1'b0 :: 2'b11 :: rd[2:0] :: 2'b11 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
@@ -191,7 +191,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CSUBW [[enable=XLEN>32]] {//(RV64/128, RV32 res)
+        C__SUBW [[enable=XLEN>32]] {//(RV64/128, RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b00:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
             behavior: {
@@ -200,7 +200,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CADDW [[enable=XLEN>32]] {//(RV64/128 RV32 res)
+        C__ADDW [[enable=XLEN>32]] {//(RV64/128 RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b01:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
             behavior: {
@@ -209,37 +209,37 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CJ {//(RV32)
+        C__J {//(RV32)
             encoding: 3'b101 :: imm[11:11] :: imm[4:4] :: imm[9:8] :: imm[10:10] :: imm[6:6] :: imm[7:7] :: imm[3:1] :: imm[5:5] :: 2'b01;
             assembly: "{imm:#05x}";
             behavior: PC = (unsigned<XLEN>)(PC + (signed<12>)imm);
         }
 
-        CBEQZ {//(RV32)
+        C__BEQZ {//(RV32)
             encoding: 3'b110 :: imm[8:8] :: imm[4:3] :: rs1[2:0] :: imm[7:6] :: imm[2:1] :: imm[5:5] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
             behavior: if (X[rs1 + 8] == 0) PC = (unsigned<XLEN>)(PC + (signed<9>)imm);
         }
 
-        CBNEZ {//(RV32)
+        C__BNEZ {//(RV32)
             encoding: 3'b111 :: imm[8:8] :: imm[4:3] :: rs1[2:0] :: imm[7:6] :: imm[2:1] :: imm[5:5] :: 2'b01;
             assembly: "{name(8+rs1)}, {imm:#05x}";
             behavior: if (X[rs1 + 8] != 0) PC = (unsigned<XLEN>)(PC + (signed<9>)imm);
         }
 
-        CSLLI [[enable=XLEN==32]] {//(RV32)
+        C__SLLI [[enable=XLEN==32]] {//(RV32)
             encoding: 3'b000 :: 1'b0 :: rs1[4:0] :: nzuimm[4:0] :: 2'b10;
             assembly: "{name(rs1)}, {nzuimm}";
             behavior: if(rs1 >= RFS) raise(0, 2); else  if(rs1 != 0) X[rs1] = X[rs1] << nzuimm;
         }
 
-        CSLLI [[enable=XLEN>32]] {//(RV32/RV64)
+        C__SLLI [[enable=XLEN>32]] {//(RV32/RV64)
             encoding: 3'b000:: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 2'b10;
             assembly: "{name(rs1)}, {shamt}";
             behavior: if(rs1 >= RFS) raise(0, 2); else if (rs1 != 0) X[rs1] = X[rs1] << shamt;
         }
 
-        CLWSP {//
+        C__LWSP {//
             encoding: 3'b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly: "{name(rd)}, sp, {uimm:#05x}";
             behavior: {
@@ -250,24 +250,24 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CLDSP [[enable=XLEN>32]] {//(RV64/128
+        C__LDSP [[enable=XLEN>32]] {//(RV64/128
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly: "{name(rd)}, {uimm}(sp)";
             behavior: if(rd >= RFS || rd == 0) raise(0, 2); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
-                unsigned<XLEN> res = MEM[offs+7:offs];
+                unsigned<XLEN> res = (unsigned<XLEN>) MEM[offs+7:offs];
                 X[rd] = res;
             }
         }
 
-        // order matters as CJR is a special case of CMV
-        CMV {//(RV32)
+        // order matters as C.JR is a special case of C.MV
+        C__MV {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
             behavior: if(rd >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs2];
         }
 
-        CJR {//(RV32)
+        C__JR {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: if (rs1 && rs1 < RFS)
@@ -281,14 +281,14 @@ InstructionSet Zca extends RV32I {
             behavior: raise(0,2);
         }
 
-        // order matters as CEBREAK is a special case of CJALR which is a special case of CADD
-        CADD {//(RV32)
+        // order matters as C.EBREAK is a special case of C.JALR which is a special case of C.ADD
+        C__ADD {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
             behavior: if(rd >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rd] + X[rs2]);
         }
 
-        CJALR {//(RV32)
+        C__JALR {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: if(rs1 >= RFS) raise(0, 2); else {
@@ -298,12 +298,12 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CEBREAK {//(RV32)
+        C__EBREAK {//(RV32)
             encoding: 3'b100 :: 1'b1 :: 5'b00000 :: 5'b00000 :: 2'b10;
             behavior: raise(0, 3);
         }
 
-        CSWSP {//
+        C__SWSP {//
             encoding: 3'b110 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rs2)}, {uimm:#05x}(sp)";
             behavior: if(rs2 >= RFS) raise(0, 2); else {
@@ -312,7 +312,7 @@ InstructionSet Zca extends RV32I {
             }
         }
 
-        CSDSP [[enable=XLEN>32]] {//(RV64/128)
+        C__SDSP [[enable=XLEN>32]] {//(RV64/128)
             encoding: 3'b111 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rs2)}, {uimm}(sp)";
             behavior: if(rs2 >= RFS) raise(0, 2); else {
@@ -330,7 +330,7 @@ InstructionSet Zca extends RV32I {
 
 InstructionSet Zcf extends RV32F {
     instructions {
-        CFLW {
+        C__FLW {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -344,7 +344,7 @@ InstructionSet Zcf extends RV32F {
             }
         }
 
-        CFSW {
+        C__FSW {
             encoding: 3'b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -353,7 +353,7 @@ InstructionSet Zcf extends RV32F {
             }
         }
 
-        CFLWSP {
+        C__FLWSP {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
@@ -367,7 +367,7 @@ InstructionSet Zcf extends RV32F {
             }
         }
 
-        CFSWSP {
+        C__FSWSP {
             encoding: 3'b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
@@ -380,7 +380,7 @@ InstructionSet Zcf extends RV32F {
 
 InstructionSet Zcd extends RV32D {
     instructions {
-        CFLD { //(RV32/64)
+        C__FLD { //(RV32/64)
             encoding: 3'b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -394,7 +394,7 @@ InstructionSet Zcd extends RV32D {
             }
         }
 
-        CFSD { //(RV32/64)
+        C__FSD { //(RV32/64)
             encoding: 3'b101 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -403,7 +403,7 @@ InstructionSet Zcd extends RV32D {
             }
         }
 
-        CFLDSP {//(RV32/64)
+        C__FLDSP {//(RV32/64)
             encoding: 3'b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
@@ -417,7 +417,7 @@ InstructionSet Zcd extends RV32D {
             }
         }
 
-        CFSDSP {//(RV32/64)
+        C__FSDSP {//(RV32/64)
             encoding: 3'b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
@@ -433,7 +433,7 @@ InstructionSet Zcb extends RV32I {
         unsigned int MLEN = 2 * XLEN;
     }
     instructions {
-        CLBU {
+        C__LBU {
             encoding: 3'b100 :: 3'b000 :: rs1[2:0] :: uimm[0:0] :: uimm[1:1] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {uimm}({name(8+rs1)})";
             behavior: {
@@ -442,7 +442,7 @@ InstructionSet Zcb extends RV32I {
                 if (rd != 0) X[rd+8] = (unsigned<XLEN>)res;
             }
         }
-        CLHU {
+        C__LHU {
             encoding: 3'b100 :: 3'b001 :: rs1[2:0] :: 1'b0 :: uimm[1:1] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {uimm}({name(8+rs1)})";
             behavior: {
@@ -451,7 +451,7 @@ InstructionSet Zcb extends RV32I {
                 if (rd != 0) X[rd+8] = (unsigned<XLEN>)res;
             }
         }
-        CLH {
+        C__LH {
             encoding: 3'b100 :: 3'b001 :: rs1[2:0] :: 1'b1 :: uimm[1:1] :: rd[2:0] :: 2'b00;
             assembly: "{name(8+rd)}, {uimm}({name(8+rs1)})";
             behavior: {
@@ -460,7 +460,7 @@ InstructionSet Zcb extends RV32I {
                 if (rd != 0) X[rd+8] = (unsigned<XLEN>)res;
             }
         }
-        CSB {
+        C__SB {
             encoding: 3'b100 :: 3'b010 :: rs1[2:0] :: uimm[0:0] :: uimm[1:1] :: rs2[2:0] :: 2'b00;
             assembly: "{name(8+rs2)}, {uimm}({name(8+rs1)})";
             behavior: {
@@ -468,7 +468,7 @@ InstructionSet Zcb extends RV32I {
                 MEM[store_address] = (unsigned<8>)X[rs2+8];
             }
         }
-        CSH {
+        C__SH {
             encoding: 3'b100 :: 3'b011 :: rs1[2:0] :: 1'b0 :: uimm[1:1] :: rs2[2:0] :: 2'b00;
             assembly: "{name(8+rs2)}, {uimm}({name(8+rs1)})";
             behavior: {
@@ -476,37 +476,37 @@ InstructionSet Zcb extends RV32I {
                 MEM[store_address+1:store_address] = (unsigned<16>)X[rs2+8];
             }
         }
-        CZEXTB {
+        C__ZEXTB {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b0 :: 2'b01;
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = X[rsd+8][7:0];
         }
-        CSEXTB {
+        C__SEXTB {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b1 :: 2'b01;
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = (unsigned<XLEN>)(signed<8>)X[rsd+8][7:0];
         }
-        CZEXTH {
+        C__ZEXTH {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b10 :: 2'b01;
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = X[rsd+8][15:0];
         }
-        CSEXTH {
+        C__SEXTH {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b11 :: 2'b01;
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = (unsigned<XLEN>)(signed<16>)X[rsd+8][15:0];
         }
-        CZEXTW {
+        C__ZEXTW {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b100 :: 2'b01;
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = X[rsd+8][31:0];
         }
-        CNOT {
+        C__NOT {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b101 :: 2'b01;
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = ~X[rsd+8];
         }
-        CMUL {
+        C__MUL {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rsd)}, {name(8+rs2)}";
             behavior: {
@@ -650,9 +650,9 @@ InstructionSet Zcmp extends RV32I {
         }
     }
     instructions {
-        CM_PUSH [[enable=XLEN==32]]{
+        CM__PUSH [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11000 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int bytes = 4;
@@ -711,9 +711,9 @@ InstructionSet Zcmp extends RV32I {
                 X[2] -= (unsigned<XLEN>)(stack_adj_base + spimm);
             }
         }
-        CM_PUSH [[enable=XLEN==64]]{
+        CM__PUSH [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11000 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int stack_adj_base = stack_adjust64(rlist);
@@ -771,9 +771,9 @@ InstructionSet Zcmp extends RV32I {
                 X[2] -= (unsigned<XLEN>)(stack_adj_base + spimm);
             }
         }
-        CM_POP [[enable=XLEN==32]]{
+        CM__POP [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11010 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int bytes = 4;
@@ -783,9 +783,9 @@ InstructionSet Zcmp extends RV32I {
                 X[2] = new_sp;
             }
         }
-        CM_POP [[enable=XLEN==64]]{
+        CM__POP [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11010 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int bytes = 4;
@@ -795,9 +795,9 @@ InstructionSet Zcmp extends RV32I {
                 X[2] = new_sp;
             }
         }
-        CM_POPRETZ [[enable=XLEN==32]]{
+        CM__POPRETZ [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11100 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int bytes = 4;
@@ -808,9 +808,9 @@ InstructionSet Zcmp extends RV32I {
                 PC = X[1] & ~0x1;
             }
         }
-        CM_POPRETZ [[enable=XLEN==64]]{
+        CM__POPRETZ [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11100 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int bytes = 4;
@@ -822,9 +822,9 @@ InstructionSet Zcmp extends RV32I {
                 PC = X[1] & ~0x1;
             }
         }
-        CM_POPRET [[enable=XLEN==32]]{
+        CM__POPRET [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11110 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int bytes = 4;
@@ -835,9 +835,9 @@ InstructionSet Zcmp extends RV32I {
                 PC = X[1] & ~0x1;
             }
         }
-        CM_POPRET [[enable=XLEN==64]]{
+        CM__POPRET [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11110 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            assembly: "{rlist}, {spimm}";
             behavior: {
                 if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
                 unsigned int bytes = 4;
@@ -848,7 +848,7 @@ InstructionSet Zcmp extends RV32I {
                 PC = X[1] & ~0x1;
             }
         }
-        CM_MVSA01 {
+        CM__MVSA01 {
             encoding: 3'b101 :: 3'b011 :: r1s[2:0] :: 2'b01 :: r2s[2:0] :: 2'b10;
             assembly: "{name(8+r1s)}, {name(8+r2s)}";
             behavior: {
@@ -866,7 +866,7 @@ InstructionSet Zcmp extends RV32I {
                 }
             }
         }
-        CM_MVA01S {
+        CM__MVA01S {
             encoding: 3'b101 :: 3'b011 :: r1s[2:0] :: 2'b11 :: r2s[2:0] :: 2'b10;
             assembly: "{name(8+r1s)}, {name(8+r2s)}";
             behavior: {
@@ -885,7 +885,7 @@ InstructionSet Zcmp extends RV32I {
         register unsigned<XLEN> JVT;
     }
     instructions {
-        CM_JT [[enable=XLEN==32]] {
+        CM__JT [[enable=XLEN==32]] {
             encoding: 3'b101 :: 3'b000 ::index[7:0] :: 2'b10;
             assembly: "{index}";
             behavior: {
@@ -896,7 +896,7 @@ InstructionSet Zcmp extends RV32I {
                 PC = MEM[table_address+3:table_address];
             }
         }
-        CM_JT [[enable=XLEN==64]] {
+        CM__JT [[enable=XLEN==64]] {
             encoding: 3'b101 :: 3'b000 ::index[7:0] :: 2'b10;
             assembly: "{index}";
             behavior: {
