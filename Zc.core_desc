@@ -522,12 +522,8 @@ InstructionSet Zcmp extends RV32I {
         unsigned int stack_adjust32(unsigned<4> rlist) {
                 if (rlist==15) 
                     return 64;
-                else if(rlist>=12)
-                    return 48;
-                else if(rlist>=8)
-                    return 32;
-                else
-                    return 16;
+                else 
+                    return rlist/4*16;
         }
         void load_regs32(unsigned<4> rlist, unsigned<XLEN> addr) {
                 if(rlist>14) {
@@ -577,6 +573,7 @@ InstructionSet Zcmp extends RV32I {
                      X[8] = MEM[addr+3:addr];
                 }
                 if(rlist>3) {
+                     addr-=4;
                      X[1] = MEM[addr+3:addr];
                 }
         }
@@ -584,18 +581,8 @@ InstructionSet Zcmp extends RV32I {
         unsigned int stack_adjust64(unsigned<4> rlist) {
                 if (rlist==15) 
                     return 112;
-                else if(rlist==14)
-                    return 96;
-                else if(rlist>=12)
-                    return 80;
-                else if(rlist>=10)
-                    return 64;
-                else if(rlist>=8)
-                    return 48;
-                else if(rlist>=6)
-                    return 32;
                 else
-                    return 16;
+                    return (unsigned)(rlist/2-1)*16;
         }
         void load_regs64(unsigned<4> rlist, unsigned<XLEN> addr) {
                 if(rlist>14) {
@@ -645,6 +632,7 @@ InstructionSet Zcmp extends RV32I {
                      X[8] = (unsigned<XLEN>)MEM[addr+7:addr];
                 }
                 if(rlist>3) {
+                     addr-=8;
                      X[1] = (unsigned<XLEN>)MEM[addr+7:addr];
                 }
         }
