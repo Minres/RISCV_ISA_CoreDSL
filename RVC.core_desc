@@ -193,8 +193,10 @@ InstructionSet RV32IC extends RV32I {
         C__JR {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
-            behavior: if (rs1 && rs1 < RFS)
-                PC = X[rs1 % RFS] & ~0x1;
+            behavior: if (rs1 && rs1 < RFS){
+                  unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
+                  PC = X[rs1 % RFS] & addr_mask;   
+            }
             else
                 raise(0,2);
         }
@@ -215,9 +217,10 @@ InstructionSet RV32IC extends RV32I {
             encoding: 3'b100 :: 1'b1 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: if(rs1 >= RFS) raise(0, 2); else {
+                unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
                 unsigned<XLEN> new_pc = X[rs1];
                 X[1] = (unsigned<XLEN>)(PC + 2);
-                PC = new_pc & ~0x1;
+                PC = new_pc & addr_mask;
             }
         }
 
