@@ -221,7 +221,7 @@ InstructionSet RV32IC extends RV32I {
             }
         }
 
-        C__EBREAK {//(RV32)
+        C__EBREAK [[no_cont]] {//(RV32)
             encoding: 3'b100 :: 1'b1 :: 5'b00000 :: 5'b00000 :: 2'b10;
             behavior: raise(0, 3);
         }
@@ -235,7 +235,7 @@ InstructionSet RV32IC extends RV32I {
             }
         }
 
-        DII { // Defined Illegal Instruction
+        DII [[no_cont]] { // Defined Illegal Instruction
             encoding: 3'b000 :: 1'b0 :: 5'b00000 :: 5'b00000 :: 2'b00;
             behavior: raise(0, 2);
         }

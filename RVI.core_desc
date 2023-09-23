@@ -326,16 +326,16 @@ InstructionSet RV32I extends RISCVBase {
             behavior: FENCE[fence] = (unsigned<8>)pred << 4 | succ;
         }
 
-        ECALL {
+        ECALL [[no_cont]] {
             encoding: 12'b0 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: raise(0, 11);
         }
 
-        EBREAK {
+        EBREAK [[no_cont]] {
             encoding: 12'b1 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: raise(0, 3);
         }
-        MRET[[no_cont]] {
+        MRET [[no_cont]] {
             encoding: 7'b0011000 :: 5'b00010 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: leave(3);
         }
