@@ -792,6 +792,7 @@ InstructionSet Zcmp extends RV32I {
                 unsigned int stack_adj_base = stack_adjust32(rlist);
                 unsigned<XLEN> new_sp = (unsigned<XLEN>)(X[2] + (unsigned<XLEN>)(stack_adj_base + spimm));
                 load_regs32(rlist, new_sp);
+                X[10] = 0;
                 X[2] = new_sp;
                 PC = X[1] & ~0x1;
             }
