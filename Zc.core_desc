@@ -648,53 +648,53 @@ InstructionSet Zcmp extends RV32I {
 	                unsigned<XLEN> addr = X[2];
 	                if(rlist>14) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[27];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[27];
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[26];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[26];
 	                }
 	                if(rlist>13) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[25];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[25];
 	                }
 	                if(rlist>12) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[24];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[24];
 	                }
 	                if(rlist>11) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[23];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[23];
 	                }
 	                if(rlist>10) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[22];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[22];
 	                }
 	                if(rlist>9) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[21];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[21];
 	                }
 	                if(rlist>8) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[20];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[20];
 	                }
 	                if(rlist>7) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[19];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[19];
 	                }
 	                if(rlist>6) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[18];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[18];
 	                }
 	                if(rlist>5) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[9];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[9];
 	                }
 	                if(rlist>4) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[8];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[8];
 	                }
 	                if(rlist>3) {
 	                     addr-=bytes;
-	                     MEM[addr+3:addr] = X[1];
+	                     MEM[addr+3:addr] = (unsigned<32>)X[1];
 	                }
 	                X[2] -= (unsigned<XLEN>)(stack_adj_base + spimm);
 	            }
