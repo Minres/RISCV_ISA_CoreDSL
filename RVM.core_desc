@@ -119,7 +119,7 @@ InstructionSet RV64M extends RV32M {
                 signed<32> dividend = (signed<32>)X[rs1];
                 signed<32> divisor = (signed<32>)X[rs2];
                 if (divisor != 0) {
-                    signed<32> MMIN = (signed<XLEN>)1<<31;
+                    signed<32> MMIN = (signed<32>)1<<31;
                     if (dividend == MMIN && divisor == -1) {
                         if(rd!=0) X[rd] = (unsigned<XLEN>)-1<<31;
                     } else {
@@ -148,7 +148,7 @@ InstructionSet RV64M extends RV32M {
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
                 if (((signed<32>)X[rs2]) != 0) {
-                    signed<32> SMIN = (signed<XLEN>)1<<31;
+                    signed<32> SMIN = (signed<32>)1<<31;
                     if ((signed<32>)X[rs1] == SMIN && (signed<32>)X[rs2] == -1) {
                         if(rd!=0) X[rd] = 0;
                     } else {
