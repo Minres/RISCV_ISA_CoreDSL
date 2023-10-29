@@ -2,7 +2,7 @@ import "RVI.core_desc"
 import "RVF.core_desc"
 import "RVD.core_desc"
 
-InstructionSet RV32IC extends RV32I {
+InstructionSet RV32IC extends RVI {
     architectural_state {
         INSTR_ALIGNMENT = 2;
     }
@@ -245,7 +245,7 @@ InstructionSet RV32IC extends RV32I {
     }
 }
 
-InstructionSet RV32FC extends RV32F {
+InstructionSet RV32FC extends RVF {
     instructions {
         C__FLW {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;

@@ -2,7 +2,7 @@ import "RVI.core_desc"
 import "RVF.core_desc"
 import "RVD.core_desc"
 
-InstructionSet Zca extends RV32I {
+InstructionSet Zca extends RVI {
     architectural_state {
         INSTR_ALIGNMENT = 2;
     }
@@ -428,7 +428,7 @@ InstructionSet Zcd extends RV32D {
     }
 }
 
-InstructionSet Zcb extends RV32I {
+InstructionSet Zcb extends RVI {
     architectural_state {
         unsigned int MLEN = 2 * XLEN;
     }
@@ -517,7 +517,7 @@ InstructionSet Zcb extends RV32I {
     }
 }
 
-InstructionSet Zcmp extends RV32I {
+InstructionSet Zcmp extends RVI {
     functions {
         unsigned int stack_adjust32(unsigned<4> rlist) {
                 if (rlist==15) 
@@ -870,7 +870,7 @@ InstructionSet Zcmp extends RV32I {
         }
     }
 }
-InstructionSet Zcmt extends RV32I {
+InstructionSet Zcmt extends RVI {
     architectural_state {
         register unsigned<XLEN> JVT;
     }

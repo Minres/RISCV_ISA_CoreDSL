@@ -1,10 +1,6 @@
 import "RISCVBase.core_desc"
 
-InstructionSet RV32I extends RISCVBase {
-    architectural_state {
-        XLEN = 32;
-    }
-
+InstructionSet RVI extends RISCVBase {
     instructions {
         LUI {
             encoding: imm[31:12] :: rd[4:0] :: 7'b0110111;
@@ -345,16 +341,8 @@ InstructionSet RV32I extends RISCVBase {
             encoding: 7'b0001000 :: 5'b00101 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: wait(1);
         }
-    }
-}
 
-InstructionSet RV64I extends RV32I {
-    architectural_state {
-        XLEN = 64;
-    }
-
-    instructions {
-        LWU { // 80000104: 0000ef03 lwu t5,0(ra)
+        LWU [[enable=XLEN==64]] { // 80000104: 0000ef03 lwu t5,0(ra)
             encoding: imm[11:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0000011;
             assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -364,7 +352,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        LD {
+        LD [[enable=XLEN==64]] {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0000011;
             assembly:"{name(rd)}, {imm}({name(rs1)})";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -374,7 +362,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SD {
+        SD [[enable=XLEN==64]] {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100011;
             assembly:"{name(rs2)}, {imm}({name(rs1)})";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -383,13 +371,13 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SLLI {
+        SLLI [[enable=XLEN==64]] {
             encoding: 6'b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] << shamt;
         }
 
-        SRLI {
+        SRLI [[enable=XLEN==64]] {
             encoding: 6'b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else
@@ -397,7 +385,7 @@ InstructionSet RV64I extends RV32I {
                     X[rd] = X[rs1] >> shamt;
         }
 
-        SRAI {
+        SRAI [[enable=XLEN==64]] {
             encoding: 6'b010000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else
@@ -405,7 +393,7 @@ InstructionSet RV64I extends RV32I {
                     X[rd] = (unsigned<XLEN>)(((signed<XLEN>)X[rs1]) >> shamt);
         }
 
-        ADDIW {
+        ADDIW [[enable=XLEN==64]] {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0011011;
             assembly:"{name(rd)}, {name(rs1)}, {imm}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -416,7 +404,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SLLIW {
+        SLLIW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: shamt[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0011011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -427,7 +415,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SRLIW {
+        SRLIW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0011011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -438,7 +426,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SRAIW {
+        SRAIW [[enable=XLEN==64]] {
             encoding: 7'b0100000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0011011;
             assembly:"{name(rd)}, {name(rs1)}, {shamt}";
             behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
@@ -449,7 +437,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        ADDW {
+        ADDW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
@@ -459,7 +447,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SUBW {
+        SUBW [[enable=XLEN==64]] {
             encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
@@ -469,7 +457,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SLLW {
+        SLLW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
@@ -481,7 +469,7 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SRLW {
+        SRLW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
@@ -493,14 +481,14 @@ InstructionSet RV64I extends RV32I {
             }
         }
 
-        SRAW {
+        SRAW [[enable=XLEN==64]] {
             encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
                 if (rd != 0) {
                     unsigned<32> count = (unsigned<32>)X[rs2] & 0x1f;
                     signed<32> sh_val = ((signed<32>)X[rs1]) >> count;
-                    X[rd] = (unsigned<64>)sh_val;
+                    X[rd] = (unsigned<XLEN>)sh_val;
                 }
             }
         }
