@@ -495,11 +495,7 @@ InstructionSet RVI extends RISCVBase {
     }
 }
 
-InstructionSet Zicsr extends RISCVBase {
-    architectural_state {
-        unsigned int CSR_SIZE = 4096;
-        extern unsigned<XLEN> CSR[CSR_SIZE];
-    }
+InstructionSet Zicsr extends RVPrivBase {
 
     instructions {
         CSRRW {

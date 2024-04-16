@@ -1,7 +1,8 @@
+import "RISCVBase.core_desc"
 import "RVF.core_desc"
 
 // TODO: review instruction description wrt. Spec after type system is fixed
-InstructionSet RV32D extends RV32F {
+InstructionSet RVD extends RVFPBase {
     architectural_state {
         FLEN = 64;
     }

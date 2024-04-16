@@ -62,3 +62,20 @@ InstructionSet RISCVBase {
         extern void wait(int flag);
     }
 }
+
+InstructionSet RVPrivBase extends RISCVBase {
+	    architectural_state {
+        unsigned int CSR_SIZE = 4096;
+        extern unsigned<XLEN> CSR[CSR_SIZE];
+    }
+}
+
+InstructionSet RVFPBase extends RVPrivBase {
+	    architectural_state {
+        unsigned<32> FLEN = 32;
+        unsigned<32> FFLAG_MASK = 0x1f;
+
+        register unsigned<FLEN> F[32];
+        unsigned<XLEN>& FCSR = CSR[3];
+    }
+}

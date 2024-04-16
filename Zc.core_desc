@@ -328,7 +328,7 @@ InstructionSet Zca extends RVI {
     }
 }
 
-InstructionSet Zcf extends RV32F {
+InstructionSet Zcf extends RVF {
     instructions {
         C__FLW {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
@@ -378,7 +378,7 @@ InstructionSet Zcf extends RV32F {
     }
 }
 
-InstructionSet Zcd extends RV32D {
+InstructionSet Zcd extends RVD {
     instructions {
         C__FLD { //(RV32/64)
             encoding: 3'b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
@@ -510,7 +510,7 @@ InstructionSet Zcb extends RVI {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rsd)}, {name(8+rs2)}";
             behavior: {
-                signed<MLEN> res = (signed<MLEN>)((signed<MLEN>)(signed)X[rsd+8] * (signed<MLEN>)(signed)X[rs2+8]);
+                signed<MLEN> res = (signed)X[rsd+8] * (signed)X[rs2+8];
                 X[rsd+8] = (unsigned<XLEN>)res;
             }
         }

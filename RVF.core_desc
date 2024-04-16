@@ -1,14 +1,7 @@
 import "RVI.core_desc"
 
 // TODO: review instruction description wrt. Spec after type system is fixed
-InstructionSet RVF extends Zicsr {
-    architectural_state {
-        unsigned<32> FLEN = 32;
-        unsigned<32> FFLAG_MASK = 0x1f;
-
-        register unsigned<FLEN> F[32];
-        unsigned<XLEN>& FCSR = CSR[3];
-    }
+InstructionSet RVF extends RVFPBase {
     
     functions {
         extern unsigned<32> fadd_s(unsigned<32> v1, unsigned<32> v2, unsigned char mode);

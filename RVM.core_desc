@@ -1,6 +1,6 @@
 import "RISCVBase.core_desc"
 
-InstructionSet RV32M extends RISCVBase {
+InstructionSet RVM extends RISCVBase {
     architectural_state {
         unsigned<34> MUL_LEN = 2 * XLEN;
     }
@@ -10,7 +10,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                signed<MUL_LEN> res = (signed<MUL_LEN>)((signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2]);
+                signed<MUL_LEN> res = (signed)X[rs1] * (signed)X[rs2];
                 if(rd!=0) X[rd] = (unsigned<XLEN>)res;
             }
         }
@@ -19,7 +19,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                signed<MUL_LEN> res = (signed<MUL_LEN>)((signed<MUL_LEN>)(signed)X[rs1] * (signed<MUL_LEN>)(signed)X[rs2]);
+                signed<MUL_LEN> res = (signed)X[rs1] * (signed)X[rs2];
                 if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
@@ -28,7 +28,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                signed<MUL_LEN> res = (signed<MUL_LEN>)((signed<MUL_LEN>)(signed)X[rs1] * (unsigned<MUL_LEN>)X[rs2]);
+                signed<MUL_LEN> res = (signed)X[rs1] * X[rs2];
                 if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
@@ -37,7 +37,7 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
-                unsigned<MUL_LEN> res = (unsigned<MUL_LEN>)((unsigned<MUL_LEN>)X[rs1] * (unsigned<MUL_LEN>)X[rs2]);
+                unsigned<MUL_LEN> res = X[rs1] * X[rs2];
                 if(rd!=0) X[rd] = (unsigned<XLEN>)(res >> XLEN);
             }
         }
@@ -46,15 +46,15 @@ InstructionSet RV32M extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
-                signed<XLEN> dividend = (signed<XLEN>)X[rs1];
-                signed<XLEN> divisor = (signed<XLEN>)X[rs2];
+                signed<XLEN> dividend = (signed)X[rs1];
+                signed<XLEN> divisor = (signed)X[rs2];
                 if(rd != 0) {
                     if (divisor != 0) {
                         unsigned<XLEN> MMIN = ((unsigned<XLEN>)1)<<(XLEN-1);
                         if (X[rs1] == MMIN && divisor == -1) {
                             X[rd] = MMIN;
                         } else
-                            X[rd] = (unsigned<XLEN>)(dividend / divisor);
+                            X[rd] = (unsigned<32>)(dividend / divisor);
                     } else
                         X[rd] = (unsigned<XLEN>)-1;
                 }
@@ -66,7 +66,7 @@ InstructionSet RV32M extends RISCVBase {
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
                 if (X[rs2] != 0) {
-                    if(rd!=0) X[rd] = (unsigned<XLEN>)(X[rs1] / X[rs2]);
+                    if(rd!=0) X[rd] = X[rs1] / X[rs2];
                 } else
                     if(rd!=0) X[rd] = (unsigned<XLEN>)-1;
             }
@@ -81,7 +81,7 @@ InstructionSet RV32M extends RISCVBase {
                     if (X[rs1] == MMIN && (signed<XLEN>)X[rs2] == -1) {
                         if(rd!=0) X[rd] = 0;
                     } else {
-                        if(rd!=0) X[rd] = (unsigned<XLEN>)((signed<XLEN>)X[rs1] % (signed<XLEN>)X[rs2]);
+                        if(rd!=0) X[rd] = (unsigned)((signed)X[rs1] % (signed)X[rs2]);
                     }
                 } else
                     if(rd!=0) X[rd] = X[rs1];
@@ -99,12 +99,8 @@ InstructionSet RV32M extends RISCVBase {
                 }
             }
         }
-    }
-}
 
-InstructionSet RV64M extends RV32M {
-    instructions {
-        MULW {
+        MULW [[enable=XLEN==64]] {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else   {
@@ -112,7 +108,7 @@ InstructionSet RV64M extends RV32M {
             }
         }
 
-        DIVW {
+        DIVW [[enable=XLEN==64]] {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
@@ -130,7 +126,7 @@ InstructionSet RV64M extends RV32M {
             }
         }
 
-        DIVUW {
+        DIVUW [[enable=XLEN==64]] {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
@@ -143,7 +139,7 @@ InstructionSet RV64M extends RV32M {
             }
         }
 
-        REMW {
+        REMW [[enable=XLEN==64]] {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else {
@@ -159,7 +155,7 @@ InstructionSet RV64M extends RV32M {
             }
         }
 
-        REMUW {
+        REMUW [[enable=XLEN==64]] {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else  {
