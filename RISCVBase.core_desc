@@ -3,7 +3,6 @@ InstructionSet RISCVBase {
         unsigned int XLEN;
         unsigned int INSTR_ALIGNMENT = 4;
         unsigned int RFS = 32;
-
         unsigned int fence = 0;
         unsigned int fencei = 1;
         unsigned int fencevmal = 2;
@@ -48,9 +47,9 @@ InstructionSet RISCVBase {
         unsigned<XLEN>& T6 = X[31];
 
         // address spaces
-        extern char MEM[1 << XLEN] [[is_main_mem]];
+        extern unsigned<8> MEM[1 << XLEN] [[is_main_mem]];
         extern unsigned<XLEN> FENCE[8];
-        extern char RES[8]; // reservation address space
+        extern unsigned<8> RES[8]; // reservation address space
 
         // supplemental state register
         register unsigned<3> PRIV = 3;
@@ -61,5 +60,22 @@ InstructionSet RISCVBase {
         extern void raise(int irq, int mcause);
         extern void leave(int priv_lvl);
         extern void wait(int flag);
+    }
+}
+
+InstructionSet RVPrivBase extends RISCVBase {
+	    architectural_state {
+        unsigned int CSR_SIZE = 4096;
+        extern unsigned<XLEN> CSR[CSR_SIZE];
+    }
+}
+
+InstructionSet RVFPBase extends RVPrivBase {
+	    architectural_state {
+        unsigned<32> FLEN = 32;
+        unsigned<32> FFLAG_MASK = 0x1f;
+
+        register unsigned<FLEN> F[32];
+        unsigned<XLEN>& FCSR = CSR[3];
     }
 }
