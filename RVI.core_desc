@@ -5,19 +5,19 @@ InstructionSet RVI extends RISCVBase {
         LUI {
             encoding: imm[31:12] :: rd[4:0] :: 7'b0110111;
             assembly: "{name(rd)}, {imm:#05x}";
-            behavior: if(rd >=RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>) ((signed) imm);
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>) ((signed) imm);
         }
 
         AUIPC {
             encoding: imm[31:12] :: rd[4:0] :: 7'b0010111;
             assembly: "{name(rd)}, {imm:#08x}";
-            behavior: if(rd >=RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(PC+(signed)imm);
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)(PC+(signed)imm);
         }
 
         JAL {
             encoding: imm[20:20] :: imm[10:1] :: imm[11:11] :: imm[19:12] :: rd[4:0] :: 7'b1101111;
             assembly: "{name(rd)}, {imm:#0x}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (imm % INSTR_ALIGNMENT) {
                     raise(0, 0);
                 } else {
@@ -30,7 +30,7 @@ InstructionSet RVI extends RISCVBase {
         JALR {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1100111;
             assembly: "{name(rd)}, {name(rs1)}, {imm:#0x}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
                 unsigned<XLEN> new_pc = (unsigned<XLEN>)((X[rs1] + (signed)imm) & addr_mask);
                 if (new_pc % INSTR_ALIGNMENT) {
@@ -44,8 +44,8 @@ InstructionSet RVI extends RISCVBase {
 
         BEQ {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
-            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else  {
+            assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else  {
                 if (X[rs1] == X[rs2]) {
                     if(imm % INSTR_ALIGNMENT) {
                         raise(0, 0);
@@ -58,8 +58,8 @@ InstructionSet RVI extends RISCVBase {
 
         BNE {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
-            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (X[rs1] != X[rs2]) {
                     if (imm % INSTR_ALIGNMENT) {
                         raise(0, 0);
@@ -72,8 +72,8 @@ InstructionSet RVI extends RISCVBase {
 
         BLT {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
-            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if ((signed<XLEN>)X[rs1] < (signed<XLEN>)X[rs2]) {
                     if (imm % INSTR_ALIGNMENT) {
                         raise(0, 0);
@@ -86,8 +86,8 @@ InstructionSet RVI extends RISCVBase {
 
         BGE {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
-            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if ((signed<XLEN>)X[rs1] >= (signed<XLEN>)X[rs2]) {
                     if (imm % INSTR_ALIGNMENT) {
                         raise(0, 0);
@@ -100,8 +100,8 @@ InstructionSet RVI extends RISCVBase {
 
         BLTU {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
-            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (X[rs1] < X[rs2]) {
                     if (imm % INSTR_ALIGNMENT) {
                         raise(0, 0);
@@ -114,8 +114,8 @@ InstructionSet RVI extends RISCVBase {
 
         BGEU {
             encoding: imm[12:12] ::imm[10:5] :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: imm[4:1] :: imm[11:11] :: 7'b1100011;
-            assembly:"{name(rs1)}, {name(rs2)}, {imm:#0x}";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (X[rs1] >= X[rs2]) {
                     if (imm % INSTR_ALIGNMENT) {
                         raise(0, 0);
@@ -128,8 +128,8 @@ InstructionSet RVI extends RISCVBase {
 
         LB {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0000011;
-            assembly:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {imm}({name(rs1)})";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 signed<8> res = (signed<8> )MEM[load_address];
                 if(rd != 0) X[rd] = (unsigned<XLEN>)res;
@@ -138,8 +138,8 @@ InstructionSet RVI extends RISCVBase {
 
         LH {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0000011;
-            assembly:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {imm}({name(rs1)})";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 signed<16> res = (signed<16>)MEM[load_address+1:load_address];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
@@ -148,8 +148,8 @@ InstructionSet RVI extends RISCVBase {
 
         LW {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0000011;
-            assembly:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {imm}({name(rs1)})";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 signed<32> res = (signed<32>)MEM[load_address+3:load_address];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
@@ -158,8 +158,8 @@ InstructionSet RVI extends RISCVBase {
 
         LBU {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0000011;
-            assembly:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {imm}({name(rs1)})";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 unsigned<8> res = MEM[load_address];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
@@ -168,8 +168,8 @@ InstructionSet RVI extends RISCVBase {
 
         LHU {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0000011;
-            assembly:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {imm}({name(rs1)})";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 unsigned<16> res = MEM[load_address+1:load_address];
                 if(rd != 0) X[rd] = (unsigned<XLEN>)res;
@@ -178,8 +178,8 @@ InstructionSet RVI extends RISCVBase {
 
         SB {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: imm[4:0] :: 7'b0100011;
-            assembly:"{name(rs2)}, {imm}({name(rs1)})";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs2)}, {imm}({name(rs1)})";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> store_address = (unsigned<XLEN>)(X[rs1] + (signed)imm);
                 MEM[store_address] = (unsigned<8>)X[rs2];
             }
@@ -187,8 +187,8 @@ InstructionSet RVI extends RISCVBase {
 
         SH {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: imm[4:0] :: 7'b0100011;
-            assembly:"{name(rs2)}, {imm}({name(rs1)})";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs2)}, {imm}({name(rs1)})";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> store_address = (unsigned<XLEN>)(X[rs1] + (signed)imm);
                 MEM[store_address+1:store_address] = (unsigned<16>)X[rs2];
             }
@@ -196,8 +196,8 @@ InstructionSet RVI extends RISCVBase {
 
         SW {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: imm[4:0] :: 7'b0100011;
-            assembly:"{name(rs2)}, {imm}({name(rs1)})";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs2)}, {imm}({name(rs1)})";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> store_address = (unsigned<XLEN>)(X[rs1] + (signed)imm);
                 MEM[store_address+3:store_address] = (unsigned<32>)X[rs2];
             }
@@ -205,121 +205,121 @@ InstructionSet RVI extends RISCVBase {
 
         ADDI {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rs1] + (signed)imm);
+            assembly: "{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rs1] + (signed)imm);
         }
 
         SLTI {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = ((signed)X[rs1] < (signed)imm) ? 1 : 0;
+            assembly: "{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = ((signed)X[rs1] < (signed)imm) ? 1 : 0;
         }
 
         SLTIU {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (X[rs1] < (unsigned<XLEN>)((signed)imm)) ? 1 : 0;
+            assembly: "{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (X[rs1] < (unsigned<XLEN>)((signed)imm)) ? 1 : 0;
         }
 
         XORI {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] ^ (unsigned<XLEN>)((signed)imm);
+            assembly: "{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] ^ (unsigned<XLEN>)((signed)imm);
         }
 
         ORI {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] | (unsigned<XLEN>)((signed)imm);
+            assembly: "{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] | (unsigned<XLEN>)((signed)imm);
         }
 
         ANDI {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] & (unsigned<XLEN>)((signed)imm);
+            assembly: "{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] & (unsigned<XLEN>)((signed)imm);
         }
 
         SLLI {
             encoding: 7'b0000000 :: shamt[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] << shamt;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] << shamt;
         }
 
         SRLI {
             encoding: 7'b0000000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] >> shamt;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] >> shamt;
         }
 
         SRAI {
             encoding: 7'b0100000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)((signed)X[rs1] >> shamt);
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned)((signed)X[rs1] >> shamt);
         }
 
         ADD {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rs1] + X[rs2]);
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rs1] + X[rs2]);
         }
 
         SUB {
             encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rs1] - X[rs2]);
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rs1] - X[rs2]);
         }
 
         SLL {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] << (X[rs2] & (XLEN - 1));
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] << (X[rs2] & (XLEN - 1));
         }
 
         SLT {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (signed)X[rs1] < (signed)X[rs2] ? 1 : 0;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (signed)X[rs1] < (signed)X[rs2] ? 1 : 0;
         }
 
         SLTU {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-               behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] < X[rs2] ? 1 : 0;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+               behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] < X[rs2] ? 1 : 0;
         }
 
         XOR {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] ^ X[rs2];
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] ^ X[rs2];
         }
 
         SRL {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] >> (X[rs2] & (XLEN - 1));
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] >> (X[rs2] & (XLEN - 1));
         }
 
         SRA {
             encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)((signed)X[rs1] >> (X[rs2] & (XLEN - 1)));
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)((signed)X[rs1] >> (X[rs2] & (XLEN - 1)));
         }
 
         OR {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] | X[rs2];
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] | X[rs2];
         }
 
         AND {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] & X[rs2];
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] & X[rs2];
         }
 
         FENCE {
             encoding: fm[3:0] :: pred[3:0] :: succ[3:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0001111;
-            assembly:"{pred}, {succ} ({fm} , {name(rs1)}, {name(rd)})";
+            assembly: "{pred}, {succ} ({fm} , {name(rs1)}, {name(rd)})";
             behavior: FENCE[fence] = (unsigned<8>)pred << 4 | succ;
         }
 
@@ -344,8 +344,8 @@ InstructionSet RVI extends RISCVBase {
 
         LWU [[enable=XLEN==64]] { // 80000104: 0000ef03 lwu t5,0(ra)
             encoding: imm[11:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0000011;
-            assembly:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {imm}({name(rs1)})";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
@@ -354,8 +354,8 @@ InstructionSet RVI extends RISCVBase {
 
         LD [[enable=XLEN==64]] {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0000011;
-            assembly:"{name(rd)}, {imm}({name(rs1)})";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {imm}({name(rs1)})";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 signed<64> res = (signed<64>)MEM[offs+7:offs];
                 if (rd != 0) X[rd] = (unsigned<XLEN>)res;
@@ -364,8 +364,8 @@ InstructionSet RVI extends RISCVBase {
 
         SD [[enable=XLEN==64]] {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100011;
-            assembly:"{name(rs2)}, {imm}({name(rs1)})";
-            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rs2)}, {imm}({name(rs1)})";
+            behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
                 MEM[offs+7:offs] = (unsigned<XLEN>)X[rs2];
             }
@@ -373,30 +373,30 @@ InstructionSet RVI extends RISCVBase {
 
         SLLI [[enable=XLEN==64]] {
             encoding: 6'b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs1] << shamt;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs1] << shamt;
         }
 
         SRLI [[enable=XLEN==64]] {
             encoding: 6'b000000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else
                 if (rd != 0)
                     X[rd] = X[rs1] >> shamt;
         }
 
         SRAI [[enable=XLEN==64]] {
             encoding: 6'b010000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else
                 if (rd != 0)
                     X[rd] = (unsigned<XLEN>)(((signed<XLEN>)X[rs1]) >> shamt);
         }
 
         ADDIW [[enable=XLEN==64]] {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0011011;
-            assembly:"{name(rd)}, {name(rs1)}, {imm}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {name(rs1)}, {imm}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     signed<32> res = (signed<32>)(X[rs1] + (signed<12>)imm);
                     X[rd] = (unsigned<XLEN>)res;
@@ -406,8 +406,8 @@ InstructionSet RVI extends RISCVBase {
 
         SLLIW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: shamt[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0011011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) <<  shamt;
                     X[rd] = (unsigned<XLEN>)(signed)sh_val;
@@ -417,8 +417,8 @@ InstructionSet RVI extends RISCVBase {
 
         SRLIW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0011011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) >> shamt;
                     X[rd] = (unsigned<XLEN>)(signed)sh_val;
@@ -428,8 +428,8 @@ InstructionSet RVI extends RISCVBase {
 
         SRAIW [[enable=XLEN==64]] {
             encoding: 7'b0100000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0011011;
-            assembly:"{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     signed<32> sh_val = ((signed<32>)X[rs1]) >> shamt;
                     X[rd] = (unsigned<XLEN>)sh_val;
@@ -439,7 +439,7 @@ InstructionSet RVI extends RISCVBase {
 
         ADDW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     signed<32> res = (signed<32>)((signed<32>)X[rs1] + (signed<32>)X[rs2]);
                     X[rd] = (unsigned<XLEN>)res;
@@ -449,7 +449,7 @@ InstructionSet RVI extends RISCVBase {
 
         SUBW [[enable=XLEN==64]] {
             encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     signed<32> res = (signed<32>)((signed<32>)X[rs1] - (signed<32>)X[rs2]);
                     X[rd] = (unsigned<XLEN>)res;
@@ -459,8 +459,8 @@ InstructionSet RVI extends RISCVBase {
 
         SLLW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0111011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     unsigned<32> count = (unsigned<32>)X[rs2] & 0x1f;
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) << count;
@@ -471,8 +471,8 @@ InstructionSet RVI extends RISCVBase {
 
         SRLW [[enable=XLEN==64]] {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     unsigned<32> count = (unsigned<32>)X[rs2] & 0x1f;
                     unsigned<32> sh_val = ((unsigned<32>)X[rs1]) >> count;
@@ -483,8 +483,8 @@ InstructionSet RVI extends RISCVBase {
 
         SRAW [[enable=XLEN==64]] {
             encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
-            assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) {
                     unsigned<32> count = (unsigned<32>)X[rs2] & 0x1f;
                     signed<32> sh_val = ((signed<32>)X[rs1]) >> count;
@@ -500,8 +500,8 @@ InstructionSet Zicsr extends RVPrivBase {
     instructions {
         CSRRW {
             encoding: csr[11:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1110011;
-            assembly:"{name(rd)}, {csr}, {name(rs1)}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {csr}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> xrs1 = X[rs1];
                 if (rd != 0) {
                     unsigned<XLEN> xrd = CSR[csr];
@@ -516,8 +516,8 @@ InstructionSet Zicsr extends RVPrivBase {
 
         CSRRS {
             encoding: csr[11:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1110011;
-            assembly:"{name(rd)}, {csr}, {name(rs1)}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {csr}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> xrd = CSR[csr];
                 unsigned<XLEN> xrs1 = X[rs1];
                 if (rs1 != 0) CSR[csr] = xrd | xrs1;
@@ -527,8 +527,8 @@ InstructionSet Zicsr extends RVPrivBase {
 
         CSRRC {
             encoding: csr[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b1110011;
-            assembly:"{name(rd)}, {csr}, {name(rs1)}";
-            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {csr}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> xrd = CSR[csr];
                 unsigned<XLEN> xrs1 = X[rs1];
                 if (rs1 != 0) CSR[csr] = xrd & ~xrs1;
@@ -538,8 +538,8 @@ InstructionSet Zicsr extends RVPrivBase {
 
         CSRRWI {
             encoding: csr[11:0] :: zimm[4:0] :: 3'b101 :: rd[4:0] :: 7'b1110011;
-            assembly:"{name(rd)}, {csr}, {zimm:#0x}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {csr}, {zimm:#0x}";
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> xrd = CSR[csr];
                 CSR[csr] = (unsigned<XLEN>)zimm;
                 if (rd != 0) X[rd] = xrd;
@@ -548,8 +548,8 @@ InstructionSet Zicsr extends RVPrivBase {
 
         CSRRSI {
             encoding: csr[11:0] :: zimm[4:0] :: 3'b110 :: rd[4:0] :: 7'b1110011;
-            assembly:"{name(rd)}, {csr}, {zimm:#0x}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {csr}, {zimm:#0x}";
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> xrd = CSR[csr];
                 if (zimm != 0) CSR[csr] = xrd | (unsigned<XLEN>)zimm;
                 if (rd != 0) X[rd] = xrd;
@@ -558,8 +558,8 @@ InstructionSet Zicsr extends RVPrivBase {
 
         CSRRCI {
             encoding: csr[11:0] :: zimm[4:0] :: 3'b111 :: rd[4:0] :: 7'b1110011;
-            assembly:"{name(rd)}, {csr}, {zimm:#0x}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: "{name(rd)}, {csr}, {zimm:#0x}";
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> xrd = CSR[csr];
                 if (zimm != 0) CSR[csr] = xrd & ~((unsigned<XLEN>)zimm);
                 if (rd != 0) X[rd] = xrd;
@@ -572,7 +572,7 @@ InstructionSet Zifencei extends RISCVBase {
     instructions {
         FENCE_I [[flush]] {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0001111 ;
-            assembly:"{name(rs1)}, {name(rd)}, {imm}";
+            assembly: {"fence.i", "{name(rs1)}, {name(rd)}, {imm}"};
             behavior: FENCE[fencei] = imm;
         }
     }
@@ -602,10 +602,10 @@ InstructionSet RVDebug extends RISCVBase {
             encoding: 7'b0111101 :: 5'b10010 :: 5'b00000 :: 3'b000 :: 5'b00000 :: 7'b1110011;
             behavior: {
                 if(PRIV<4)
-                    raise(0, 2);
+                    raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     PC=DPC;
-                    PRIV &= 0x3;                    
+                    PRIV &= 0x3;
                 }
             }
         }
