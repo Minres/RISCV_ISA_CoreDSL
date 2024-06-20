@@ -133,10 +133,10 @@ InstructionSet RVM extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else  {
-                unsigned<32> dividend = (unsigned<32>)X[rs1];
                 unsigned<32> divisor = (unsigned<32>)X[rs2];
                 if (divisor != 0) {
-                    if(rd!=0) X[rd] = (unsigned<XLEN>)(dividend / divisor);
+                	signed<32> res = (signed<32>)((unsigned<32>)X[rs1] / divisor);
+                    if(rd!=0) X[rd] = (unsigned<XLEN>)res;
                 } else 
                     if(rd!=0) X[rd] = (unsigned<32>)-1;
             }
@@ -162,8 +162,10 @@ InstructionSet RVM extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0111011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else  {
-                if ((unsigned<32>)X[rs2] != 0) {
-                    if(rd!=0) X[rd] = (unsigned<XLEN>)((unsigned<32>)X[rs1] % (unsigned<32>)X[rs2]);
+                unsigned<32> divisor = (unsigned<32>)X[rs2];
+                if (divisor != 0) {
+                 	signed<32> res = (signed<32>)((unsigned<32>)X[rs1] % divisor);
+                    if(rd!=0) X[rd] = (unsigned<XLEN>)res;
                 } else
                     if(rd!=0) X[rd] = (unsigned<XLEN>)((unsigned<32>)X[rs1]);
             }
