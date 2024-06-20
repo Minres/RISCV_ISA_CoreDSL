@@ -4,27 +4,33 @@ import "RVI.core_desc"
 InstructionSet RVF extends RVFPBase {
     
     functions {
-        extern unsigned<32> fadd_s(unsigned<32> v1, unsigned<32> v2, unsigned char mode);
-        extern unsigned<32> fsub_s(unsigned<32> v1, unsigned<32> v2, unsigned char mode);
-        extern unsigned<32> fmul_s(unsigned<32> v1, unsigned<32> v2, unsigned char mode);
-        extern unsigned<32> fdiv_s(unsigned<32> v1, unsigned<32> v2, unsigned char mode);
-        extern unsigned<32> fmadd_s(unsigned<32> v1, unsigned<32> v2, unsigned<32> v3, unsigned<32> op, unsigned char mode);
-        extern unsigned<32> fsel_s(unsigned<32> v1, unsigned<32> v2, unsigned<32> op);
-        extern unsigned<32> fsqrt_s(unsigned<32> v1, unsigned char mode);
-        extern unsigned<32> fcmp_s(unsigned<32> v1, unsigned<32> v2, unsigned<32> op);
-        extern unsigned<32> fcvt_s(unsigned<32> v1, unsigned<32> v2, unsigned char mode);
-        extern unsigned<64> fcvt_32_64(unsigned<32> v1, unsigned<32> v2, unsigned char mode);
-        extern unsigned<32> fcvt_64_32(unsigned<64> v1, unsigned<32> v2, unsigned char mode);
-        extern unsigned<32> unbox_s(unsigned<64> v1);
-        extern unsigned<32> fclass_s(unsigned<32> v1);
+        extern unsigned<32> fadd_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fsub_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fmul_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fdiv_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fmadd_s(unsigned<32>, unsigned<32>, unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fsel_s(unsigned<32>, unsigned<32>, unsigned<32>);
+        extern unsigned<32> fsqrt_s(unsigned<32>, unsigned char);
+        extern unsigned<32> fcmp_s(unsigned<32>, unsigned<32>, unsigned<32>);
+        extern unsigned<32> fcvt_s(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<64> fcvt_32_64(unsigned<32>, unsigned<32>, unsigned char);
+        extern unsigned<32> fcvt_64_32(unsigned<64>, unsigned<32>, unsigned char);
+        extern unsigned<32> unbox_s(unsigned<64>);
+        extern unsigned<32> fclass_s(unsigned<32>);
         extern unsigned<32> fget_flags();
+
+        unsigned<3> get_rm(unsigned<3> rm) {
+            if (rm == 7) rm = FCSR[7:5];
+            if (rm > 4) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+            return rm;
+        }
     }
 
     instructions {
         FLW [[enable=FLEN==32]] {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0000111;
-            assembly:"f {rd}, {imm}({name(rs1)})";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly:"{fname(rd)}, {imm}({name(rs1)})";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<32>)(X[rs1] + (signed<12>)imm);
                 F[rd] = (unsigned<32>)MEM[offs+3:offs];
             }
@@ -32,8 +38,8 @@ InstructionSet RVF extends RVFPBase {
 
         FLW [[enable=FLEN==64]] {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0000111;
-            assembly:"f {rd}, {imm}({name(rs1)})";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly:"{fname(rd)}, {imm}({name(rs1)})";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<32>)(X[rs1] + (signed<12>)imm);
                 unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
                 F[rd] = (unsigned<FLEN>)((signed<FLEN>)-1 << 32) | (unsigned<FLEN>)res;
@@ -42,8 +48,8 @@ InstructionSet RVF extends RVFPBase {
 
         FSW {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: imm[4:0] :: 7'b0100111;
-            assembly:"f {rs2}, {imm}({name(rs1)])";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly: "{fname(rs2)}, {imm}({name(rs1)])";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<32>)(X[rs1] + (signed<12>)imm);
                 MEM[offs+3:offs] = (unsigned<32>)F[rs2];
             }
@@ -51,7 +57,7 @@ InstructionSet RVF extends RVFPBase {
 
         FMADD__S [[enable=FLEN==32]] {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
                 F[rd] = (unsigned<FLEN>)fmadd_s(F[rs1], F[rs2], F[rs3], 0, rm<7? (unsigned char)rm:(unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -72,7 +78,7 @@ InstructionSet RVF extends RVFPBase {
 
         FMSUB__S [[enable=FLEN==32]] {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
                 F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 1, rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -93,7 +99,7 @@ InstructionSet RVF extends RVFPBase {
 
         FNMADD__S [[enable=FLEN==32]] {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
-            assembly:"{name(rm)}, name(rd), f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, name(rd), {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
                 F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 2, rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -117,7 +123,7 @@ InstructionSet RVF extends RVFPBase {
 
         FNMSUB__S [[enable=FLEN==32]] {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}, f {rs2}, f {rs3}";
+            assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
                 F[rd] = fmadd_s(F[rs1], F[rs2], F[rs3], 3, rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -141,7 +147,7 @@ InstructionSet RVF extends RVFPBase {
 
         FADD__S [[enable=FLEN==32]] {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fadd.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = fadd_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -164,7 +170,7 @@ InstructionSet RVF extends RVFPBase {
 
         FSUB__S [[enable=FLEN==32]] {
             encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fsub.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = fsub_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -187,7 +193,7 @@ InstructionSet RVF extends RVFPBase {
 
         FMUL__S [[enable=FLEN==32]] {
             encoding: 7'b0001000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fmul.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = fmul_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -210,7 +216,7 @@ InstructionSet RVF extends RVFPBase {
 
         FDIV__S [[enable=FLEN==32]] {
             encoding: 7'b0001100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fdiv.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = fdiv_s(F[rs1], F[rs2], rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -233,7 +239,7 @@ InstructionSet RVF extends RVFPBase {
 
         FSQRT__S [[enable=FLEN==32]] {
             encoding: 7'b0101100 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, f {rs1}";
+            assembly: {"fsqrt.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
                 F[rd] = fsqrt_s(F[rs1], rm<7? rm: (unsigned char)FCSR);
                 unsigned<32> flags = fget_flags();
@@ -255,7 +261,7 @@ InstructionSet RVF extends RVFPBase {
 
         FSGNJ__S [[enable=FLEN==32]] {
             encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly:"f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fsgnj.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = F[rs2][31:31] :: F[rs1][30:0];
             }
@@ -274,7 +280,7 @@ InstructionSet RVF extends RVFPBase {
 
         FSGNJN__S [[enable=FLEN==32]] {
             encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly:"f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fsgnjn.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = ~F[rs2][31:31] :: F[rs1][30:0];
             }
@@ -293,7 +299,7 @@ InstructionSet RVF extends RVFPBase {
 
         FSGNJX__S [[enable=FLEN==32]] {
             encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly:"f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fsgnjx.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = F[rs1] ^ (F[rs2] & 0x80000000);
             }
@@ -312,7 +318,7 @@ InstructionSet RVF extends RVFPBase {
 
         FMIN__S [[enable=FLEN==32]] {
             encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly:"f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fmin.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = fsel_s(F[rs1], F[rs2], 0);
                 unsigned<32> flags = fget_flags();
@@ -335,7 +341,7 @@ InstructionSet RVF extends RVFPBase {
 
         FMAX__S [[enable=FLEN==32]] {
             encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly:"f {rd}, f {rs1}, f {rs2}";
+            assembly: {"fmax.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 F[rd] = fsel_s(F[rs1], F[rs2], 1);
                 unsigned<32> flags = fget_flags();
@@ -358,8 +364,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT__W__S [[enable=FLEN==32]] {
             encoding: 7'b1100000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fcvt.w.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcvt_s(F[rs1], 0, rm);
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
@@ -369,8 +375,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT__W__S [[enable=FLEN==64]] {
             encoding: 7'b1100000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fcvt.w.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> res = fcvt_s(frs1, 0, rm);
                 if ((rd) != 0) X[rd] = res;
@@ -381,8 +387,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT__WU__S [[enable=FLEN==32]] {
             encoding: 7'b1100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fcvt.wu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 //FIXME: according to the spec it should be zero-extended not sign extended
                 unsigned<32> res = fcvt_s(F[rs1], 1, rm);
                 if ((rd) != 0) X[rd] = res;
@@ -394,7 +400,7 @@ InstructionSet RVF extends RVFPBase {
         FCVT__WU__S [[enable=FLEN==64]] {
             encoding: 7'b1100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly:"{name(rm)}, {name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 //FIXME: according to the spec it should be zero-extended not sign extended
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> res = fcvt_s(frs1, 1, rm);
@@ -406,8 +412,8 @@ InstructionSet RVF extends RVFPBase {
 
         FEQ__S [[enable=FLEN==32]] {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}, f {rs2}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"feq.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcmp_s(F[rs1], F[rs2], 0);
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
@@ -417,8 +423,8 @@ InstructionSet RVF extends RVFPBase {
 
         FEQ__S [[enable=FLEN==64]] {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}, f {rs2}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"feq.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
                 unsigned<32> res = fcmp_s(frs1, frs2, 0);
@@ -430,8 +436,8 @@ InstructionSet RVF extends RVFPBase {
 
         FLT__S [[enable=FLEN==32]] {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}, f {rs2}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"flt.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcmp_s(F[rs1], F[rs2], 2);
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
@@ -441,8 +447,8 @@ InstructionSet RVF extends RVFPBase {
 
         FLT__S [[enable=FLEN==64]] {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}, f {rs2}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"flt.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
                 unsigned<32> res = fcmp_s(frs1, frs2, 2);
@@ -454,8 +460,8 @@ InstructionSet RVF extends RVFPBase {
 
         FLE__S [[enable=FLEN==32]] {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}, f {rs2}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fle.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcmp_s(F[rs1], F[rs2], 1);
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
@@ -465,8 +471,8 @@ InstructionSet RVF extends RVFPBase {
 
         FLE__S [[enable=FLEN==64]] {
             encoding: 7'b1010000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}, f {rs2}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fle.s", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
                 unsigned<32> res = fcmp_s(frs1, frs2, 1);
@@ -478,8 +484,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCLASS__S [[enable=FLEN==32]] {
             encoding: 7'b1110000 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fclass.s", "{name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fclass_s(F[rs1]);
                 if ((rd) != 0) X[rd] = res;
             }
@@ -487,8 +493,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCLASS__S [[enable=FLEN==64]] {
             encoding: 7'b1110000 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fclass.s", "{name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fclass_s(unbox_s(F[rs1]));
                 if ((rd) != 0) X[rd] = res;
             }
@@ -496,16 +502,16 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT__S__W [[enable=FLEN==32]] {
             encoding: 7'b1101000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 F[rd] = fcvt_s((unsigned)X[rs1], 2, rm);
             }
         }
 
         FCVT__S__W [[enable=FLEN==64]] {
             encoding: 7'b1101000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcvt_s((unsigned)X[rs1], 2, rm);
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
             }
@@ -513,16 +519,16 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT__S__WU [[enable=FLEN==32]] {
             encoding: 7'b1101000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 F[rd] = fcvt_s((unsigned)X[rs1], 3, rm);
             }
         }
 
         FCVT__S__WU [[enable=FLEN==64]] {
             encoding: 7'b1101000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcvt_s((unsigned)X[rs1], 3, rm);
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
             }
@@ -530,8 +536,8 @@ InstructionSet RVF extends RVFPBase {
 
         FMV__X__W {
             encoding: 7'b1110000 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fmv.x.w", "{name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if ((rd) != 0) X[rd] = F[rs1];
             }
         }
@@ -539,7 +545,7 @@ InstructionSet RVF extends RVFPBase {
         FMV__W__X [[enable=FLEN==32]] {
             encoding: 7'b1111000 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly:"f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 F[rd] = X[rs1];
             }
         }
@@ -547,15 +553,15 @@ InstructionSet RVF extends RVFPBase {
         FMV__W__X [[enable=FLEN==64]] {
             encoding: 7'b1111000 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly:"f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)X[rs1];
             }
         }
 
         FCVT_L_S [[enable=XLEN==64]] { // fp to 64bit signed integer
             encoding: 7'b1100000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fcvt.l.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 0, rm);
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
@@ -565,8 +571,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT_LU_S [[enable=XLEN==64]] { // fp to 64bit unsigned integer
             encoding: 7'b1100000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, {name(rd)}, f {rs1}";
-            behavior: if(rd >=RFS) raise(0, 2); else {
+            assembly: {"fcvt.lu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 1, rm);
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
@@ -576,8 +582,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT_S_L [[enable=XLEN==64]] { // 64bit signed int to to fp
             encoding: 7'b1101000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly: {"fcvt.s.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcvt_64_32(X[rs1], 2, rm);
                 if (FLEN == 32)
                     F[rd] = res;
@@ -589,8 +595,8 @@ InstructionSet RVF extends RVFPBase {
 
         FCVT_S_LU [[enable=XLEN==64]] { // 64bit unsigned int to to fp
             encoding: 7'b1101000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly:"{name(rm)}, f {rd}, {name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            assembly: {"fcvt.s.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcvt_64_32(X[rs1], 3, rm);
                 if (FLEN == 32)
                     F[rd] = res;

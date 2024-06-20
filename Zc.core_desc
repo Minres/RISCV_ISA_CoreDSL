@@ -13,7 +13,7 @@ InstructionSet Zca extends RVI {
             assembly: "{name(8+rd)}, {imm:#05x}";
             behavior:
                 if (imm) X[rd + 8] = (unsigned<XLEN>)(X[2] + imm);
-                else raise(0, 2);
+                else raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
         }
 
         C__LW { // (RV32)
@@ -55,13 +55,13 @@ InstructionSet Zca extends RVI {
         C__ADDI {//(RV32)
             encoding: 3'b000 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rs1)}, {imm:#05x}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else if (rs1 != 0) X[rs1] = (unsigned<XLEN>)(X[rs1] + (signed<6>)imm);
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rs1 != 0) X[rs1] = (unsigned<XLEN>)(X[rs1] + (signed<6>)imm);
         }
 
         C__NOP {
             encoding: 3'b000 :: nzimm[5:5] :: 5'b00000 :: nzimm[4:0] :: 2'b01;
             behavior: {
-                //if (!nzimm) raise(0, 2);
+                //if (!nzimm) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
             }
         }
 
@@ -79,15 +79,17 @@ InstructionSet Zca extends RVI {
             encoding: 3'b001 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rs1)}, {imm:#05x}";
             behavior: if(rs1 >= RFS || rs1 == 0)
-                raise(0, 2); 
-            else if (rs1 != 0)
-                X[rs1] = (unsigned<XLEN>)((signed<32>)X[rs1] + (signed<6>)imm);
+                raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
+            else if (rs1 != 0) {
+                signed<32> res = (signed<32>)((signed<32>)X[rs1] + (signed<6>)imm);
+	            X[rs1] = (unsigned<XLEN>)res;
+            }
         }
 
         C__LI {//(RV32)
             encoding: 3'b010 :: imm[5:5] :: rd[4:0] :: imm[4:0] :: 2'b01;
             assembly: "{name(rd)}, {imm:#05x}";
-            behavior: if(rd >= RFS) raise(0, 2); else {
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0) X[rd] = (unsigned<XLEN>)((signed<6>)imm);
             }
         }
@@ -97,7 +99,7 @@ InstructionSet Zca extends RVI {
             encoding: 3'b011 :: imm[17:17] :: rd[4:0] :: imm[16:12] :: 2'b01;
             assembly: "{name(rd)}, {imm:#05x}";
             behavior: {
-                if (imm == 0 || rd >= RFS) raise(0, 2);
+                if (imm == 0 || rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 if (rd != 0) X[rd] = (unsigned<XLEN>)((signed<18>)imm);
             }
         }
@@ -107,12 +109,12 @@ InstructionSet Zca extends RVI {
             assembly: "{nzimm:#05x}";
             behavior:
                 if (nzimm) X[2] = (unsigned<XLEN>)(X[2] + (signed<10>)nzimm);
-                else raise(0, 2);
+                else raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
         }
 
         __reserved_clui {//(RV32)
             encoding: 3'b011 :: 1'b0 :: rd[4:0] :: 5'b00000 :: 2'b01;
-            behavior: raise(0, 2);
+            behavior: raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
         }
 
         C__SRLI[[enable=XLEN==32]] {//(RV32 nse)
@@ -230,20 +232,20 @@ InstructionSet Zca extends RVI {
         C__SLLI [[enable=XLEN==32]] {//(RV32)
             encoding: 3'b000 :: 1'b0 :: rs1[4:0] :: nzuimm[4:0] :: 2'b10;
             assembly: "{name(rs1)}, {nzuimm}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else  if(rs1 != 0) X[rs1] = X[rs1] << nzuimm;
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else  if(rs1 != 0) X[rs1] = X[rs1] << nzuimm;
         }
 
         C__SLLI [[enable=XLEN>32]] {//(RV32/RV64)
             encoding: 3'b000:: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 2'b10;
             assembly: "{name(rs1)}, {shamt}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else if (rs1 != 0) X[rs1] = X[rs1] << shamt;
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rs1 != 0) X[rs1] = X[rs1] << shamt;
         }
 
         C__LWSP {//
             encoding: 3'b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly: "{name(rd)}, sp, {uimm:#05x}";
             behavior: {
-                if(rd >= RFS || rd == 0) raise(0, 2); else {
+                if(rd >= RFS || rd == 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 	unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                     X[rd] = (unsigned<XLEN>)(signed<32>)MEM[offs+3:offs];
                 } 
@@ -253,7 +255,7 @@ InstructionSet Zca extends RVI {
         C__LDSP [[enable=XLEN>32]] {//(RV64/128
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly: "{name(rd)}, {uimm}(sp)";
-            behavior: if(rd >= RFS || rd == 0) raise(0, 2); else {
+            behavior: if(rd >= RFS || rd == 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                 unsigned<XLEN> res = (unsigned<XLEN>) MEM[offs+7:offs];
                 X[rd] = res;
@@ -264,7 +266,7 @@ InstructionSet Zca extends RVI {
         C__MV {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
-            behavior: if(rd >= RFS) raise(0, 2); else if (rd != 0) X[rd] = X[rs2];
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs2];
         }
 
         C__JR {//(RV32)
@@ -285,13 +287,13 @@ InstructionSet Zca extends RVI {
         C__ADD {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
-            behavior: if(rd >= RFS) raise(0, 2); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rd] + X[rs2]);
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rd] + X[rs2]);
         }
 
         C__JALR {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
-            behavior: if(rs1 >= RFS) raise(0, 2); else {
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> new_pc = X[rs1];
                 X[1] = (unsigned<XLEN>)(PC + 2);
                 PC = new_pc & ~0x1;
@@ -306,7 +308,7 @@ InstructionSet Zca extends RVI {
         C__SWSP {//
             encoding: 3'b110 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rs2)}, {uimm:#05x}(sp)";
-            behavior: if(rs2 >= RFS) raise(0, 2); else {
+            behavior: if(rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                 MEM[offs+3:offs] = (unsigned<32>)X[rs2];
             }
@@ -315,7 +317,7 @@ InstructionSet Zca extends RVI {
         C__SDSP [[enable=XLEN>32]] {//(RV64/128)
             encoding: 3'b111 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rs2)}, {uimm}(sp)";
-            behavior: if(rs2 >= RFS) raise(0, 2); else {
+            behavior: if(rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                 MEM[offs+7:offs] = (unsigned<64>)X[rs2];
             }
@@ -323,7 +325,7 @@ InstructionSet Zca extends RVI {
 
         DII { // Defined Illegal Instruction
             encoding: 3'b000 :: 1'b0 :: 5'b00000 :: 5'b00000 :: 2'b00;
-            behavior: raise(0, 2);
+            behavior: raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
         }
     }
 }
@@ -641,7 +643,7 @@ InstructionSet Zcmp extends RVI {
         CM__PUSH [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11000 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
             	else {
 	                unsigned int bytes = 4;
 	                unsigned int stack_adj_base = stack_adjust32(rlist);
@@ -702,7 +704,7 @@ InstructionSet Zcmp extends RVI {
         CM__PUSH [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11000 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
             	else {
 	                unsigned int stack_adj_base = stack_adjust64(rlist);
 	                unsigned<XLEN> addr = X[2];
@@ -762,7 +764,7 @@ InstructionSet Zcmp extends RVI {
         CM__POP [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11010 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
 	                unsigned int bytes = 4;
 	                unsigned int stack_adj_base = stack_adjust32(rlist);
@@ -774,7 +776,7 @@ InstructionSet Zcmp extends RVI {
         CM__POP [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11010 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
 	                unsigned int bytes = 4;
 	                unsigned int stack_adj_base = stack_adjust64(rlist);
@@ -786,7 +788,7 @@ InstructionSet Zcmp extends RVI {
         CM__POPRETZ [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11100 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
 	            else {
 	                unsigned int bytes = 4;
 	                unsigned int stack_adj_base = stack_adjust32(rlist);
@@ -801,7 +803,7 @@ InstructionSet Zcmp extends RVI {
         CM__POPRETZ [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11100 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
 	                unsigned int bytes = 4;
 	                unsigned int stack_adj_base = stack_adjust64(rlist);
@@ -815,7 +817,7 @@ InstructionSet Zcmp extends RVI {
         CM__POPRET [[enable=XLEN==32]]{
             encoding: 3'b101 :: 5'b11110 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
 	                unsigned int bytes = 4;
 	                unsigned int stack_adj_base = stack_adjust32(rlist);
@@ -828,7 +830,7 @@ InstructionSet Zcmp extends RVI {
         CM__POPRET [[enable=XLEN==64]]{
             encoding: 3'b101 :: 5'b11110 :: rlist[3:0] :: spimm[5:4] :: 2'b10;
             assembly: "{rlist}, {spimm}";
-            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, 2);
+            behavior: if(rlist<4 || (RFS==16 && rlist>6)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
 	                unsigned int bytes = 4;
 	                unsigned int stack_adj_base = stack_adjust64(rlist);
@@ -843,7 +845,7 @@ InstructionSet Zcmp extends RVI {
             assembly: "{name(8+r1s)}, {name(8+r2s)}";
             behavior: {
                 if(r1s==r2s || (RFS<32 && (r1s>1 || r2s>1)))
-                    raise(0, 2);
+                    raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(r1s<2)
                         X[r1s+8] = X[10];
@@ -861,7 +863,7 @@ InstructionSet Zcmp extends RVI {
             assembly: "{name(8+r1s)}, {name(8+r2s)}";
             behavior: {
                 if(RFS<32 && (r1s>1 || r2s>1))
-                    raise(0, 2);
+                    raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     X[10] = r1s<2? X[r1s+8] : X[r1s+16];
                     X[11] = r2s<2? X[r2s+8] : X[r2s+16];
