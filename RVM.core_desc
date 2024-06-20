@@ -136,9 +136,9 @@ InstructionSet RVM extends RISCVBase {
                 unsigned<32> divisor = (unsigned<32>)X[rs2];
                 if (divisor != 0) {
                 	signed<32> res = (signed<32>)((unsigned<32>)X[rs1] / divisor);
-                    if(rd!=0) X[rd] = (unsigned<XLEN>)res;
+                    if(rd!=0) X[rd] = (unsigned)(signed<XLEN>)res;
                 } else 
-                    if(rd!=0) X[rd] = (unsigned<32>)-1;
+                    if(rd!=0) X[rd] = (unsigned<XLEN>)-1;
             }
         }
 
@@ -165,9 +165,12 @@ InstructionSet RVM extends RISCVBase {
                 unsigned<32> divisor = (unsigned<32>)X[rs2];
                 if (divisor != 0) {
                  	signed<32> res = (signed<32>)((unsigned<32>)X[rs1] % divisor);
-                    if(rd!=0) X[rd] = (unsigned<XLEN>)res;
-                } else
-                    if(rd!=0) X[rd] = (unsigned<XLEN>)((unsigned<32>)X[rs1]);
+                    if(rd!=0) X[rd] = (unsigned)(signed<XLEN>)res;
+                } else {
+                	signed<32> res = (signed<32>)X[rs1];
+                    if(rd!=0) X[rd] = (unsigned)(signed<XLEN>)res;
+                    
+                }
             }
         }
     }
