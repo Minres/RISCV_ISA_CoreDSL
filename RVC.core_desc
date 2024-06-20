@@ -391,8 +391,8 @@ InstructionSet RV64IC extends RV32IC {
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b00:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                signed<33> res = (signed<32>)X[rd + 8] - (signed<32>)X[rs2 + 8];
-                X[rd + 8] = (unsigned<XLEN>)res;
+                signed<32> res = (signed<32>)((signed<32>)X[rd + 8] - (signed<32>)X[rs2 + 8]);
+	            X[rd + 8] = (unsigned<XLEN>)res;
             }
         }
 
@@ -400,7 +400,7 @@ InstructionSet RV64IC extends RV32IC {
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b01:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
             behavior: {
-	            signed<33> res = (signed<32>)X[rd + 8] + (signed<32>)X[rs2 + 8];
+                signed<32> res = (signed<32>)((signed<32>)X[rd + 8] + (signed<32>)X[rs2 + 8]);
 	            X[rd + 8] = (unsigned<XLEN>)res;
             }
         }

@@ -54,7 +54,7 @@ InstructionSet RVM extends RISCVBase {
                         if (X[rs1] == MMIN && divisor == -1) {
                             X[rd] = MMIN;
                         } else
-                            X[rd] = (unsigned<32>)(dividend / divisor);
+                            X[rd] = (unsigned<XLEN>)(dividend / divisor);
                     } else
                         X[rd] = (unsigned<XLEN>)-1;
                 }
@@ -104,7 +104,10 @@ InstructionSet RVM extends RISCVBase {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
             assembly:"{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1>=RFS || rs2>=RFS) raise(0, 2); else   {
-                if(rd!=0) X[rd] = (unsigned<XLEN>)((signed<32>)X[rs1] * (signed<32>)X[rs2]);
+                if(rd!=0) {
+                	signed<32> resw = (signed<32>)((signed<32>)X[rs1] * (signed<32>)X[rs2]);
+                	X[rd] = (unsigned)(signed<XLEN>)resw;
+                } 
             }
         }
 
