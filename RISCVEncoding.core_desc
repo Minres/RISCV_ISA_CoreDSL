@@ -431,15 +431,16 @@ InstructionSet RISCVEncoding {
         const int RV_MSTATUS_MXR = 0x00080000;
         const int RV_MSTATUS_TVM = 0x00100000;
         const int RV_MSTATUS_TW = 0x00200000;
-        const int RV_MSTATUS_TSR = 0x00400000;
-        const int RV_MSTATUS32_SD = 0x80000000;
-        const int RV_MSTATUS_UXL = 0x0000000300000000;
-        const int RV_MSTATUS_SXL = 0x0000000C00000000;
-        const int RV_MSTATUS_SBE = 0x0000001000000000;
-        const int RV_MSTATUS_MBE = 0x0000002000000000;
-        const int RV_MSTATUS_GVA = 0x0000004000000000;
-        const int RV_MSTATUS_MPV = 0x0000008000000000;
-        const int RV_MSTATUS64_SD = 0x8000000000000000;
+        const int RV_MSTATUS_TSR  = 0x00400000;
+        const int RV_MSTATUS32_SD = 1<<31; //(0x80000000)
+        // commented as the validator does not handle it properly
+		// const int<64> RV_MSTATUS_UXL = 0x0000000300000000;
+		// const int<64> RV_MSTATUS_SXL = 0x0000000C00000000;
+		// const int<64> RV_MSTATUS_SBE = 0x0000001000000000;
+		// const int<64> RV_MSTATUS_MBE = 0x0000002000000000;
+		// const int<64> RV_MSTATUS_GVA = 0x0000004000000000;
+		// const int<64> RV_MSTATUS_MPV = 0x0000008000000000;
+		// const int<64> RV_MSTATUS64_SD = 0x8000000000000000;
 
         const int RV_PRV_U = 0;
         const int RV_PRV_S = 1;

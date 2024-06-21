@@ -80,8 +80,10 @@ InstructionSet Zca extends RVI {
             assembly: "{name(rs1)}, {imm:#05x}";
             behavior: if(rs1 >= RFS || rs1 == 0)
                 raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
-            else if (rs1 != 0)
-                X[rs1] = (unsigned<XLEN>)((signed<32>)X[rs1] + (signed<6>)imm);
+            else if (rs1 != 0) {
+                signed<32> res = (signed<32>)((signed<32>)X[rs1] + (signed<6>)imm);
+	            X[rs1] = (unsigned<XLEN>)res;
+            }
         }
 
         C__LI {//(RV32)
@@ -195,8 +197,8 @@ InstructionSet Zca extends RVI {
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b00:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                signed<33> res = (signed<32>)X[rd + 8] - (signed<32>)X[rs2 + 8];
-                X[rd + 8] = (unsigned<XLEN>)res;
+                signed<32> res = (signed<32>)((signed<32>)X[rd + 8] - (signed<32>)X[rs2 + 8]);
+	            X[rd + 8] = (unsigned<XLEN>)res;
             }
         }
 
@@ -204,8 +206,8 @@ InstructionSet Zca extends RVI {
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b01:: rs2[2:0] :: 2'b01;
             assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
             behavior: {
-                signed<33> res = (signed<32>)X[rd + 8] + (signed<32>)X[rs2 + 8];
-                X[rd + 8] = (unsigned<XLEN>)res;
+                signed<32> res = (signed<32>)((signed<32>)X[rd + 8] + (signed<32>)X[rs2 + 8]);
+	            X[rd + 8] = (unsigned<XLEN>)res;
             }
         }
 
@@ -339,7 +341,7 @@ InstructionSet Zcf extends RVF {
                 if (FLEN == 32)
                     F[rd + 8] = res;
                 else { // NaN boxing
-                    F[rd + 8] = ((signed<FLEN>)-1 << 32) | res;
+                    F[rd + 8] = (unsigned)((signed<FLEN>)-1 << 32) | res;
                 }
             }
         }
@@ -362,7 +364,7 @@ InstructionSet Zcf extends RVF {
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                    F[rd] = ((signed<FLEN>)-1 << 32) | res;
+                    F[rd] = (unsigned)((signed<FLEN>)-1 << 32) | res;
                 }
             }
         }
@@ -389,7 +391,7 @@ InstructionSet Zcd extends RVD {
                 if (FLEN == 64)
                     F[rd + 8] = res;
                 else { // NaN boxing
-                    F[rd + 8] = (-1 << 64) | res;
+                    F[rd + 8] = (unsigned)(-1 << 64) | res;
                 }
             }
         }
@@ -412,7 +414,7 @@ InstructionSet Zcd extends RVD {
                 if (FLEN == 64)
                     F[rd] = res;
                 else { // NaN boxing
-                    F[rd] = (-1 << 64) | res;
+                    F[rd] = (unsigned)(-1 << 64) | res;
                 }
             }
         }
