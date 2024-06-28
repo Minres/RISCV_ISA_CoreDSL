@@ -2,7 +2,7 @@ import "RISCVBase.core_desc"
 import "RVF.core_desc"
 
 // TODO: review instruction description wrt. Spec after type system is fixed
-InstructionSet RVD extends RVFPBase {
+InstructionSet RVD extends RVF {
     architectural_state {
         FLEN = 64;
     }
@@ -19,7 +19,6 @@ InstructionSet RVD extends RVFPBase {
         extern unsigned<64> fcvt_d(unsigned<64>, unsigned<32>, unsigned char);
         extern unsigned<32> fconv_d2f(unsigned<64>, unsigned char);
         extern unsigned<64> fconv_f2d(unsigned<32>, unsigned char);
-        extern unsigned<64> unbox_d(unsigned<64>);
         extern unsigned<64> fclass_d(unsigned<64>);
     }
 
@@ -28,12 +27,12 @@ InstructionSet RVD extends RVFPBase {
             encoding: imm[11:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0000111;
             assembly: "{fname(rd)}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS] + (signed<12>)imm;
-                unsigned<64> res = (unsigned<64>)MEM[offs];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 % RFS] + (signed<12>)imm);
+                unsigned<64> res = MEM[offs+7:offs];
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
@@ -42,8 +41,8 @@ InstructionSet RVD extends RVFPBase {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100111;
             assembly: "{fname(rs2)}, {imm}({name(rs1)})";
             behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS] + (signed<12>)imm;
-                MEM[offs] = (unsigned<64>)F[rs2];
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 % RFS] + (signed<12>)imm);
+                MEM[offs+7:offs] = (unsigned<64>)F[rs2];
             }
         }
 
@@ -52,11 +51,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = F[rs1]f * F[rs2]f + F[rs3]f;
-                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 0, get_rm(rm));
+                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 0, rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -68,11 +67,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = F[rs1]f * F[rs2]f - F[rs3]f;
-                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 1, get_rm(rm));
+                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 1, rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -84,11 +83,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fnmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = -F[rs1]f * F[rs2]f + F[rs3]f;
-                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 2, get_rm(rm));
+                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 2, rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -100,11 +99,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fnmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
                 //F[rd]f = -F[rs1]f * F[rs2]f - F[rs3]f;
-                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 3, get_rm(rm));
+                unsigned<64> res = fmadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], (unsigned<64>)F[rs3], 3, rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -116,11 +115,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f + F[rs2]f;
-                unsigned<64> res = fadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], get_rm(rm));
+                unsigned<64> res = fadd_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -132,11 +131,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f - F[rs2]f;
-                unsigned<64> res = fsub_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], get_rm(rm));
+                unsigned<64> res = fsub_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -148,11 +147,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fmul.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f * F[rs2]f;
-                unsigned<64> res = fmul_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], get_rm(rm));
+                unsigned<64> res = fmul_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -164,11 +163,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fdiv.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 // F[rd]f = F[rs1]f / F[rs2]f;
-                unsigned<64> res = fdiv_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], get_rm(rm));
+                unsigned<64> res = fdiv_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -180,11 +179,11 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fsqrt.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 //F[rd]f = sqrt(F[rs1]f);
-                unsigned<64> res = fsqrt_d((unsigned<64>)F[rs1], get_rm(rm));
+                unsigned<64> res = fsqrt_d((unsigned<64>)F[rs1], rm<7? rm: (unsigned char)FCSR);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -197,22 +196,22 @@ InstructionSet RVD extends RVFPBase {
             behavior: {
                 unsigned<64> res = F[rs2][63:63] :: F[rs1][62:0];
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
 
         FSGNJN_D {
             encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnjn.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2})"};
+            assembly: {"fsgnjn.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
                 unsigned<64> res = ~F[rs2][63:63] :: F[rs1][62:0];
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
@@ -223,9 +222,9 @@ InstructionSet RVD extends RVFPBase {
             behavior: {
                 unsigned<64> res = (unsigned<64>)F[rs1] ^ ((unsigned<64>)F[rs2] & (1 << 63));
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
@@ -237,9 +236,9 @@ InstructionSet RVD extends RVFPBase {
                 //F[rd]f = choose(F[rs1]f<F[rs2]f, F[rs1]f, F[rs2]f);
                 unsigned<64> res = fsel_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], 0);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -253,9 +252,9 @@ InstructionSet RVD extends RVFPBase {
                 //F[rd]f = choose(F[rs1]f>F[rs2]f, F[rs1]f, F[rs2]f);
                 unsigned<64> res = fsel_d((unsigned<64>)F[rs1], (unsigned<64>)F[rs2], 1);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -268,7 +267,7 @@ InstructionSet RVD extends RVFPBase {
             behavior: {
                 unsigned<32> res = fconv_d2f(F[rs1], rm);
                 // NaN boxing
-                F[rd] = (-1 << 32) + res;
+                F[rd] = (unsigned<FLEN>)((-1<<32) + res);
             }
         }
 
@@ -276,11 +275,11 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b0100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
-                unsigned<64> res = fconv_f2d((unsigned)F[rs1], rm);
+                unsigned<64> res = fconv_f2d((unsigned<32>)F[rs1], rm);
                 if (FLEN == 64) {
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 } else {
-                    F[rd] = (-1 << 64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
@@ -289,15 +288,9 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
             assembly: {"feq.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                unsigned<64> res = 0;
-                if (FLEN == 64)
-                    res = fcmp_d(F[rs1], F[rs2], 0);
-                else {
-                    unsigned<64> frs1 = unbox_d(F[rs1]);
-                    unsigned<64> frs2 = unbox_d(F[rs2]);
-                    res = fcmp_d(frs1, frs2, 0);
-                }
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
+                unsigned<64> res = fcmp_d(F[rs1], F[rs2], 0);
+                if ((rd % RFS) != 0)
+                	X[rd % RFS] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -307,15 +300,9 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: {"flt.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                unsigned<64> res = 0;
-                if (FLEN == 64)
-                    res = fcmp_d(F[rs1], F[rs2], 2);
-                else {
-                    unsigned<64> frs1 = unbox_d(F[rs1]);
-                    unsigned<64> frs2 = unbox_d(F[rs2]);
-                    res = fcmp_d(frs1, frs2, 2);
-                }
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
+                unsigned<64> res = fcmp_d(F[rs1], F[rs2], 2);
+                if ((rd % RFS) != 0)
+                	X[rd % RFS] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -325,15 +312,9 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fle.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                unsigned<64> res = 0;
-                if (FLEN == 64)
-                    res = fcmp_d(F[rs1], F[rs2], 1);
-                else {
-                    unsigned<64> frs1 = unbox_d(F[rs1]);
-                    unsigned<64> frs2 = unbox_d(F[rs2]);
-                    res = fcmp_d(frs1, frs2, 1);
-                }
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
+                unsigned<64> res = fcmp_d(F[rs1], F[rs2], 1);
+                if ((rd % RFS) != 0)
+                	X[rd % RFS] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -343,7 +324,7 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: {"flass.d", "{name(rd)}, {fname(rs1)}"};
             behavior: {
-                X[rd % RFS] = fclass_d((unsigned<64>)F[rs1]);
+                X[rd % RFS] = (unsigned<XLEN>)fclass_d((unsigned<64>)F[rs1]);
             }
         }
 
@@ -352,14 +333,9 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b1100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.w.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
-                signed<32> res = 0;
-                if (FLEN == 64)
-                    res = fcvt_64_32(F[rs1], 0, rm);
-                else { // NaN boxing
-                    unsigned<64> frs1 = unbox_d(F[rs1]);
-                    res = fcvt_64_32(frs1, 0, rm);
-                }
-                if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)res;
+                unsigned<32> res = fcvt_64_32(F[rs1], 0, rm);
+                if ((rd % RFS) != 0)
+                	X[rd % RFS] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -371,13 +347,7 @@ InstructionSet RVD extends RVFPBase {
             assembly: {"fcvt.wu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
                 //FIXME: should be zext accodring to spec but needs to be sext according to tests
-                unsigned<32> res = 0;
-                if (FLEN == 64)
-                    res = fcvt_64_32(F[rs1], 1, rm);
-                else { // NaN boxing
-                    unsigned<64> frs1 = unbox_d(F[rs1]);
-                    res = fcvt_64_32(frs1, 1, rm);
-                }
+                unsigned<32> res = fcvt_64_32(F[rs1], 1, rm);
                 if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -388,11 +358,11 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b1101001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
-                signed<64> res = fcvt_32_64((unsigned)X[rs1 % RFS], 2, rm);
+                unsigned<64> res = fcvt_32_64((unsigned<32>)X[rs1 % RFS], 2, rm);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
@@ -401,74 +371,70 @@ InstructionSet RVD extends RVFPBase {
             encoding: 7'b1101001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
-                unsigned<64> res = fcvt_32_64((unsigned)X[rs1 % RFS], 3, rm);
+                unsigned<64> res = fcvt_32_64((unsigned<32>)X[rs1 % RFS], 3, rm);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
-    }
-}
 
-InstructionSet RV64D extends RV32D {
-    instructions {
-        FCVT_L_D {
+        FCVT_L_D [[enable=XLEN>32]] {
             encoding: 7'b1100001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.l.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
-                X[rd % RFS] = fcvt_d((unsigned<64>)F[rs1], 0, rm);
+                X[rd % RFS] = (unsigned<XLEN>)fcvt_d((unsigned<64>)F[rs1], 0, rm);
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
-        FCVT_LU_D {
+        FCVT_LU_D [[enable=XLEN>32]] {
             encoding: 7'b1100001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.lu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
-                X[rd % RFS] = fcvt_d((unsigned<64>)F[rs1], 1, rm);
+                X[rd % RFS] = (unsigned<XLEN>)fcvt_d((unsigned<64>)F[rs1], 1, rm);
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
-        FCVT_D_L {
+        FCVT_D_L [[enable=XLEN>32]] {
             encoding: 7'b1101001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 unsigned<64> res = fcvt_d(X[rs1 % RFS], 2, rm);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
 
-        FCVT_D_LU {
+        FCVT_D_LU [[enable=XLEN>32]] {
             encoding: 7'b1101001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: {
                 unsigned<64> res = fcvt_d(X[rs1 % RFS], 3, rm);
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1<<64) + res;
+                    F[rd] = (unsigned<FLEN>)((-1<<64) + res);
                 }
             }
         }
 
-        FMV_X_D {
+        FMV_X_D [[enable=XLEN>32]] {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fmv.x.d", "{name(rd)}, {fname(rs1)}"};
             behavior: {
-                X[rd % RFS] = F[rs1]; //FIXME: sign extend
+                X[rd % RFS] = (unsigned<XLEN>)F[rs1]; //FIXME: sign extend
             }
         }
 
-        FMV_D_X {
+        FMV_D_X [[enable=XLEN>32]] {
             encoding: 7'b1111001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fmv.d.x", "{fname(rd)}, {name(rs1)}"};
             behavior: {

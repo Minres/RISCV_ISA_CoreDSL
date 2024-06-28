@@ -243,18 +243,26 @@ InstructionSet RVC extends RISCVBase {
         DII [[no_cont]] { // Defined Illegal Instruction
             encoding: 3'b000 :: 1'b0 :: 5'b00000 :: 5'b00000 :: 2'b00;
             behavior: raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
-        }
+        }   
+    }        
+}
 
+InstructionSet RVCFP extends RVFPBase {
+    architectural_state {
+        INSTR_ALIGNMENT = 2;
+    }
+    
+    instructions{
         C__FLW [[enable=FLEN>0]] {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly: {"c.flw", "{fname(8+rd)}, {uimm}({name(8+rs1)})"};
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8]+uimm);
-                unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
+                unsigned<32> res = MEM[offs+3:offs];
                 if (FLEN == 32)
                     F[rd + 8] = res;
                 else { // NaN boxing
-                    F[rd + 8] = ((signed<FLEN>)-1 << 32) | res;
+                    F[rd + 8] = (unsigned<FLEN>)(((signed<FLEN>)-1 << 32) | res);
                 }
             }
         }
@@ -277,7 +285,7 @@ InstructionSet RVC extends RISCVBase {
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
-                    F[rd] = ((signed<FLEN>)-1 << 32) | res;
+                    F[rd] = (unsigned<FLEN>)(((signed<FLEN>)-1 << 32) | res);
                 }
             }
         }
@@ -298,9 +306,9 @@ InstructionSet RVC extends RISCVBase {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
                 unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
                 if (FLEN == 64)
-                    F[rd + 8] = res;
+                    F[rd + 8] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd + 8] = (-1 << 64) | res;
+                    F[rd + 8] = (unsigned<FLEN>)((-1 << 64) | res);
                 }
             }
         }
@@ -319,11 +327,11 @@ InstructionSet RVC extends RISCVBase {
             assembly: {"c.fldsp", "{fname(rd)}, {uimm}(x2)"};
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
-                unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
+                unsigned<64> res = MEM[offs+7:offs];
                 if (FLEN == 64)
-                    F[rd] = res;
+                    F[rd] = (unsigned<FLEN>)res;
                 else { // NaN boxing
-                    F[rd] = (-1 << 64) | res;
+                    F[rd] = (unsigned<FLEN>)((-1 << 64) | res);
                 }
             }
         }

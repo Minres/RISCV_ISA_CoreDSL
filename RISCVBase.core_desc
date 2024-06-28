@@ -3,7 +3,7 @@ import "RISCVEncoding.core_desc"
 InstructionSet RISCVBase extends RISCVEncoding {
     architectural_state {
         unsigned int XLEN;
-        unsigned int FLEN;
+        unsigned int FLEN=0;
         unsigned int INSTR_ALIGNMENT = 4;
         unsigned int RFS = 32;
 
@@ -68,18 +68,8 @@ InstructionSet RISCVBase extends RISCVEncoding {
 }
 
 InstructionSet RVPrivBase extends RISCVBase {
-	    architectural_state {
+	architectural_state {
         unsigned int CSR_SIZE = 4096;
         extern unsigned<XLEN> CSR[CSR_SIZE];
-    }
-}
-
-InstructionSet RVFPBase extends RVPrivBase {
-	    architectural_state {
-        FLEN = 32;
-        unsigned<32> FFLAG_MASK = 0x1f;
-
-        register unsigned<FLEN> F[32];
-        unsigned<XLEN>& FCSR = CSR[3];
     }
 }
