@@ -2,7 +2,7 @@ import "RVI.core_desc"
 import "RVF.core_desc"
 import "RVD.core_desc"
 
-InstructionSet RV32IC extends RVI {
+InstructionSet RVC extends RISCVBase {
     architectural_state {
         INSTR_ALIGNMENT = 2;
     }
@@ -244,12 +244,8 @@ InstructionSet RV32IC extends RVI {
             encoding: 3'b000 :: 1'b0 :: 5'b00000 :: 5'b00000 :: 2'b00;
             behavior: raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
         }
-    }
-}
 
-InstructionSet RV32FC extends RVF {
-    instructions {
-        C__FLW {
+        C__FLW [[enable=FLEN>0]] {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly: {"c.flw", "{fname(8+rd)}, {uimm}({name(8+rs1)})"};
             behavior: {
@@ -263,7 +259,7 @@ InstructionSet RV32FC extends RVF {
             }
         }
 
-        C__FSW {
+        C__FSW [[enable=FLEN>0]] {
             encoding: 3'b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
             assembly: {"c.fsw", "{fname(8+rs2)}, {uimm}({name(8+rs1)})"};
             behavior: {
@@ -272,7 +268,7 @@ InstructionSet RV32FC extends RVF {
             }
         }
 
-        C__FLWSP {
+        C__FLWSP [[enable=FLEN>0]] {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly: {"c.flwsp", "{fname(rd)}, {uimm}(x2)"};
             behavior: {
@@ -286,7 +282,7 @@ InstructionSet RV32FC extends RVF {
             }
         }
 
-        C__FSWSP {
+        C__FSWSP [[enable=FLEN>0]] {
             encoding: 3'b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
             assembly: {"c.fswsp", "{fname(rs2)}, {uimm}(x2)"};
             behavior: {
@@ -294,12 +290,8 @@ InstructionSet RV32FC extends RVF {
                 MEM[offs+3:offs] = (unsigned<32>)F[rs2];
             }
         }
-    }
-}
 
-InstructionSet RV32DC extends RV32D {
-    instructions {
-        C__FLD { //(RV32/64)
+        C__FLD [[enable=FLEN>32]] { //(RV32/64)
             encoding: 3'b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly: {"c.fld", "{fname(8+rd)}, {uimm}({name(8+rs1)})"};
             behavior: {
@@ -313,7 +305,7 @@ InstructionSet RV32DC extends RV32D {
             }
         }
 
-        C__FSD { //(RV32/64)
+        C__FSD [[enable=FLEN>32]] { //(RV32/64)
             encoding: 3'b101 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly: {"c.fsd", "{fname(8+rs2)}, {uimm}({fname(8+rs1)})"};
             behavior: {
@@ -322,7 +314,7 @@ InstructionSet RV32DC extends RV32D {
             }
         }
 
-        C__FLDSP {//(RV32/64)
+        C__FLDSP [[enable=FLEN>32]] {//(RV32/64)
             encoding: 3'b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly: {"c.fldsp", "{fname(rd)}, {uimm}(x2)"};
             behavior: {
@@ -336,7 +328,7 @@ InstructionSet RV32DC extends RV32D {
             }
         }
 
-        C__FSDSP {//(RV32/64)
+        C__FSDSP [[enable=FLEN>32]] {//(RV32/64)
             encoding: 3'b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly: {"c.fsdsp", "{fname(rs2)}, {uimm}(x2)"};
             behavior: {
@@ -344,12 +336,8 @@ InstructionSet RV32DC extends RV32D {
                 MEM[offs+7:offs] = (unsigned<64>)F[rs2];
             }
         }
-    }
-}
 
-InstructionSet RV64IC extends RV32IC {
-    instructions{
-        C__SRLI {//(RV32/RV64)
+        C__SRLI [[enable=XLEN>32]] {//(RV32/RV64)
             encoding: 3'b100:: nzuimm[5:5] :: 2'b00:: rs1[2:0] :: nzuimm[4:0] :: 2'b01;
             assembly: {"c.srli", "{name(8+rs1)}, {nzuimm}"};
             behavior: {
@@ -357,7 +345,7 @@ InstructionSet RV64IC extends RV32IC {
             }
         }
 
-        C__SRAI {//(RV32/RV64)
+        C__SRAI [[enable=XLEN>32]] {//(RV32/RV64)
             encoding: 3'b100:: shamt[5:5] :: 2'b01:: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: {"c.srai", "{name(8+rs1)}, {shamt}"};
             behavior: {
@@ -365,13 +353,13 @@ InstructionSet RV64IC extends RV32IC {
             }
         }
 
-        C__SLLI {//(RV32/RV64)
+        C__SLLI [[enable=XLEN>32]] {//(RV32/RV64)
             encoding: 3'b000:: shamt[5:5] :: rs1[4:0] :: shamt[4:0] :: 2'b10;
             assembly: {"c.slli", "{name(rs1)}, {shamt}"};
             behavior: if(rs1 == 0 || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rs1 != 0) X[rs1] = X[rs1] << shamt;
         }
 
-        C__LD {//(RV64/128)
+        C__LD [[enable=XLEN>32]] {//(RV64/128)
             encoding: 3'b011:: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly: {"c.ld", "{name(8+rd)}, {uimm},({name(8+rs1)})"};
             behavior: {
@@ -380,7 +368,7 @@ InstructionSet RV64IC extends RV32IC {
             }
         }
 
-        C__SD { //(RV64/128)
+        C__SD [[enable=XLEN>32]] { //(RV64/128)
             encoding: 3'b111:: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly: {"c.sd", "{name(8+rs2)}, {uimm},({name(8+rs1)})"};
             behavior: {
@@ -389,7 +377,7 @@ InstructionSet RV64IC extends RV32IC {
             }
         }
 
-        C__SUBW {//(RV64/128, RV32 res)
+        C__SUBW [[enable=XLEN>32]] {//(RV64/128, RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b00:: rs2[2:0] :: 2'b01;
             assembly: {"c.subw", "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}"};
             behavior: {
@@ -398,7 +386,7 @@ InstructionSet RV64IC extends RV32IC {
             }
         }
 
-        C__ADDW {//(RV64/128 RV32 res)
+        C__ADDW [[enable=XLEN>32]] {//(RV64/128 RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b01:: rs2[2:0] :: 2'b01;
             assembly: {"c.addw", "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}"};
             behavior: {
@@ -407,7 +395,7 @@ InstructionSet RV64IC extends RV32IC {
             }
         }
 
-        C__ADDIW {//(RV64/128)
+        C__ADDIW [[enable=XLEN>32]] {//(RV64/128)
             encoding: 3'b001 :: imm[5:5] :: rs1[4:0] :: imm[4:0] :: 2'b01;
             assembly: {"c.addiw", "{name(rs1)}, {imm:#05x}"};
             behavior: if(rs1 >= RFS || rs1 == 0)
@@ -416,7 +404,7 @@ InstructionSet RV64IC extends RV32IC {
                 X[rs1] = (unsigned<XLEN>)((signed<32>)X[rs1] + (signed<6>)imm);
         }
 
-        C__LDSP {//(RV64/128
+        C__LDSP [[enable=XLEN>32]] {//(RV64/128
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly: {"c.ldsp", "{name(rd)}, {uimm}(sp)"};
             behavior: if(rd >= RFS || rd == 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -426,7 +414,7 @@ InstructionSet RV64IC extends RV32IC {
             }
         }
 
-        C__SDSP {//(RV64/128)
+        C__SDSP [[enable=XLEN>32]] {//(RV64/128)
             encoding: 3'b111 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly: {"c.sdsp", "{name(rs2)}, {uimm}(sp)"};
             behavior: if(rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -434,26 +422,22 @@ InstructionSet RV64IC extends RV32IC {
                 MEM[offs+7:offs] = (unsigned<64>)X[rs2];
         	}
 		}
-    }
-}
 
-InstructionSet RV128IC extends RV64IC {
-    instructions{
-        C__SRAI64 {//(RV128)
+        C__SRAI64 [[enable=XLEN>64]] {//(RV128)
             encoding: 3'b100 :: 0b0 :: 2'b01:: rs1[2:0] :: 4'b0000 :: 2'b01;
             assembly: {"c.srai64", "{name(8+rs1)}"};
             behavior: {
                 X[rs1 + 8] = (unsigned<XLEN>)((signed<XLEN>)X[rs1 + 8] >> 64);
             }
         }
-        C__SRLI64 {//(RV128)
+        C__SRLI64 [[enable=XLEN>64]] {//(RV128)
             encoding: 4'b1000 :: 2'b00:: rs1[2:0] :: 5'b00000 :: 2'b01;
             assembly: {"c.srli64", "{name(8+rs1)}"};
             behavior: {
                 X[rs1 + 8] = X[rs1 + 8] << 64;
             }
         }
-        C__SLLI64 {//(RV128)
+        C__SLLI64 [[enable=XLEN>64]] {//(RV128)
             encoding: 3'b000:: 0b0 :: rs1[4:0] :: 4'b0000 :: 2'b10;
             assembly: {"c.slli64", "{name(rs1)}"};
             behavior: {
@@ -461,17 +445,17 @@ InstructionSet RV128IC extends RV64IC {
                 X[rs1] = X[rs1] << 64;
             }
         }
-        C__LQ { //(RV128)
+        C__LQ [[enable=XLEN>64]] { //(RV128)
              encoding: 3'b001:: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly: {"c.lq", "{name(8+rd)}, {uimm:#05x}({name(8+rs1)})"};
              behavior: {}
         }
-        C__SQ { //(RV128)
+        C__SQ [[enable=XLEN>64]] { //(RV128)
             encoding: 3'b101:: uimm[5:4] :: uimm[8:8] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly: {"c.sq", "{name(8+rs2)}, {uimm:#05x}({name(8+rs1)})"};
             behavior: {}
         }
-        C__SQSP {//(RV128)
+        C__SQSP [[enable=XLEN>64]] {//(RV128)
             encoding: 3'b101:: uimm[5:4] :: uimm[9:6] :: rs2[4:0] :: 2'b10;
             assembly: {"c.sqsp", "{name(8+rs2)}, {uimm:#05x}(x2)"};
             behavior: {}

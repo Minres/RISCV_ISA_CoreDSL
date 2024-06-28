@@ -1,6 +1,6 @@
 import "RISCVBase.core_desc"
 
-InstructionSet RV32A extends RISCVBase {
+InstructionSet RVA extends RISCVBase {
     instructions {
         LRW {
             encoding: 5'b00010 :: aq[0:0] :: rl[0:0]  :: 5'b00000 :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
@@ -130,12 +130,8 @@ InstructionSet RV32A extends RISCVBase {
                 MEM[offs+3:offs] = res2;
             }
         }
-    }
-}
 
-InstructionSet RV64A extends RV32A {
-    instructions {
-        LRD {
+        LRD [[enable=XLEN==64]] {
             encoding: 5'b00010 :: aq[0:0] :: rl[0:0]  :: 5'b00000 :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: {
@@ -147,7 +143,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        SCD {
+        SCD [[enable=XLEN==64]] {
             encoding: 5'b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: {
@@ -160,7 +156,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOSWAPD {
+        AMOSWAPD [[enable=XLEN==64]] {
             encoding: 5'b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoswap.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -170,7 +166,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOADDD {
+        AMOADDD [[enable=XLEN==64]] {
             encoding: 5'b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoadd.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -182,7 +178,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOXORD {
+        AMOXORD [[enable=XLEN==64]] {
             encoding: 5'b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoxor.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -194,7 +190,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOANDD {
+        AMOANDD [[enable=XLEN==64]] {
             encoding: 5'b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoand.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -206,7 +202,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOORD {
+        AMOORD [[enable=XLEN==64]] {
             encoding: 5'b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoor.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -218,7 +214,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOMIND {
+        AMOMIND [[enable=XLEN==64]] {
             encoding: 5'b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomin.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -230,7 +226,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOMAXD {
+        AMOMAXD [[enable=XLEN==64]] {
             encoding: 5'b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomax.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -242,7 +238,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOMINUD {
+        AMOMINUD [[enable=XLEN==64]] {
             encoding: 5'b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amominu.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
@@ -254,7 +250,7 @@ InstructionSet RV64A extends RV32A {
             }
         }
 
-        AMOMAXUD {
+        AMOMAXUD [[enable=XLEN==64]] {
             encoding: 5'b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomaxu.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
             behavior: {
