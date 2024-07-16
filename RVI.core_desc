@@ -18,11 +18,13 @@ InstructionSet RVI extends RISCVBase {
             encoding: imm[20:20] :: imm[10:1] :: imm[11:11] :: imm[19:12] :: rd[4:0] :: 7'b1101111;
             assembly: "{name(rd)}, {imm:#0x}";
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                if (imm % INSTR_ALIGNMENT) {
+                unsigned<XLEN> new_pc = (unsigned<XLEN>)(PC + (signed)imm);
+                if (new_pc % INSTR_ALIGNMENT) {
+                    set_tval(new_pc);
                     raise(0, 0);
                 } else {
                     if (rd != 0) X[rd] = (unsigned<XLEN>)(PC + 4);
-                    PC = (unsigned<XLEN>)(PC + (signed)imm);
+                    PC = new_pc;
                 }
             }
         }
@@ -34,6 +36,7 @@ InstructionSet RVI extends RISCVBase {
                 unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
                 unsigned<XLEN> new_pc = (unsigned<XLEN>)((X[rs1] + (signed)imm) & addr_mask);
                 if (new_pc % INSTR_ALIGNMENT) {
+                    set_tval(new_pc);
                     raise(0, 0);
                 } else {
                     if (rd != 0) X[rd] = (unsigned<XLEN>)(PC + 4);
@@ -47,10 +50,12 @@ InstructionSet RVI extends RISCVBase {
             assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else  {
                 if (X[rs1] == X[rs2]) {
-                    if(imm % INSTR_ALIGNMENT) {
+                    unsigned<XLEN> new_pc = (unsigned<XLEN>)(PC + (signed)imm);
+                    if(new_pc % INSTR_ALIGNMENT) {
+                        set_tval(new_pc);
                         raise(0, 0);
                     } else {
-                        PC = (unsigned<XLEN>)(PC + (signed)imm);
+                        PC = new_pc;
                     }
                 }
             }
@@ -61,10 +66,12 @@ InstructionSet RVI extends RISCVBase {
             assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (X[rs1] != X[rs2]) {
-                    if (imm % INSTR_ALIGNMENT) {
+                    unsigned<XLEN> new_pc = (unsigned<XLEN>)(PC + (signed)imm);
+                    if (new_pc % INSTR_ALIGNMENT) {
+                        set_tval(new_pc);
                         raise(0, 0);
                     } else {
-                        PC = (unsigned<XLEN>)(PC + (signed)imm);
+                        PC = new_pc;
                     }
                 }
             }
@@ -75,10 +82,12 @@ InstructionSet RVI extends RISCVBase {
             assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if ((signed<XLEN>)X[rs1] < (signed<XLEN>)X[rs2]) {
-                    if (imm % INSTR_ALIGNMENT) {
+                    unsigned<XLEN> new_pc = (unsigned<XLEN>)(PC + (signed)imm);
+                    if (new_pc % INSTR_ALIGNMENT) {
+                        set_tval(new_pc);
                         raise(0, 0);
                     } else {
-                        PC = (unsigned<XLEN>)(PC + (signed)imm);
+                        PC = new_pc;
                     }
                 }
             }
@@ -89,10 +98,12 @@ InstructionSet RVI extends RISCVBase {
             assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if ((signed<XLEN>)X[rs1] >= (signed<XLEN>)X[rs2]) {
-                    if (imm % INSTR_ALIGNMENT) {
+                    unsigned<XLEN> new_pc = (unsigned<XLEN>)(PC + (signed)imm);
+                    if (new_pc % INSTR_ALIGNMENT) {
+                        set_tval(new_pc);
                         raise(0, 0);
                     } else {
-                        PC = (unsigned<XLEN>)(PC + (signed)imm);
+                        PC = new_pc;
                     }
                 }
             }
@@ -103,10 +114,12 @@ InstructionSet RVI extends RISCVBase {
             assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (X[rs1] < X[rs2]) {
-                    if (imm % INSTR_ALIGNMENT) {
+                    unsigned<XLEN> new_pc = (unsigned<XLEN>)(PC + (signed)imm);
+                    if (new_pc % INSTR_ALIGNMENT) {
+                        set_tval(new_pc);
                         raise(0, 0);
                     } else {
-                        PC = (unsigned<XLEN>)(PC + (signed)imm);
+                        PC = new_pc;
                     }
                 }
             }
@@ -117,10 +130,12 @@ InstructionSet RVI extends RISCVBase {
             assembly: "{name(rs1)}, {name(rs2)}, {imm:#0x}";
             behavior: if(rs2 >=RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (X[rs1] >= X[rs2]) {
-                    if (imm % INSTR_ALIGNMENT) {
+                    unsigned<XLEN> new_pc = (unsigned<XLEN>)(PC + (signed)imm);
+                    if (new_pc % INSTR_ALIGNMENT) {
+                        set_tval(new_pc);
                         raise(0, 0);
                     } else {
-                        PC = (unsigned<XLEN>)(PC + (signed)imm);
+                        PC = new_pc;
                     }
                 }
             }

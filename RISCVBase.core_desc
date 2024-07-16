@@ -64,6 +64,7 @@ InstructionSet RISCVBase extends RISCVEncoding {
         extern void raise(int irq, int mcause);
         extern void leave(int priv_lvl);
         extern void wait(int flag);
+        extern void set_tval(unsigned<64> tval);
     }
 }
 
