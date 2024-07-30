@@ -374,7 +374,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1100000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.w.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_s((unsigned<32>)F[rs1], 0, rm);
+                unsigned<32> res = fcvt_s((unsigned<32>)F[rs1], 0, get_rm((unsigned<3>)rm));
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -386,7 +386,7 @@ InstructionSet RVF extends Zicsr {
             assembly: {"fcvt.w.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
-                unsigned<32> res = fcvt_s(frs1, 0, rm);
+                unsigned<32> res = fcvt_s(frs1, 0, get_rm((unsigned<3>)rm));
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -398,7 +398,7 @@ InstructionSet RVF extends Zicsr {
             assembly: {"fcvt.wu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 //FIXME: according to the spec it should be zero-extended not sign extended
-                unsigned<32> res = fcvt_s((unsigned<32>)F[rs1], 1, rm);
+                unsigned<32> res = fcvt_s((unsigned<32>)F[rs1], 1, get_rm((unsigned<3>)rm));
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -411,7 +411,7 @@ InstructionSet RVF extends Zicsr {
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 //FIXME: according to the spec it should be zero-extended not sign extended
                 unsigned<32> frs1 = unbox_s(F[rs1]);
-                unsigned<32> res = fcvt_s(frs1, 1, rm);
+                unsigned<32> res = fcvt_s(frs1, 1, get_rm((unsigned<3>)rm));
                 if ((rd) != 0) X[rd] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -512,7 +512,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_s((unsigned<32>)X[rs1], 2, rm);
+                F[rd] = fcvt_s((unsigned<32>)X[rs1], 2, get_rm((unsigned<3>)rm));
             }
         }
 
@@ -520,7 +520,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 2, rm);
+                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 2, get_rm((unsigned<3>)rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
             }
         }
@@ -529,7 +529,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_s((unsigned<32>)X[rs1], 3, rm);
+                F[rd] = fcvt_s((unsigned<32>)X[rs1], 3, get_rm((unsigned<3>)rm));
             }
         }
 
@@ -537,7 +537,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 3, rm);
+                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 3, get_rm((unsigned<3>)rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
             }
         }
@@ -571,7 +571,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1100000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.l.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 0, rm);
+                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 0, get_rm((unsigned<3>)rm));
                 if ((rd) != 0)
                 	X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
@@ -583,7 +583,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1100000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.lu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 1, rm);
+                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 1, get_rm((unsigned<3>)rm));
                 if ((rd) != 0)
                 	X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
@@ -595,7 +595,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_64_32(X[rs1], 2, rm);
+                unsigned<32> res = fcvt_64_32(X[rs1], 2, get_rm((unsigned<3>)rm));
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
@@ -608,7 +608,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_64_32(X[rs1], 3, rm);
+                unsigned<32> res = fcvt_64_32(X[rs1], 3, get_rm((unsigned<3>)rm));
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
