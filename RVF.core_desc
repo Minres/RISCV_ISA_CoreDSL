@@ -513,6 +513,8 @@ InstructionSet RVF extends Zicsr {
             assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 F[rd] = fcvt_s((unsigned<32>)X[rs1], 2, get_rm((unsigned<3>)rm));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
@@ -522,6 +524,8 @@ InstructionSet RVF extends Zicsr {
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 2, get_rm((unsigned<3>)rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
@@ -530,6 +534,8 @@ InstructionSet RVF extends Zicsr {
             assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 F[rd] = fcvt_s((unsigned<32>)X[rs1], 3, get_rm((unsigned<3>)rm));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
@@ -539,6 +545,8 @@ InstructionSet RVF extends Zicsr {
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 3, get_rm((unsigned<3>)rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
@@ -601,6 +609,8 @@ InstructionSet RVF extends Zicsr {
                 else { // NaN boxing
                     F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
@@ -614,6 +624,8 @@ InstructionSet RVF extends Zicsr {
                 else { // NaN boxing
                     F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 }
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
     }
