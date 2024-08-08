@@ -56,7 +56,7 @@ InstructionSet RVF extends Zicsr {
 
         FSW {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: imm[4:0] :: 7'b0100111;
-            assembly: "{fname(rs2)}, {imm}({name(rs1)])";
+            assembly: "{fname(rs2)}, {imm}({name(rs1)})";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<32>)(X[rs1] + (signed<12>)imm);
                 MEM[offs+3:offs] = (unsigned<32>)F[rs2];
