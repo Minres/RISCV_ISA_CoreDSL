@@ -563,7 +563,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1111000 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly:"f {rd}, {name(rs1)}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = X[rs1];
+                F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)X[rs1];
             }
         }
 
