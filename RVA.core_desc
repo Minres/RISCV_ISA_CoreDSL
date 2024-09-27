@@ -33,7 +33,7 @@ InstructionSet RVA extends RISCVBase {
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<XLEN> res = X[rs2];
-                if ((rd) != 0) X[rd] = (unsigned<XLEN>)((signed<32>)MEM[offs+3:offs]);
+                if (rd != 0) X[rd] = (unsigned<XLEN>)((signed<32>)MEM[offs+3:offs]);
                 MEM[offs+3:offs] = (unsigned<32>)res;
             }
         }
@@ -45,7 +45,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 signed<32> res1 = (signed<32>)MEM[offs+3:offs];
                 signed<34> res2 = res1 + (signed<32>)X[rs2];
-                if ((rd) != 0) X[rd] = (unsigned<XLEN>)res1;
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+3:offs] = (unsigned<32>)res2;
             }
         }
@@ -57,7 +57,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
                 unsigned<32> res2 = res1 ^ (unsigned<32>)X[rs2];
-                if ((rd) != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -69,7 +69,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
                 unsigned<32> res2 = res1 & (unsigned<32>)X[rs2];
-                if ((rd) != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -81,7 +81,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
                 unsigned<32> res2 = res1 | (unsigned<32>)X[rs2];
-                if ((rd) != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -93,7 +93,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 signed<32> res1 = (signed<32>)MEM[offs+3:offs];
                 unsigned<32> res2 = res1 > (signed<32>)X[rs2] ? (unsigned<32>)X[rs2] : (unsigned)res1;
-                if ((rd) != 0) X[rd] = (unsigned<XLEN>)res1;
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -105,7 +105,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 signed<32> res1 = (signed<32>)MEM[offs+3:offs];
                 unsigned<32> res2 = res1 < (signed<32>)X[rs2] ? (unsigned<32>)X[rs2] : (unsigned)res1;
-                if ((rd) != 0) X[rd] = (unsigned<XLEN>)res1;
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -117,7 +117,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
                 unsigned<32> res2 = res1 > (unsigned<32>)X[rs2] ? (unsigned<32>)X[rs2] : res1;
-                if ((rd) != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -129,7 +129,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
                 unsigned<32> res2 = res1 < (signed<32>)X[rs2] ? (unsigned<32>)X[rs2] : res1;
-                if ((rd) != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -163,7 +163,7 @@ InstructionSet RVA extends RISCVBase {
             behavior: if(rd >=RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<XLEN> res = X[rs2];
-                if ((rd) != 0)
+                if (rd != 0)
                  	X[rd] = (unsigned<XLEN>)((signed<64>)MEM[offs+7:offs]);
                 MEM[offs+7:offs] = (unsigned<64>)res;
             }
@@ -176,7 +176,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res1 = MEM[offs+7:offs];
                 unsigned<64> res2 = (unsigned<64>)(res1 + X[rs2]);
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
@@ -189,7 +189,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res1 = MEM[offs+7:offs];
                 unsigned<64> res2 = res1 ^ X[rs2];
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned)(signed<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
@@ -202,7 +202,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res1 = MEM[offs+7:offs];
                 unsigned<64> res2 = res1 & X[rs2];
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
@@ -215,7 +215,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res1 = MEM[offs+7:offs];
                 unsigned<64> res2 = res1 | X[rs2];
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
@@ -228,7 +228,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 signed<64> res1 = (signed<64>)MEM[offs+7:offs];
                 unsigned<64> res2 = res1 > (signed<64>)X[rs2] ? (unsigned<64>)X[rs2] : (unsigned)res1;
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
@@ -241,7 +241,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 signed<64> res1 = (signed<64>)MEM[offs+7:offs];
                 unsigned<64> res2 = res1 < (signed<64>)X[rs2] ? (unsigned<64>)X[rs2] : (unsigned)res1;
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
@@ -254,7 +254,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res1 = MEM[offs+7:offs];
                 unsigned<64> res2 = res1 > X[rs2] ? X[rs2] : res1;
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
@@ -267,7 +267,7 @@ InstructionSet RVA extends RISCVBase {
                 unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res1 = MEM[offs+7:offs];
                 unsigned<64> res2 = res1 < X[rs2] ? (unsigned<64>)X[rs2] : res1;
-                if ((rd) != 0)
+                if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
