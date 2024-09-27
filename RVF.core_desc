@@ -7,7 +7,7 @@ InstructionSet RVF extends Zicsr {
         unsigned<32> FFLAG_MASK = 0x1f;
 
         register unsigned<FLEN> F[32];
-        unsigned<XLEN>& FCSR = CSR[3];
+        register unsigned<32> FCSR;
     }
 
     functions {
@@ -27,9 +27,10 @@ InstructionSet RVF extends Zicsr {
         extern unsigned<32> fget_flags();
 
         unsigned<3> get_rm(unsigned<3> rm) {
-            if (rm == 7) rm = FCSR[7:5];
-            if (rm > 4) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
-            return rm;
+            unsigned<3> rm_eff = rm == 7 ? FCSR[7:5]: rm;
+            if (rm_eff > 4) 
+                raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+            return rm_eff;
         }
     }
 
