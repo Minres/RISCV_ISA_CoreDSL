@@ -309,7 +309,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
             assembly: {"fsgnjx.s", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                F[rd] = F[rs1] ^ (F[rs2] & 0x80000000);
+                F[rd] = F[rs1] ^ (F[rs2] & (unsigned<32>)0x80000000);
             }
         }
 
@@ -319,7 +319,7 @@ InstructionSet RVF extends Zicsr {
             behavior: {// NaN boxing
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
-                unsigned<32> res = frs1 ^ (frs2 & 0x80000000);
+                unsigned<32> res = frs1 ^ (frs2 & (unsigned<32>)0x80000000);
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
             }
         }
