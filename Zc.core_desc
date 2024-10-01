@@ -335,7 +335,7 @@ InstructionSet Zca extends RVI {
 
 InstructionSet Zcf extends RVF {
     instructions {
-        C__FLW [[enable=XLEN>32]] {
+        C__FLW [[enable=XLEN==32]] {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -349,7 +349,7 @@ InstructionSet Zcf extends RVF {
             }
         }
 
-        C__FSW [[enable=XLEN>32]] {
+        C__FSW [[enable=XLEN==32]] {
             encoding: 3'b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -358,7 +358,7 @@ InstructionSet Zcf extends RVF {
             }
         }
 
-        C__FLWSP [[enable=XLEN>32]] {
+        C__FLWSP [[enable=XLEN==32]] {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
@@ -372,7 +372,7 @@ InstructionSet Zcf extends RVF {
             }
         }
 
-        C__FSWSP [[enable=XLEN>32]] {
+        C__FSWSP [[enable=XLEN==32]] {
             encoding: 3'b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
