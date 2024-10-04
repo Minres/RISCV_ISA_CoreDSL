@@ -242,7 +242,8 @@ InstructionSet RVD extends RVF {
             encoding: 7'b1100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.w.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_64_32(F[rs1], 0, get_rm(rm));
+                //explicit casting to ensure sign extension if XLEN > 32
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_64_32(F[rs1], 0, get_rm(rm));
                 if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
@@ -254,7 +255,8 @@ InstructionSet RVD extends RVF {
             encoding: 7'b1100001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.wu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_64_32(F[rs1], 1, get_rm(rm));
+                //explicit casting to ensure sign extension if XLEN > 32
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_64_32(F[rs1], 1, get_rm(rm));
                 if (rd != 0)
                     X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
