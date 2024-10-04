@@ -400,7 +400,7 @@ InstructionSet RVF extends Zicsr {
             assembly: {"fcvt.wu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 //explicit casting to ensure sign extension if XLEN > 32
-                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_s((unsigned<32>)F[rs1], 0, get_rm(rm));
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_s((unsigned<32>)F[rs1], 1, get_rm(rm));
                 if ((rd) != 0) X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
