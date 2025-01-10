@@ -1,0 +1,688 @@
+import "RISCVBase.core_desc"
+
+InstructionSet Zbkb extends RISCVBase {
+    instructions {
+        ANDN  {
+            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0) X[rd] = X[rs1] &  ~X[rs2];
+        }
+
+        ORN  {
+            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0) X[rd] = X[rs1] |  ~X[rs2];
+        }
+
+        XNOR  {
+            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = X[rs1] ^ ~X[rs2];
+                    }
+        }
+
+        BREV8  {
+            encoding: 12'b011010000111 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> result = 0;
+                        for(unsigned i=0; i<XLEN/8; i+=8){
+                            unsigned<8> byte = X[rs1][i+7:i];
+                            unsigned<8> reverse = byte[0]::byte[1]::byte[2]::byte[3]::byte[4]::byte[5]::byte[6]::byte[7];
+                            result[i+7:i] = reverse;
+                        }
+                        X[rd] = result
+                    }
+        }
+        
+        REV8 [[enable=XLEN==64]] {
+            encoding: 12'b011010111000 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> input = X[rs1];
+                        X[rd] = (unsigned<XLEN>)(input[7:0] :: input[15:8] :: input[23:16]:: input[31:24] :: input[39:32] :: input[47:40] :: input[55:48] :: input[63:56]);
+                    }
+        }
+
+        REV8 [[enable=XLEN==32]] {
+            encoding: 12'b011010011000 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> input = X[rs1];
+                        X[rd] = input[7:0] :: input[15:8] :: input[23:16]:: input[31:24];
+                    }
+        }
+
+        PACK  {
+            encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<(XLEN/2)> lo = (unsigned<(XLEN/2)>)X[rs1];
+                        unsigned<(XLEN/2)> hi = (unsigned<(XLEN/2)>)X[rs2];
+                        X[rd] = lo :: hi;
+                    }
+        }
+
+        PACKH  {
+            encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<8> lo = X[rs1][7:0];
+                        unsigned<8> hi = X[rs2][7:0];
+                        X[rd] = (unsigned<XLEN>)(lo :: hi);
+                    }
+        }
+
+        PACKW [[enable=XLEN==64]] {
+            encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<16> lo = X[rs1][15:0];
+                        unsigned<16> hi = (X[rs2][15:0]);
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(lo :: hi);
+                    }
+        }
+
+        ROL [[enable=XLEN==64]]{
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> shamt = X[rs2][5:0];
+                        X[rd] = (X[rs1] << shamt) |( X[rs1] >> (XLEN - shamt));
+                    }
+        }
+
+        ROL [[enable=XLEN==32]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> shamt = X[rs2][4:0];
+                        X[rd] = (X[rs1] << shamt) |( X[rs1] >> (XLEN - shamt));
+                    }
+        }
+
+        ROLW [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> rs1_data = X[rs1][31:0];
+                        unsigned<5> shamt = X[rs2][4:0];
+                        unsigned<32> result = (rs1_data << shamt) | (rs1_data >> (32 - shamt));
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
+                    }
+        }
+
+        ROR [[enable=XLEN==32]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> shamt = X[rs2][4:0];
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+
+        ROR [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<6> shamt = X[rs2][5:0];
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+
+        RORI [[enable=XLEN==64]] {
+            encoding: 6'b011000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+
+        RORI [[enable=XLEN==32]] {
+            encoding: 7'b0110000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+
+        RORIW [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0011011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> rs1_data = (unsigned<XLEN>)X[rs1][31:0];
+                        unsigned<XLEN> result = (rs1_data >> shamt) | (rs1_data << (32 - shamt));
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(result[31:0]);
+                    }
+        }
+
+        RORW [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> rs1_data = X[rs1][31:0];
+                        unsigned<5> shamt = X[rs2][4:0];
+                        unsigned<32> result = (rs1_data >> shamt) | (rs1_data << (32 - shamt));
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
+                    }
+        }
+
+        ZIP [[enable=XLEN==32]] {
+            encoding: 12'b000010001111 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                       for(unsigned i = 0; i<XLEN/2-1; i++){
+                            X[rd][2*i] = X[rs1][i];
+                            X[rd][2*i+1] = X[rs1][i+XLEN/2];
+                        }
+                    }
+        }
+
+        UNZIP [[enable=XLEN==32]] {
+            encoding: 12'b000010001111 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                       for(unsigned i = 0; i<XLEN/2-1; i++){
+                            X[rd][i] = X[rs1][2*i];
+                            X[rd][i+XLEN/2] = X[rs1][2*i+1];
+                        }
+                    }
+        }
+    }
+}
+
+InstructionSet Zbkc extends RISCVBase {
+    instructions {
+        CLMUL  {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> rs1_val = X[rs1];
+                        unsigned<XLEN> rs2_val = X[rs2];
+                        unsigned<XLEN> output = 0;
+                        for(unsigned i=0; i<XLEN-1; i++){
+                            output = ((rs2_val >> i) & 1) ? output ^ (rs1_val << i) : output;
+                        }
+                        X[rd] = output;
+                    }
+        }
+
+        CLMULH  {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> rs1_val = X[rs1];
+                        unsigned<XLEN> rs2_val = X[rs2];
+                        unsigned<XLEN> output = 0;
+                        for(unsigned i=1; i<XLEN; i++){
+                            output = ((rs2_val >> i) & 1) ? output ^ (rs1_val >> (XLEN - i)) : output;
+                        }
+                        X[rd] = output;
+                    }
+        }
+    }
+}
+
+InstructionSet Zbkx extends RISCVBase {
+    instructions {
+        XPERM4  {
+            encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> result = 0;
+                        for(unsigned i = 0; i < XLEN; i+=4){
+                            result[i+3:i] = (X[rs1] >> ((X[rs2][i+3:i]) :: 0b000))[3:0];
+                        }
+                        X[rd] = result;
+                    }
+        }
+
+        XPERM8  {
+            encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                else if(rd != 0){
+                    unsigned<XLEN> result = 0;
+                    for(unsigned i = 0; i < XLEN; i+=8){
+                        result[i+7:i] = (X[rs1] >> ((X[rs2][i+7:i]) :: 0b000))[7:0];
+                    }
+                    X[rd] = result;
+                }
+        }
+    }
+}
+
+InstructionSet AESBase extends RISCVBase {
+    //(common) functionality for AES
+    functions {
+        extern unsigned<8> aes_sbox_inv(unsigned<8> index);
+        extern unsigned<8> aes_sbox_fwd(unsigned<8> index);
+        unsigned<8> xt2(unsigned<8> x) {
+            return (x << 1) ^ (x[7]?  0x1b : 0x00);
+        }
+        unsigned<8> xt3(unsigned<8> x) {
+            return x ^ xt2(x);
+        } 
+        unsigned<8> gfmul(unsigned<8> x, unsigned<8> y) {
+            return (y[0] ? x : 0x00) ^
+            (y[1] ? xt2( x) : 0x00) ^
+            (y[2] ? xt2(xt2( x)) : 0x00) ^
+            (y[3] ? xt2(xt2(xt2(x))) : 0x00);
+        }
+        unsigned<32> aes_mixcolumn_byte_inv(unsigned<8> so) {
+            return gfmul(so, 0xb) :: gfmul(so, 0xd) :: gfmul(so, 0x9) :: gfmul(so, 0xe);
+        }
+        unsigned<32> aes_mixcolumn_byte_fwd(unsigned<8> so) {
+            return gfmul(so, 0x3) :: so :: so :: gfmul(so, 0x2);
+        }
+        unsigned<32> aes_mixcolumn_inv(unsigned<32> x) {
+            unsigned<8> s0 = x[7:0];
+            unsigned<8> s1 = x[15:8];
+            unsigned<8> s2 = x[23:16];
+            unsigned<8> s3 = x[31:24];
+            unsigned<8> b0 = gfmul(s0, 0xE) ^ gfmul(s1, 0xB) ^ gfmul(s2, 0xD) ^ gfmul(s3, 0x9);
+            unsigned<8> b1 = gfmul(s0, 0x9) ^ gfmul(s1, 0xE) ^ gfmul(s2, 0xB) ^ gfmul(s3, 0xD);
+            unsigned<8> b2 = gfmul(s0, 0xD) ^ gfmul(s1, 0x9) ^ gfmul(s2, 0xE) ^ gfmul(s3, 0xB);
+            unsigned<8> b3 = gfmul(s0, 0xB) ^ gfmul(s1, 0xD) ^ gfmul(s2, 0x9) ^ gfmul(s3, 0xE);
+            return b3 :: b2 :: b1 :: b0;
+        }
+        unsigned<32> aes_mixcolumn_fwd(unsigned<32> x) {
+            unsigned<8> s0 = x[7:0];
+            unsigned<8> s1 = x[15:8];
+            unsigned<8> s2 = x[23:16];
+            unsigned<8> s3 = x[31:24];
+            unsigned<8> b0 = xt2(s0) ^ xt3(s1) ^ (s2) ^ (s3);
+            unsigned<8> b1 = (s0) ^ xt2(s1) ^ xt3(s2) ^ (s3);
+            unsigned<8> b2 = (s0) ^ (s1) ^ xt2(s2) ^ xt3(s3);
+            unsigned<8> b3 = xt3(s0) ^ (s1) ^ (s2) ^ xt2(s3);
+            return b3 :: b2 :: b1 :: b0;
+        }
+        unsigned<64> aes_rv64_shiftrows_inv(unsigned<64> rs1, unsigned<64> rs2) {
+            return rs2[31:24] ::rs2[55:48] :: rs1[15:8] :: rs1[39:32] :: rs1[63:56] :: rs2[23:16]  :: rs2[47:40] :: rs1[7:0];
+        }
+        unsigned<64> aes_rv64_shiftrows_fwd(unsigned<64> rs1, unsigned<64> rs2) {
+            return rs1[31:24] :: rs2[55:48] :: rs2[15:8] :: rs1[39:32] :: rs2[63:56] :: rs2[23:16] :: rs1[47:40] :: rs1[7:0];
+        }
+        unsigned<64> aes_apply_inv_sbox_to_each_byte(unsigned<64> x) {
+            return aes_sbox_inv(x[63:56])::aes_sbox_inv(x[55:48])::aes_sbox_inv(x[47:40])::aes_sbox_inv(x[39:32])::aes_sbox_inv(x[31:24])::aes_sbox_inv(x[23:16])::aes_sbox_inv(x[15:8])::aes_sbox_inv(x[7:0]);
+        }
+        unsigned<64> aes_apply_fwd_sbox_to_each_byte(unsigned<64> x) {
+            return aes_sbox_fwd(x[63:56])::aes_sbox_fwd(x[55:48])::aes_sbox_fwd(x[47:40])::aes_sbox_fwd(x[39:32])::aes_sbox_fwd(x[31:24])::aes_sbox_fwd(x[23:16])::aes_sbox_fwd(x[15:8])::aes_sbox_fwd(x[7:0]);
+        }
+        unsigned<32> aes_decode_rcon(unsigned<4> r) {
+            if (r == 0x0) {
+                return 0x00000001;
+            } else if (r == 0x1) {
+                return 0x00000002;
+            } else if (r == 0x2) {
+                return 0x00000004;
+            } else if (r == 0x3) {
+                return 0x00000008;
+            } else if (r == 0x4) {
+                return 0x00000010;
+            } else if (r == 0x5) {
+                return 0x00000020;
+            } else if (r == 0x6) {
+                return 0x00000040;
+            } else if (r == 0x7) {
+                return 0x00000080;
+            } else if (r == 0x8) {
+                return 0x0000001b;
+            } else if (r == 0x9) {
+                return 0x00000036;
+            } else {
+                return 32'b0;
+            }
+        }
+        unsigned<32> aes_subword_fwd(unsigned<32> x){
+            return aes_sbox_fwd(x[31:24]) :: aes_sbox_fwd(x[23:16]) :: aes_sbox_fwd(x[15:8]) :: aes_sbox_fwd(x[7:0]);
+        }
+    }
+}
+
+InstructionSet Zknd extends AESBase {
+    instructions{
+        AES32DSI [[enable=XLEN==32]] {
+            encoding: bs[1:0] :: 5'b10101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> shamt = bs :: 0b000;
+                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
+                        unsigned<32> so = 0x000000 :: aes_sbox_inv(si);
+                        unsigned<32> result = X[rs1][31:0] ^ ((so << shamt) | (so >> (32 - shamt)));
+                        X[rd] = (unsigned<XLEN>)result;
+                    }
+        }
+
+        AES32DSMI [[enable=XLEN==32]] {
+            encoding: bs[1:0] :: 5'b10111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> shamt = bs :: 0b000;
+                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
+                        unsigned<8> so = aes_sbox_inv(si);
+                        unsigned<32> mixed = aes_mixcolumn_byte_inv(so);
+                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << shamt) | (mixed >> (32 - shamt)));
+                        X[rd] = result;
+                    }
+        }
+
+        AES64DS [[enable=XLEN==64]] {
+            encoding: 7'b0011101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<64> sr =  aes_rv64_shiftrows_inv(X[rs2], X[rs1]);
+                        X[rd] = (unsigned<XLEN>)aes_apply_inv_sbox_to_each_byte(sr);
+                    }
+        }
+
+        AES64DSM [[enable=XLEN==64]] {
+            encoding: 7'b0011111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<64> sr =  aes_rv64_shiftrows_inv(X[rs2], X[rs1]);
+                        unsigned<64> sb = aes_apply_inv_sbox_to_each_byte(sr);
+                        X[rd] = (unsigned<XLEN>)(aes_mixcolumn_inv(sb[63:32]) :: aes_mixcolumn_inv(sb[31:0]));
+                    }
+        }
+
+        AES64IM [[enable=XLEN==64]] {
+            encoding: 12'b001100000000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> w0 = aes_mixcolumn_inv(X[rs1][31:0]);
+                        unsigned<32> w1 = aes_mixcolumn_inv(X[rs1][63:32]);
+                        X[rd] = (unsigned<XLEN>)(w1 :: w0);
+                    }
+        }
+
+        AES64KS1I [[enable=XLEN==64]] {
+            encoding: 8'b00110001 :: rnum[3:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {rnum}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rnum>10) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> tmp1 = X[rs1][63:32];
+                        unsigned<32> rc = aes_decode_rcon(rnum);
+                        unsigned<32> tmp2 = (rnum ==0xA) ? tmp1 : (tmp1 >> 8) | (tmp1 << 24);
+                        unsigned<32> tmp3 = aes_subword_fwd(tmp2);
+                        X[rd] = (unsigned<XLEN>)((tmp3 ^ rc) :: (tmp3 ^ rc));
+                    }
+        }
+   
+        AES64KS2 [[enable=XLEN==64]] {
+            encoding: 7'b0111111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> w0 = X[rs1][63:32] ^ X[rs2][31:0];
+                        unsigned<32> w1 = X[rs1][63:32] ^ X[rs2][31:0] ^ X[rs2][63:32];
+                        X[rd] = (unsigned<XLEN>)(w1 :: w0);
+                    }
+        }
+    }
+}
+
+InstructionSet Zkne extends AESBase {
+    instructions{
+        AES32ESI [[enable=XLEN==32]] {
+            encoding: bs[1:0] :: 5'b10001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> shamt = bs :: 0b000;
+                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
+                        unsigned<32> so = 0x000000 :: aes_sbox_fwd(si);
+                        unsigned<32> result = X[rs1][31:0] ^ ((so << shamt) | (so >> (32 - shamt)));
+                        X[rd] = (unsigned<XLEN>)result;
+                    }
+        }
+
+        AES32ESMI [[enable=XLEN==32]] {
+            encoding: bs[1:0] :: 5'b10011 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> shamt = bs :: 0b000;
+                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
+                        unsigned<8> so = aes_sbox_inv(si);
+                        unsigned<32> mixed = aes_mixcolumn_byte_inv(so);
+                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << shamt) | (mixed >> (32 - shamt)));
+                        X[rd] = result;
+                    }
+        }
+
+        AES64ES [[enable=XLEN==64]] {
+            encoding: 7'b0011001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<64> sr = aes_rv64_shiftrows_fwd(X[rs2], X[rs1]);
+                        X[rd] = (unsigned<XLEN>)aes_apply_fwd_sbox_to_each_byte(sr);
+                    }
+        }
+
+        AES64ESM [[enable=XLEN==64]] {
+            encoding: 7'b0011011 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<64> sr =  aes_rv64_shiftrows_fwd(X[rs2], X[rs1]);
+                        unsigned<64> sb = aes_apply_fwd_sbox_to_each_byte(sr);
+                        X[rd] = (unsigned<XLEN>)(aes_mixcolumn_fwd(sb[63:32]) :: aes_mixcolumn_fwd(sb[31:0]));
+                    }
+        }
+
+        AES64KS1I [[enable=XLEN==64]] {
+            encoding: 8'b00110001 :: rnum[3:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {rnum}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rnum>10) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> tmp1 = X[rs1][63:32];
+                        unsigned<32> rc = aes_decode_rcon(rnum);
+                        unsigned<32> tmp2 = (rnum ==0xA) ? tmp1 : (tmp1 >> 8) | (tmp1 << 24);
+                        unsigned<32> tmp3 = aes_subword_fwd(tmp2);
+                        X[rd] = (unsigned<XLEN>)((tmp3 ^ rc) :: (tmp3 ^ rc));
+                    }
+        }
+   
+        AES64KS2 [[enable=XLEN==64]] {
+            encoding: 7'b0111111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> w0 = X[rs1][63:32] ^ X[rs2][31:0];
+                        unsigned<32> w1 = X[rs1][63:32] ^ X[rs2][31:0] ^ X[rs2][63:32];
+                        X[rd] = (unsigned<XLEN>)(w1 :: w0);
+                    }
+        }
+
+    }
+}
+
+InstructionSet Zknh extends RISCVBase {
+    functions {
+        unsigned<32> ror32(unsigned<32> val, unsigned<32> shift_amount) {
+            return (val >> shift_amount) | (val << (32 - shift_amount));
+        }
+        unsigned<64> ror64(unsigned<64> val, unsigned<64> shift_amount) {
+            return (val >> shift_amount) | (val << (64 - shift_amount));
+        }
+
+    }
+    instructions{
+        SHA256SIG0  {
+            encoding: 12'b000100000010 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> result = ror32(inb, 7) ^ ror32(inb, 18) ^ (inb >> 3);
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
+                    }
+        }
+
+        SHA256SIG1  {
+            encoding: 12'b000100000011 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> result = ror32(inb, 17) ^ ror32(inb, 19) ^ (inb >> 10);
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
+                    }
+        }
+
+        SHA256SUM0  {
+            encoding: 12'b000100000000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> result = ror32(inb, 2) ^ ror32(inb, 13) ^ ror32(inb, 22);
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(result);
+                    }
+        }
+
+        SHA256SUM1  {
+            encoding: 12'b000100000001 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> result = ror32(inb, 6) ^ ror32(inb, 11) ^ ror32(inb, 25);
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(result);
+                    }
+        }
+
+        SHA512SIG0 [[enable=XLEN==64]] {
+            encoding: 12'b000100000110 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(ror64(X[rs1], 1) ^ ror64(X[rs1], 8) ^ (X[rs1] >> 7));
+                    }
+        }
+
+        SHA512SIG0H [[enable=XLEN==32]] {
+            encoding: 7'b0101110 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)((X[rs1] >> 1) ^ (X[rs1] >> 7) ^ (X[rs1] >> 8) ^ (X[rs2] << 31) ^ (X[rs2] << 24));
+                    }
+        }
+
+        SHA512SIG0L [[enable=XLEN==32]] {
+            encoding: 7'b0101010 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                    }
+        }
+
+        SHA512SIG1 [[enable=XLEN==64]] {
+            encoding: 12'b000100000111 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(ror64(X[rs1], 19) ^ ror64(X[rs1], 61) ^ (X[rs1] >> 6));
+                    }
+        }
+
+        SHA512SIG1H [[enable=XLEN==32]] {
+            encoding: 7'b0101111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)((X[rs1] << 3) ^ (X[rs1] >> 6) ^ (X[rs1] >> 19) ^ (X[rs2] >> 29) ^ (X[rs2] << 13));
+                    }
+        }
+
+        SHA512SIG1L [[enable=XLEN==32]] {
+            encoding: 7'b0101011 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)((X[rs1] << 3) ^ (X[rs1] >> 6) ^ (X[rs1] >> 19) ^ (X[rs2] >> 29) ^ (X[rs2] << 26) ^ (X[rs2] << 13));
+                    }
+        }
+
+        SHA512SUM0 [[enable=XLEN==64]] {
+            encoding: 12'b000100000100 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(ror64(X[rs1], 28) ^ ror64(X[rs1], 34) ^ ror64(X[rs1] ,39));
+                    }
+        }
+
+        SHA512SUM0R [[enable=XLEN==32]] {
+            encoding: 7'b0101000 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)((X[rs1] << 25) ^ (X[rs1] << 30) ^ (X[rs1] >> 28) ^ (X[rs2] >> 7) ^ (X[rs2] >> 2) ^ (X[rs2] << 4));
+                    }
+        }
+
+        SHA512SUM1 [[enable=XLEN==64]] {
+            encoding: 12'b000100000101 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(ror64(X[rs1], 14) ^ ror64(X[rs1], 18) ^ ror64(X[rs1] ,41));
+                    }
+        }
+
+        SHA512SUM1R [[enable=XLEN==32]] {
+            encoding: 7'b0101001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)((X[rs1] << 23) ^ (X[rs1] >> 14) ^ (X[rs1] >> 18) ^ (X[rs2] >> 9) ^ (X[rs2] << 18) ^ (X[rs2] << 14));
+                    }
+        }
+    }
+}
+
+InstructionSet Zkr extends RVPrivBase{
+    architectural_state{
+        unsigned<XLEN>& seed = CSR[0x015];
+    }
+}
+
+InstructionSet Zkt {
+    // this is empty as there is no concept for Data Independent Execution Latency in ISS
+}
+
+//InstructionSet Zkn combines Zbkb, Zbkc, Zbkx, Zknd, Zkne, Zknh
+//InstructionSet Zk combines Zkn, ZKr, Zkt
