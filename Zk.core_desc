@@ -685,8 +685,4 @@ InstructionSet Zkt {
 }
 
 //InstructionSet Zkn combines Zbkb, Zbkc, Zbkx, Zknd, Zkne, Zknh
-<<<<<<< HEAD
 //InstructionSet Zk combines Zkn, Zkr, Zkt
-=======
-//InstructionSet Zk combines Zkn, ZKr, Zkt
->>>>>>> 094f6fa6f396b731c11fd1d02e847a4fe300abbc
