@@ -531,56 +531,57 @@ InstructionSet Zcmp extends RVI {
                     return rlist/4*16;
         }
         void load_regs32(unsigned<4> rlist, unsigned<XLEN> addr) {
-                if(rlist>14) {
-                     addr-=4;
-                     X[27] = MEM[addr+3:addr];
-                     addr-=4;
-                     X[26] = MEM[addr+3:addr];
-                }
-                if(rlist>13) {
-                     addr-=4;
-                     X[25] = MEM[addr+3:addr];
-                }
-                if(rlist>12) {
-                     addr-=4;
-                     X[24] = MEM[addr+3:addr];
-                }
-                if(rlist>11) {
-                     addr-=4;
-                     X[23] = MEM[addr+3:addr];
-                }
-                if(rlist>10) {
-                     addr-=4;
-                     X[22] = MEM[addr+3:addr];
-                }
-                if(rlist>9) {
-                     addr-=4;
-                     X[21] = MEM[addr+3:addr];
-                }
-                if(rlist>8) {
-                     addr-=4;
-                     X[20] = MEM[addr+3:addr];
-                }
-                if(rlist>7) {
-                     addr-=4;
-                     X[19] = MEM[addr+3:addr];
-                }
-                if(rlist>6) {
-                     addr-=4;
-                     X[18] = MEM[addr+3:addr];
-                }
-                if(rlist>5) {
-                     addr-=4;
-                     X[9] = MEM[addr+3:addr];
-                }
-                if(rlist>4) {
-                     addr-=4;
-                     X[8] = MEM[addr+3:addr];
-                }
-                if(rlist>3) {
-                     addr-=4;
-                     X[1] = MEM[addr+3:addr];
-                }
+            unsigned<XLEN> incr = 4;
+            if(rlist>14) {
+                 addr -= incr;
+                 X[27] = MEM[addr+3:addr];
+                 addr -= incr;
+                 X[26] = MEM[addr+3:addr];
+            }
+            if(rlist>13) {
+                 addr -= incr;
+                 X[25] = MEM[addr+3:addr];
+            }
+            if(rlist>12) {
+                 addr -= incr;
+                 X[24] = MEM[addr+3:addr];
+            }
+            if(rlist>11) {
+                 addr -= incr;
+                 X[23] = MEM[addr+3:addr];
+            }
+            if(rlist>10) {
+                 addr -= incr;
+                 X[22] = MEM[addr+3:addr];
+            }
+            if(rlist>9) {
+                 addr -= incr;
+                 X[21] = MEM[addr+3:addr];
+            }
+            if(rlist>8) {
+                 addr -= incr;
+                 X[20] = MEM[addr+3:addr];
+            }
+            if(rlist>7) {
+                 addr -= incr;
+                 X[19] = MEM[addr+3:addr];
+            }
+            if(rlist>6) {
+                 addr -= incr;
+                 X[18] = MEM[addr+3:addr];
+            }
+            if(rlist>5) {
+                 addr -= incr;
+                 X[9] = MEM[addr+3:addr];
+            }
+            if(rlist>4) {
+                 addr -= incr;
+                 X[8] = MEM[addr+3:addr];
+            }
+            if(rlist>3) {
+                 addr -= incr;
+                 X[1] = MEM[addr+3:addr];
+            }
         }
 
         unsigned int stack_adjust64(unsigned<4> rlist) {
