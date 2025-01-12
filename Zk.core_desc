@@ -31,12 +31,12 @@ InstructionSet Zbkb extends RISCVBase {
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
                         unsigned<XLEN> result = 0;
-                        for(unsigned i=0; i<XLEN/8; i+=8){
+                        for(unsigned int i = 0; i<XLEN/8; i+=8){
                             unsigned<8> byte = X[rs1][i+7:i];
                             unsigned<8> reverse = byte[0]::byte[1]::byte[2]::byte[3]::byte[4]::byte[5]::byte[6]::byte[7];
                             result[i+7:i] = reverse;
                         }
-                        X[rd] = result
+                        X[rd] = result;
                     }
         }
         
@@ -191,7 +191,7 @@ InstructionSet Zbkb extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                       for(unsigned i = 0; i<XLEN/2-1; i++){
+                       for(unsigned int i = 0; i<XLEN/2-1; i++){
                             X[rd][2*i] = X[rs1][i];
                             X[rd][2*i+1] = X[rs1][i+XLEN/2];
                         }
@@ -203,7 +203,7 @@ InstructionSet Zbkb extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                       for(unsigned i = 0; i<XLEN/2-1; i++){
+                       for(unsigned int i = 0; i<XLEN/2-1; i++){
                             X[rd][i] = X[rs1][2*i];
                             X[rd][i+XLEN/2] = X[rs1][2*i+1];
                         }
@@ -222,7 +222,7 @@ InstructionSet Zbkc extends RISCVBase {
                         unsigned<XLEN> rs1_val = X[rs1];
                         unsigned<XLEN> rs2_val = X[rs2];
                         unsigned<XLEN> output = 0;
-                        for(unsigned i=0; i<XLEN-1; i++){
+                        for(unsigned int i=0; i<XLEN-1; i++){
                             output = ((rs2_val >> i) & 1) ? output ^ (rs1_val << i) : output;
                         }
                         X[rd] = output;
@@ -237,7 +237,7 @@ InstructionSet Zbkc extends RISCVBase {
                         unsigned<XLEN> rs1_val = X[rs1];
                         unsigned<XLEN> rs2_val = X[rs2];
                         unsigned<XLEN> output = 0;
-                        for(unsigned i=1; i<XLEN; i++){
+                        for(unsigned int i=1; i<XLEN; i++){
                             output = ((rs2_val >> i) & 1) ? output ^ (rs1_val >> (XLEN - i)) : output;
                         }
                         X[rd] = output;
@@ -254,21 +254,23 @@ InstructionSet Zbkx extends RISCVBase {
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                     else if(rd != 0){
                         unsigned<XLEN> result = 0;
-                        for(unsigned i = 0; i < XLEN; i+=4){
-                            result[i+3:i] = (X[rs1] >> ((X[rs2][i+3:i]) :: 0b000))[3:0];
+                        for(unsigned int i = 0; i < XLEN; i+=4){
+                        	unsigned<4> rs2_slice = X[rs2][i+3:i];
+                            result[i+3:i] = (X[rs1] >> (rs2_slice :: 0b000))[3:0];
                         }
                         X[rd] = result;
                     }
         }
 
-        XPERM8  {
+        xperm8  {
             encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                 else if(rd != 0){
                     unsigned<XLEN> result = 0;
-                    for(unsigned i = 0; i < XLEN; i+=8){
-                        result[i+7:i] = (X[rs1] >> ((X[rs2][i+7:i]) :: 0b000))[7:0];
+                    for(unsigned int i = 0; i < XLEN; i+=8){
+                    	unsigned<4> rs2_slice = X[rs2][i+7:i];
+                        result[i+7:i] = (X[rs1] >> (rs2_slice :: 0b000))[7:0];
                     }
                     X[rd] = result;
                 }
