@@ -247,7 +247,7 @@ InstructionSet RVC extends RISCVBase {
     }        
 }
 
-InstructionSet RVCFP extends RVFPBase {
+InstructionSet RVCFP extends RVF {
     architectural_state {
         INSTR_ALIGNMENT = 2;
     }
