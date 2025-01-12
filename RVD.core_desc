@@ -7,18 +7,18 @@ InstructionSet RVD extends RVF {
     }
 
     functions {
-        extern unsigned<64> fadd_d(unsigned<64>, unsigned<64>, unsigned char);
-        extern unsigned<64> fsub_d(unsigned<64>, unsigned<64>, unsigned char);
-        extern unsigned<64> fmul_d(unsigned<64>, unsigned<64>, unsigned char);
-        extern unsigned<64> fdiv_d(unsigned<64>, unsigned<64>, unsigned char);
-        extern unsigned<64> fmadd_d(unsigned<64>, unsigned<64>, unsigned<64>, unsigned<32>, unsigned char);
-        extern unsigned<64> fsel_d(unsigned<64>, unsigned<64>, unsigned<32>);
-        extern unsigned<64> fsqrt_d(unsigned<64>, unsigned char);
-        extern unsigned<64> fcmp_d(unsigned<64>, unsigned<64>, unsigned<32>);
-        extern unsigned<64> fcvt_d(unsigned<64>, unsigned<32>, unsigned char);
-        extern unsigned<32> fconv_d2f(unsigned<64>, unsigned char);
-        extern unsigned<64> fconv_f2d(unsigned<32>, unsigned char);
-        extern unsigned<64> fclass_d(unsigned<64>);
+        extern unsigned<64> fadd_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
+        extern unsigned<64> fsub_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
+        extern unsigned<64> fmul_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
+        extern unsigned<64> fdiv_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
+        extern unsigned<64> fmadd_d(unsigned<64> rs1, unsigned<64> rs2, unsigned<64>rs3, unsigned<32>rd, unsigned char mode);
+        extern unsigned<64> fsel_d(unsigned<64> rs1, unsigned<64> rs2, unsigned<32> rd);
+        extern unsigned<64> fsqrt_d(unsigned<64> rs1, unsigned char mode);
+        extern unsigned<64> fcmp_d(unsigned<64> rs1, unsigned<64> rs2, unsigned<32> rd);
+        extern unsigned<64> fcvt_d(unsigned<64> rs1, unsigned<32> rs2, unsigned char mode);
+        extern unsigned<32> fconv_d2f(unsigned<64> rs1, unsigned char mode);
+        extern unsigned<64> fconv_f2d(unsigned<32> rs1, unsigned char mode);
+        extern unsigned<64> fclass_d(unsigned<64> rs1);
     }
 
     instructions {
