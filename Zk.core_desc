@@ -67,7 +67,7 @@ InstructionSet Zbkb extends RISCVBase {
                     else if(rd != 0){
                         unsigned<(XLEN/2)> lo = (unsigned<(XLEN/2)>)X[rs1];
                         unsigned<(XLEN/2)> hi = (unsigned<(XLEN/2)>)X[rs2];
-                        X[rd] = lo :: hi;
+                        X[rd] = hi :: lo;
                     }
         }
 
@@ -78,7 +78,7 @@ InstructionSet Zbkb extends RISCVBase {
                     else if(rd != 0){
                         unsigned<8> lo = X[rs1][7:0];
                         unsigned<8> hi = X[rs2][7:0];
-                        X[rd] = (unsigned<XLEN>)(lo :: hi);
+                        X[rd] = (unsigned<XLEN>)(hi :: lo);
                     }
         }
 
@@ -89,7 +89,7 @@ InstructionSet Zbkb extends RISCVBase {
                     else if(rd != 0){
                         unsigned<16> lo = X[rs1][15:0];
                         unsigned<16> hi = (X[rs2][15:0]);
-                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(lo :: hi);
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(hi :: lo);
                     }
         }
 
@@ -191,7 +191,7 @@ InstructionSet Zbkb extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                       for(unsigned int i = 0; i<XLEN/2-1; i++){
+                       for(unsigned int i = 0; i<=XLEN/2-1; i++){
                             X[rd][2*i] = X[rs1][i];
                             X[rd][2*i+1] = X[rs1][i+XLEN/2];
                         }
@@ -203,7 +203,7 @@ InstructionSet Zbkb extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                       for(unsigned int i = 0; i<XLEN/2-1; i++){
+                       for(unsigned int i = 0; i<=XLEN/2-1; i++){
                             X[rd][i] = X[rs1][2*i];
                             X[rd][i+XLEN/2] = X[rs1][2*i+1];
                         }
@@ -254,7 +254,7 @@ InstructionSet Zbkx extends RISCVBase {
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                     else if(rd != 0){
                         unsigned<XLEN> result = 0;
-                        for(unsigned int i = 0; i < XLEN; i+=4){
+                        for(unsigned int i = 0; i<XLEN; i+=4){
                         	unsigned<4> rs2_slice = X[rs2][i+3:i];
                             result[i+3:i] = (X[rs1] >> (rs2_slice :: 0b000))[3:0];
                         }
@@ -586,6 +586,7 @@ InstructionSet Zknh extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                     else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)((X[rs1] >> 1) ^ (X[rs1] >> 7) ^ (X[rs1] >> 8) ^ (X[rs2] << 31) ^ (X[rs2] << 25) ^ (X[rs2] << 24));
                     }
         }
 
