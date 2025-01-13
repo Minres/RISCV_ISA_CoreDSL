@@ -258,10 +258,7 @@ InstructionSet Zbkx extends RISCVBase {
                     unsigned<XLEN> result = 0;
                     for(unsigned int i = 0; i<XLEN; i+=4){
                         unsigned<6> rs2_slice = X[rs2][i+3:i]:: 2'b0;
-                        if(rs2_slice >= XLEN)
-                            result[i+3:i] = 0;
-                        else
-                            result[i+3:i] = (X[rs1] >> rs2_slice)[3:0];
+                        result[i+3:i] = rs2_slice < XLEN ? (X[rs1] >> rs2_slice)[3:0] : 0;
                     }
                     X[rd] = result;
                 }
@@ -275,10 +272,7 @@ InstructionSet Zbkx extends RISCVBase {
                     unsigned<XLEN> result = 0;
                     for(unsigned int i = 0; i<XLEN; i+=8){
                     	unsigned<11> rs2_slice = X[rs2][i+7:i] :: 3'b0;
-                        if(rs2_slice >= XLEN)
-                             result[i+7:i] = 0;
-                        else
-                            result[i+7:i] = (X[rs1] >> (rs2_slice ))[7:0];
+                         result[i+7:i] = rs2_slice < XLEN ? (X[rs1] >> (rs2_slice ))[7:0] : 0;
                     }
                     X[rd] = result;
                 }
