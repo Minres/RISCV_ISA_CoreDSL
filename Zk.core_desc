@@ -222,8 +222,9 @@ InstructionSet Zbkc extends RISCVBase {
                         unsigned<XLEN> rs1_val = X[rs1];
                         unsigned<XLEN> rs2_val = X[rs2];
                         unsigned<XLEN> output = 0;
-                        for(unsigned int i=0; i<XLEN-1; i++){
-                            output = ((rs2_val >> i) & 1) ? output ^ (rs1_val << i) : output;
+                        for(unsigned int i=0; i<=XLEN-1; i++){
+                            if((rs2_val >> i) & 1)
+                                output = output ^ (rs1_val << i)
                         }
                         X[rd] = output;
                     }
@@ -238,7 +239,8 @@ InstructionSet Zbkc extends RISCVBase {
                         unsigned<XLEN> rs2_val = X[rs2];
                         unsigned<XLEN> output = 0;
                         for(unsigned int i=1; i<XLEN; i++){
-                            output = ((rs2_val >> i) & 1) ? output ^ (rs1_val >> (XLEN - i)) : output;
+                            if((rs2_val >> i) & 1)
+                                output =  output ^ (rs1_val >> (XLEN - i))
                         }
                         X[rd] = output;
                     }
