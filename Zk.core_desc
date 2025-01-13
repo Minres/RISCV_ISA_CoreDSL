@@ -262,14 +262,14 @@ InstructionSet Zbkx extends RISCVBase {
                     }
         }
 
-        xperm8  {
+        XPERM8  {
             encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                 else if(rd != 0){
                     unsigned<XLEN> result = 0;
-                    for(unsigned int i = 0; i < XLEN; i+=8){
-                    	unsigned<4> rs2_slice = X[rs2][i+7:i];
+                    for(unsigned int i = 0; i<XLEN; i+=8){
+                    	unsigned<8> rs2_slice = X[rs2][i+7:i];
                         result[i+7:i] = (X[rs1] >> (rs2_slice :: 0b000))[7:0];
                     }
                     X[rd] = result;
@@ -366,7 +366,35 @@ InstructionSet AESBase extends RISCVBase {
     }
 }
 
-InstructionSet Zknd extends AESBase {
+InstructionSet ZKn_common extends AESBase {
+    instructions {
+        AES64KS1I [[enable=XLEN==64]] {
+            encoding: 8'b00110001 :: rnum[3:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {rnum}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rnum>10) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> tmp1 = X[rs1][63:32];
+                        unsigned<32> rc = aes_decode_rcon(rnum);
+                        unsigned<32> tmp2 = (rnum ==0xA) ? tmp1 : (tmp1 >> 8) | (tmp1 << 24);
+                        unsigned<32> tmp3 = aes_subword_fwd(tmp2);
+                        X[rd] = (unsigned<XLEN>)((tmp3 ^ rc) :: (tmp3 ^ rc));
+                    }
+        }
+   
+        AES64KS2 [[enable=XLEN==64]] {
+            encoding: 7'b0111111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> w0 = X[rs1][63:32] ^ X[rs2][31:0];
+                        unsigned<32> w1 = X[rs1][63:32] ^ X[rs2][31:0] ^ X[rs2][63:32];
+                        X[rd] = (unsigned<XLEN>)(w1 :: w0);
+                    }
+        }
+    }
+}
+
+InstructionSet Zknd extends ZKn_common {
     instructions{
         AES32DSI [[enable=XLEN==32]] {
             encoding: bs[1:0] :: 5'b10101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
@@ -426,34 +454,9 @@ InstructionSet Zknd extends AESBase {
                         X[rd] = (unsigned<XLEN>)(w1 :: w0);
                     }
         }
-
-        AES64KS1I [[enable=XLEN==64]] {
-            encoding: 8'b00110001 :: rnum[3:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
-            assembly: "{name(rd)}, {name(rs1)}, {rnum}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rnum>10) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<32> tmp1 = X[rs1][63:32];
-                        unsigned<32> rc = aes_decode_rcon(rnum);
-                        unsigned<32> tmp2 = (rnum ==0xA) ? tmp1 : (tmp1 >> 8) | (tmp1 << 24);
-                        unsigned<32> tmp3 = aes_subword_fwd(tmp2);
-                        X[rd] = (unsigned<XLEN>)((tmp3 ^ rc) :: (tmp3 ^ rc));
-                    }
-        }
-   
-        AES64KS2 [[enable=XLEN==64]] {
-            encoding: 7'b0111111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<32> w0 = X[rs1][63:32] ^ X[rs2][31:0];
-                        unsigned<32> w1 = X[rs1][63:32] ^ X[rs2][31:0] ^ X[rs2][63:32];
-                        X[rd] = (unsigned<XLEN>)(w1 :: w0);
-                    }
-        }
-    }
 }
 
-InstructionSet Zkne extends AESBase {
+InstructionSet Zkne extends ZKn_common {
     instructions{
         AES32ESI [[enable=XLEN==32]] {
             encoding: bs[1:0] :: 5'b10001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
@@ -502,31 +505,6 @@ InstructionSet Zkne extends AESBase {
                         X[rd] = (unsigned<XLEN>)(aes_mixcolumn_fwd(sb[63:32]) :: aes_mixcolumn_fwd(sb[31:0]));
                     }
         }
-
-        AES64KS1I [[enable=XLEN==64]] {
-            encoding: 8'b00110001 :: rnum[3:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
-            assembly: "{name(rd)}, {name(rs1)}, {rnum}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rnum>10) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<32> tmp1 = X[rs1][63:32];
-                        unsigned<32> rc = aes_decode_rcon(rnum);
-                        unsigned<32> tmp2 = (rnum ==0xA) ? tmp1 : (tmp1 >> 8) | (tmp1 << 24);
-                        unsigned<32> tmp3 = aes_subword_fwd(tmp2);
-                        X[rd] = (unsigned<XLEN>)((tmp3 ^ rc) :: (tmp3 ^ rc));
-                    }
-        }
-   
-        AES64KS2 [[enable=XLEN==64]] {
-            encoding: 7'b0111111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<32> w0 = X[rs1][63:32] ^ X[rs2][31:0];
-                        unsigned<32> w1 = X[rs1][63:32] ^ X[rs2][31:0] ^ X[rs2][63:32];
-                        X[rd] = (unsigned<XLEN>)(w1 :: w0);
-                    }
-        }
-
     }
 }
 
@@ -686,5 +664,5 @@ InstructionSet Zkt {
     // this is empty as there is no concept for Data Independent Execution Latency in ISS
 }
 
-//InstructionSet Zkn combines Zbkb, Zbkc, Zbkx, Zknd, Zkne, Zknh
-//InstructionSet Zk combines Zkn, Zkr, Zkt
+InstructionSet Zkn combines Zbkb, Zbkc, Zbkx, Zknd, Zkne, Zknh
+InstructionSet Zk combines Zkn, Zkr, Zkt
