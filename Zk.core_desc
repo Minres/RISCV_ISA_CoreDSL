@@ -325,10 +325,10 @@ InstructionSet AESBase extends RISCVBase {
             unsigned<8> b3 = xt3(s0) ^ (s1) ^ (s2) ^ xt2(s3);
             return b3 :: b2 :: b1 :: b0;
         }
-        unsigned<64> aes_rv64_shiftrows_inv(unsigned<64> rs1, unsigned<64> rs2) {
-            return rs2[31:24] ::rs2[55:48] :: rs1[15:8] :: rs1[39:32] :: rs1[63:56] :: rs2[23:16]  :: rs2[47:40] :: rs1[7:0];
+        unsigned<64> aes_rv64_shiftrows_inv(unsigned<64> rs2, unsigned<64> rs1) {
+            return rs2[31:24] :: rs2[55:48] :: rs1[15:8] :: rs1[39:32] :: rs1[63:56] :: rs2[23:16] :: rs2[47:40] :: rs1[7:0];
         }
-        unsigned<64> aes_rv64_shiftrows_fwd(unsigned<64> rs1, unsigned<64> rs2) {
+        unsigned<64> aes_rv64_shiftrows_fwd(unsigned<64> rs2, unsigned<64> rs1) {
             return rs1[31:24] :: rs2[55:48] :: rs2[15:8] :: rs1[39:32] :: rs2[63:56] :: rs2[23:16] :: rs1[47:40] :: rs1[7:0];
         }
         unsigned<64> aes_apply_inv_sbox_to_each_byte(unsigned<64> x) {
