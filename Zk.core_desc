@@ -399,28 +399,26 @@ InstructionSet ZKn_common extends AESBase {
 InstructionSet Zknd extends ZKn_common {
     instructions{
         AES32DSI [[enable=XLEN==32]] {
-            encoding: bs[1:0] :: 5'b10101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            encoding: bs[4:3] :: 5'b10101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<5> shamt = bs :: 0b000;
-                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
-                        unsigned<32> so = 0x000000 :: aes_sbox_inv(si);
-                        unsigned<32> result = X[rs1][31:0] ^ ((so << shamt) | (so >> (32 - shamt)));
+                        unsigned<8> si = X[rs2][bs+7:bs];
+                        unsigned<32> so = (unsigned<32>)aes_sbox_inv(si);
+                        unsigned<32> result = X[rs1][31:0] ^ ((so << bs) | (so >> (32 - bs)));
                         X[rd] = (unsigned<XLEN>)result;
                     }
         }
 
         AES32DSMI [[enable=XLEN==32]] {
-            encoding: bs[1:0] :: 5'b10111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            encoding: bs[4:3] :: 5'b10111 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<5> shamt = bs :: 0b000;
-                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
+                        unsigned<8> si = X[rs2][bs+7:bs];
                         unsigned<8> so = aes_sbox_inv(si);
                         unsigned<32> mixed = aes_mixcolumn_byte_inv(so);
-                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << shamt) | (mixed >> (32 - shamt)));
+                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << bs) | (mixed >> (32 - bs)));
                         X[rd] = result;
                     }
         }
@@ -462,28 +460,26 @@ InstructionSet Zknd extends ZKn_common {
 InstructionSet Zkne extends ZKn_common {
     instructions{
         AES32ESI [[enable=XLEN==32]] {
-            encoding: bs[1:0] :: 5'b10001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            encoding: bs[4:3] :: 5'b10001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<5> shamt = bs :: 0b000;
-                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
-                        unsigned<32> so = 0x000000 :: aes_sbox_fwd(si);
-                        unsigned<32> result = X[rs1][31:0] ^ ((so << shamt) | (so >> (32 - shamt)));
+                        unsigned<8> si = X[rs2][bs+7:bs];
+                        unsigned<32> so = (unsigned<32>)aes_sbox_fwd(si);
+                        unsigned<32> result = X[rs1][31:0] ^ ((so << bs) | (so >> (32 - bs)));
                         X[rd] = (unsigned<XLEN>)result;
                     }
         }
 
         AES32ESMI [[enable=XLEN==32]] {
-            encoding: bs[1:0] :: 5'b10011 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
+            encoding: bs[4:3] :: 5'b10011 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0110011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {bs}";
             behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<5> shamt = bs :: 0b000;
-                        unsigned<8> si = (X[rs2] >> shamt)[7:0];
-                        unsigned<8> so = aes_sbox_inv(si);
-                        unsigned<32> mixed = aes_mixcolumn_byte_inv(so);
-                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << shamt) | (mixed >> (32 - shamt)));
+                        unsigned<8> si = X[rs2][bs+7:bs];
+                        unsigned<8> so = aes_sbox_fwd(si);
+                        unsigned<32> mixed = aes_mixcolumn_byte_fwd(so);
+                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << bs) | (mixed >> (32 - bs)));
                         X[rd] = result;
                     }
         }
