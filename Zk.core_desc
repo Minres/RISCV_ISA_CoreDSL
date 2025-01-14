@@ -89,7 +89,7 @@ InstructionSet Zbkb extends RISCVBase {
                     else if(rd != 0){
                         unsigned<16> lo = X[rs1][15:0];
                         unsigned<16> hi = (X[rs2][15:0]);
-                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(hi :: lo);
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(hi :: lo);
                     }
         }
 
