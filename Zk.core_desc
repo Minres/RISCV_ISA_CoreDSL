@@ -31,7 +31,7 @@ InstructionSet Zbkb extends RISCVBase {
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
                         unsigned<XLEN> result = 0;
-                        for(unsigned int i = 0; i<XLEN/8; i+=8){
+                        for(unsigned int i = 0; i<XLEN; i+=8){
                             unsigned<8> byte = X[rs1][i+7:i];
                             unsigned<8> reverse = byte[0]::byte[1]::byte[2]::byte[3]::byte[4]::byte[5]::byte[6]::byte[7];
                             result[i+7:i] = reverse;
@@ -456,6 +456,7 @@ InstructionSet Zknd extends ZKn_common {
                         X[rd] = (unsigned<XLEN>)(w1 :: w0);
                     }
         }
+    }
 }
 
 InstructionSet Zkne extends ZKn_common {
