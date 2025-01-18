@@ -1,0 +1,77 @@
+import "RISCVBase.core_desc"
+
+InstructionSet Zxlwc_ascon extends RISCVBase {
+    functions {
+        unsigned<64> _ror64(unsigned<64> val, unsigned<64> shift_amount) {
+            return (val >> shift_amount) | (val << (64 - shift_amount));
+        }
+        // ROT_0 = { 19, 61,  1, 10,  7 }
+        unsigned<64> rot_0(unsigned<5> imm){
+            if(imm == 0)
+                return 19;
+            else if(imm==1)
+                return 61;
+            else if(imm==2)
+                return 1;
+            else if(imm==3)
+                return 10;
+            else if(imm==4)
+                return 7;
+            else if(imm>4)
+                raise(0,2);
+            return 0;
+        }
+        // ROT_1 = { 28, 39,  6, 17, 41 }
+        unsigned<64> rot_1(unsigned<5> imm){
+            if(imm == 0)
+                return 28;
+            else if(imm==1)
+                return 39;
+            else if(imm==2)
+                return 6;
+            else if(imm==3)
+                return 17;
+            else if(imm==4)
+                return 41;
+            else if(imm>4)
+                raise(0,2);
+            return 0;
+        }
+    }
+
+    instructions{
+        ASCON_SIGMA_LO [[enable=XLEN==32]] {
+            encoding: 2'b00 :: imm[4:0] :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0101011;
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> x_hi = (unsigned<32>)X[rs2];
+                        unsigned<32> x_lo =  (unsigned<32>)X[rs1];
+                        unsigned<64> x = x_hi :: x_lo;
+                        unsigned<64> r = x ^ _ror64(x, rot_0(imm)) ^ _ror64(x, rot_1(imm));
+                        X[rd] = (unsigned<XLEN>)r[31:0];
+                    }
+
+        }
+        ASCON_SIGMA_HI [[enable=XLEN==32]] {
+            encoding: 2'b01 :: imm[4:0] :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0101011;
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> x_hi =  (unsigned<32>)X[rs2];
+                        unsigned<32> x_lo =  (unsigned<32>)X[rs1];
+                        unsigned<64> x = x_hi :: x_lo;
+                        unsigned<64> r = x ^ _ror64(x, rot_0(imm)) ^ _ror64(x, rot_1(imm));
+                        X[rd] = (unsigned<XLEN>)r[63:32];
+                    }
+        }
+
+        ASCON_SIGMA [[enable=XLEN==64]] {
+            encoding: 2'b10 :: imm[4:0] :: 5'b00000 :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0101011;
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<64> x = X[rs1];
+                        unsigned<64> r = x ^ _ror64(x, rot_0(imm)) ^ _ror64(x, rot_1(imm));
+                        X[rd] = (unsigned<XLEN>)r;
+                    }
+        }
+    }
+}
