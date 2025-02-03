@@ -224,7 +224,7 @@ InstructionSet Zbkc extends RISCVBase {
                         unsigned<XLEN> output = 0;
                         for(unsigned int i=0; i<=XLEN-1; i++){
                             if((rs2_val >> i) & 1)
-                                output = output ^ (rs1_val << i)
+                                output = output ^ (rs1_val << i);
                         }
                         X[rd] = output;
                     }
@@ -240,7 +240,7 @@ InstructionSet Zbkc extends RISCVBase {
                         unsigned<XLEN> output = 0;
                         for(unsigned int i=1; i<XLEN; i++){
                             if((rs2_val >> i) & 1)
-                                output =  output ^ (rs1_val >> (XLEN - i))
+                                output =  output ^ (rs1_val >> (XLEN - i));
                         }
                         X[rd] = output;
                     }
@@ -664,5 +664,5 @@ InstructionSet Zkt {
     // this is empty as there is no concept for Data Independent Execution Latency in ISS
 }
 
-InstructionSet Zkn combines Zbkb, Zbkc, Zbkx, Zknd, Zkne, Zknh
-InstructionSet Zk combines Zkn, Zkr, Zkt
+InstructionSet Zkn combines Zbkb, Zbkc, Zbkx, Zknd, Zkne, Zknh;
+InstructionSet Zk combines Zkn, Zkr, Zkt;
