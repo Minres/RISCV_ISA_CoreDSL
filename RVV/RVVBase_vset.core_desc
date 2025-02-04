@@ -26,7 +26,7 @@ InstructionSet RVVBase_vset extends RVVBase {
     instructions{
         VSETVLI {
             encoding: 4'b0000 :: ma[0:0] :: ta[0:0] :: sew[2:0] :: lmul[2:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b1010111;
-            assembly: "{name(rd)}, {name(rs1)}, {sew_name(sew)}, {lmul_name(lmul)}, {ma_name(ma)}, {ta_name(ta)}";
+            assembly: "{name(rd)}, {name(rs1)}, {sew_name(sew)}, {lmul_name(lmul)}, {ta_name(ta)}, {ma_name(ma)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                 else {
                     unsigned<5> orig_ratio = (unsigned<5>)(get_sew_pow() - get_lmul_pow());
@@ -63,7 +63,7 @@ InstructionSet RVVBase_vset extends RVVBase {
 
         VSETIVLI {
             encoding: 4'b1100 :: ma[0:0] :: ta[0:0] :: sew[2:0] :: lmul[2:0] :: uimm[4:0] :: 3'b111 :: rd[4:0] :: 7'b1010111;
-            assembly: "{name(rd)}, {uimm}, {sew_name(sew)}, {lmul_name(lmul)}, {ma_name(ma)}, {ta_name(ta)}";
+            assembly: "{name(rd)}, {uimm}, {sew_name(sew)}, {lmul_name(lmul)}, {ta_name(ta)}, {ma_name(ma)}";
             behavior: if(rd >=RFS) raise(0, 2);
                 else {
                     vtype = (unsigned<XLEN>)(ma :: ta:: sew :: lmul);
