@@ -171,5 +171,41 @@ InstructionSet RVVBase_mem extends RVVBase {
                     vstart = (unsigned<XLEN>)vlseg(V, vd, X[rs1], evl, vstart, _vtype, 1, 1, (unsigned<16>)evl, 0, 1);
                 }
         }
+        // Vector Load Unit-Stride Whole Register (vm=0b1, mop=0b00, lumop=0b01000)
+        VLRE {
+            encoding: nf[2:0] :: mew[0:0] :: 2'b00 :: 1 :: 5'b01000 :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
+            // assembly also needs to encodes width and register count
+            assembly: "{vname(vd)}, ({name(rs1)})";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                else {
+                    unsigned<4> elem_size_bytes = convert_width(width);
+                    unsigned<4> nf_int = nf+1;
+                    unsigned<6> EEW = (unsigned<6>)(elem_size_bytes * 8);
+                    // The instructions operate with an effective vector length, evl=NFIELDS*VLEN/EEW, regardless of current settings in vtype and vl
+                    unsigned<XLEN> evl = (unsigned<XLEN>)(nf_int * VLEN/EEW);
+                    if(!(nf_int == 1 | nf_int == 2 | nf_int == 4 | nf_int == 8) || vd % nf_int) raise(0,2);
+                    else {
+                        //                       vlseg(V, vd, rs1_val, vl, vstart, vtype, vm,  elem_size_bytes, elem_count, EMUL_pow, nf);
+                        vstart = (unsigned<XLEN>)vlseg(V, vd, X[rs1], evl, vstart, vtype, 1, elem_size_bytes, (unsigned<16>)evl, 0, 1);
+                    }
+                }
+        }
+        // Vector Store Unit-Stride Whole Register (mew=0b0, vm=0b1, mop=0b00, lumop=0b01000) 
+        VSRE {
+            encoding: nf[2:0] :: 9'b000101000 :: rs1[4:0] :: 3'b000 :: vs3[4:0] :: 7'b0100111;
+            // assembly also needs to encodes width and register count
+            assembly: "{vname(vs3)}, ({name(rs1)})";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                else {
+                    unsigned<4> nf_int = nf+1;
+                    // The instructions operate with an effective vector length, evl=NFIELDS*VLEN/8, regardless of current settings in vtype and vl
+                    unsigned<XLEN> evl = (unsigned<XLEN>)(nf_int * VLEN/8);
+                    if(!(nf_int == 1 | nf_int == 2 | nf_int == 4 | nf_int == 8) || vs3 % nf_int) raise(0,2);
+                    else {
+                        //                       vsseg(V, vs3, rs1_val, vl, vstart, vtype, vm,  elem_size_bytes, elem_count, EMUL_pow, nf);
+                        vstart = (unsigned<XLEN>)vsseg(V, vs3, X[rs1], evl, vstart, vtype, 1, 1, (unsigned<16>)evl, 0, 1);
+                    }
+                }
+        } 
     }
 }
