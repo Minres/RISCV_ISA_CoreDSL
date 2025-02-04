@@ -37,7 +37,9 @@ InstructionSet RVVBase extends Zicsr {
                 case 256: return 8;
                 case 512: return 9;
                 case 1024: return 10;
-                default: return 0; // Need to error out here somehow
+                case 2048: return 11;
+                case 4096: return 12;
+                default: raise(0, 2); //This is illegall instruction error, should be a more fatal error 
             }
             return 0; //needed to stop validator from complainng
         }
