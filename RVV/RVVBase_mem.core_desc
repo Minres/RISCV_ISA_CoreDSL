@@ -23,7 +23,7 @@ InstructionSet RVVBase_mem extends RVVBase {
             return rd != 0 | vm != 0;
         }
         unsigned<1> valid_eew_emul(unsigned<6> EEW, signed<3> EMUL_pow){
-            return EEW >= 8 && EEW <= ELEN && EMUL_pow >= -3 && EMUL_pow <= 3;
+            return EEW >= 8 && EEW <= ELEN && EEW <= EEW_MAX && EMUL_pow >= -3 && EMUL_pow <= 3;
         }
         unsigned<1> valid_segment(unsigned<4> nf, signed<3> EMUL_pow){
             if (EMUL_pow < 0) {
