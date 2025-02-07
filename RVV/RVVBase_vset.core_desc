@@ -3,7 +3,7 @@ import "RVVBase.core_desc"
 InstructionSet RVVBase_vset extends RVVBase {
     functions {
         unsigned<1> valid_sew_lmul(){
-            return get_sew_pow() <= (unsigned)get_pow(ELEN) + get_lmul_pow();
+            return get_sew_pow() <= get_pow(ELEN) + get_lmul_pow();
         }
         unsigned<8> calculate_new_vl(unsigned<XLEN> avl, unsigned<8> vlmax){
             if(avl <= vlmax) return ((unsigned<8>) avl);
