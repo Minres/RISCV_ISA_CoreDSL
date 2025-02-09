@@ -5,8 +5,8 @@ InstructionSet RVVBase_vset extends RVVBase {
         unsigned<1> valid_sew_lmul(){
             return get_sew_pow() <= get_pow(ELEN) + get_lmul_pow();
         }
-        unsigned<8> calculate_new_vl(unsigned<XLEN> avl, unsigned<8> vlmax){
-            if(avl <= vlmax) return ((unsigned<8>) avl);
+        unsigned<16> calculate_new_vl(unsigned<XLEN> avl, unsigned<16> vlmax){
+            if(avl <= vlmax) return ((unsigned<16>) avl);
             else if(avl < (2*vlmax)) return vlmax; // return (unsigned<8>)((avl + 1) / 2)
             else return vlmax;
             // For example, this permits an implementation to set vl = ceil(AVL / 2) for VLMAX <
@@ -39,7 +39,7 @@ InstructionSet RVVBase_vset extends RVVBase {
                     }
                     else {
                         //calculate VLMAX = VLEN * LMUL / SEW
-                        unsigned<8> VLMAX = (unsigned<8>)(8'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~8'b1;
+                        unsigned<16> VLMAX = (unsigned<16>)(16'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~16'b1;
                         if(rs1 != 0){
                             unsigned<XLEN> AVL = X[rs1];
                             vl = (unsigned<XLEN>)calculate_new_vl(AVL, VLMAX);
@@ -71,7 +71,7 @@ InstructionSet RVVBase_vset extends RVVBase {
                         handle_illegal_vtype();
                     }
                     else {
-                        unsigned<8> VLMAX = (unsigned<8>)(8'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~8'b1;
+                        unsigned<16> VLMAX = (unsigned<16>)(16'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~16'b1;
                         vl = calculate_new_vl(uimm, VLMAX);
                         X[rd] = vl;
                         vstart = 0;
@@ -95,7 +95,7 @@ InstructionSet RVVBase_vset extends RVVBase {
                     }
                     else {
                         //calculate VLMAX = VLEN * LMUL / SEW
-                        unsigned<8> VLMAX = (unsigned<8>)(8'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~8'b1;
+                        unsigned<16> VLMAX = (unsigned<16>)(16'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~16'b1;
                         if(rs1 != 0){
                             unsigned<XLEN> AVL = X[rs1];
                             vl = (unsigned<XLEN>)calculate_new_vl(AVL, VLMAX);
