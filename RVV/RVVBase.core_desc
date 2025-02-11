@@ -76,5 +76,16 @@ InstructionSet RVVBase extends Zicsr {
             }
             return 0; //needed to stop validator from complainng
         }
+        unsigned<16> get_elem_count(){
+            // num_elem = VLEN * LMUL / SEW
+            unsigned<8> total_pow = (unsigned<8>)(get_pow(VLEN) + get_lmul_pow() - get_sew_pow());
+            return (unsigned<16>)(16'sb1 << total_pow) & ~16'b1;
+        }
+        unsigned<1> valid_vtype(){
+            return vtype[XLEN-1] == 0;
+        }
+        unsigned<1> valid_rd_mask(unsigned<5> rd, unsigned<1> vm) {
+            return rd != 0 | vm != 0;
+        }
     }
 }

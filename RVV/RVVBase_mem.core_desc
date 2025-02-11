@@ -16,12 +16,6 @@ InstructionSet RVVBase_mem extends RVVBase {
             unsigned<8> total_pow = (unsigned<8>)(get_pow(VLEN) + get_lmul_pow() - get_sew_pow());
             return (unsigned<16>)(16'sb1 << total_pow) & ~16'b1;
         }
-        unsigned<1> valid_vtype(){
-            return vtype[XLEN-1] == 0;
-        }
-        unsigned<1> valid_rd_mask(unsigned<5> rd, unsigned<1> vm) {
-            return rd != 0 | vm != 0;
-        }
         unsigned<1> valid_eew_emul(unsigned<6> EEW, signed<3> EMUL_pow){
             return EEW >= 8 && EEW <= ELEN && EEW <= EEW_MAX && EMUL_pow >= -3 && EMUL_pow <= 3;
         }
@@ -50,7 +44,6 @@ InstructionSet RVVBase_mem extends RVVBase {
         unsigned<1> illegal_indexed_store(unsigned<4> nf, unsigned<6> EEW_index, signed<3> EMUL_pow_index, signed<3> EMUL_pow_data) {
             return !valid_vtype() | !valid_eew_emul(EEW_index, EMUL_pow_index) | !valid_segment(nf, EMUL_pow_data);
         }
-
         extern void lower();
         extern unsigned<64> vlseg(unsigned<VLEN> V[32], unsigned<5> vd, unsigned<XLEN> rs1_val, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<4> elem_size_bytes, unsigned<16> elem_count, signed<3> EMUL_pow, unsigned<4> nf);
         extern unsigned<64> vsseg(unsigned<VLEN> V[32], unsigned<5> vs3, unsigned<XLEN> rs1_val, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<4> elem_size_bytes, unsigned<16> elem_count, signed<3> EMUL_pow, unsigned<4> nf);
