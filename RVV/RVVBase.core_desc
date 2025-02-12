@@ -43,7 +43,7 @@ InstructionSet RVVBase extends Zicsr {
                 case 1024: return 10;
                 case 2048: return 11;
                 case 4096: return 12;
-                default: raise(0, 2); //This is illegall instruction error, should be a more fatal error 
+                default: raise(0, 2); //This is illegal instruction error, should be a more fatal error 
             }
             return 0; //needed to stop validator from complainng
         }
@@ -62,7 +62,7 @@ InstructionSet RVVBase extends Zicsr {
                 case 0b001: return 1;
                 case 0b010: return 2;
                 case 0b011: return 3;
-                default: raise(0, 2); //This is illegall instruction error, should be a more fatal error 
+                default: raise(0, 2); //This is illegal instruction error, should be a more fatal error 
             }
             return 0; //needed to stop validator from complainng
         }
@@ -72,7 +72,7 @@ InstructionSet RVVBase extends Zicsr {
                 case 0b001: return 4;
                 case 0b010: return 5;
                 case 0b011: return 6;
-                default: raise(0, 2); //This is illegall instruction error, should be a more fatal error
+                default: raise(0, 2); //This is illegal instruction error, should be a more fatal error
             }
             return 0; //needed to stop validator from complainng
         }
@@ -85,7 +85,47 @@ InstructionSet RVVBase extends Zicsr {
             return vtype[XLEN-1] == 0;
         }
         unsigned<1> valid_rd_mask(unsigned<5> rd, unsigned<1> vm) {
-            return rd != 0 | vm != 0;
+            return rd != 0 || vm != 0;
         }
-    }
+        unsigned<1> valid_eew_emul(unsigned<7> EEW, signed<4> EMUL_pow){
+            return EEW >= 8 && EEW <= ELEN && EEW <= EEW_MAX && EMUL_pow >= -3 && EMUL_pow <= 3;
+        }
+        unsigned<1> valid_segment(unsigned<4> nf, signed<3> EMUL_pow){
+            if (EMUL_pow < 0) {
+                unsigned<8> neg_EMUL = (unsigned<8>)(8'sb1 << -EMUL_pow) & ~8'b1;
+                return nf / neg_EMUL <= 8;
+                }
+            else {
+                unsigned<8> EMUL = (unsigned<8>)(8'sb1 << EMUL_pow) & ~8'b1;
+                return nf * EMUL <= 8;
+                }
+        }
+        unsigned<1> illegal_load(unsigned<5> vd, unsigned<1> vm, unsigned<4> nf, unsigned<6> EEW, signed<3> EMUL_pow){
+            return !valid_vtype() || ! valid_rd_mask(vd, vm) || !valid_eew_emul(EEW, EMUL_pow) || !valid_segment(nf, EMUL_pow);
+        }
+        unsigned<1> illegal_store(unsigned<4> nf, unsigned<6> EEW, signed<3> EMUL_pow) {
+            return !valid_vtype() || !valid_eew_emul(EEW, EMUL_pow) || !valid_segment(nf, EMUL_pow);
+        }
+        unsigned<1> illegal_vd_unmasked() {
+            return !valid_vtype();
+        }
+        unsigned<1> illegal_indexed_load(unsigned<5> vd, unsigned<1> vm, unsigned<4> nf, unsigned<6> EEW_index, signed<3> EMUL_pow_index, signed<3> EMUL_pow_data) {
+            return !valid_vtype() || !valid_rd_mask(vd, vm) || !valid_eew_emul(EEW_index, EMUL_pow_index) || !valid_segment(nf, EMUL_pow_data);
+        }
+        unsigned<1> illegal_indexed_store(unsigned<4> nf, unsigned<6> EEW_index, signed<3> EMUL_pow_index, signed<3> EMUL_pow_data) {
+            return !valid_vtype() || !valid_eew_emul(EEW_index, EMUL_pow_index) || !valid_segment(nf, EMUL_pow_data);
+        }
+        unsigned<1> illegal_variable_width(unsigned<5> vd, unsigned<1> vm, unsigned<7> SEW_new, signed<4> LMUL_pow_new) {
+            return !(valid_vtype()) || !(valid_rd_mask(vd, vm)) || !(valid_eew_emul(SEW_new, LMUL_pow_new));
+        }
+        unsigned<1> valid_reg_overlap(unsigned<5> rs, unsigned<5> rd, signed<4> EMUL_pow_rs, signed<4> EMUL_pow_rd) {
+            unsigned<5> rs_group = EMUL_pow_rs > 0 ? (unsigned<5>)(5'sb1 << EMUL_pow_rs) & ~5'b1 : 1;
+            unsigned<5> rd_group = EMUL_pow_rd > 0 ? (unsigned<5>)(5'sb1 << EMUL_pow_rd) & ~5'b1 : 1;
+            if(EMUL_pow_rs < EMUL_pow_rd) {
+                return (rs + rs_group <= rd) || (rs >= rd + rd_group) || ((rs + rs_group == rd + rd_group) & (EMUL_pow_rs >= 0));
+            } else if(EMUL_pow_rs > EMUL_pow_rd){
+                return (rd <= rs) || (rd >= rs + rs_group);
+            } else return true;
+        }    
+}
 }

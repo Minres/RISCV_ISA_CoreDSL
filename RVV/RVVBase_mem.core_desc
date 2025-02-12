@@ -11,39 +11,6 @@ InstructionSet RVVBase_mem extends RVVBase {
             }
             return 0;
         }
-        unsigned<16> get_elem_count(){
-            // num_elem = VLEN * LMUL / SEW
-            unsigned<8> total_pow = (unsigned<8>)(get_pow(VLEN) + get_lmul_pow() - get_sew_pow());
-            return (unsigned<16>)(16'sb1 << total_pow) & ~16'b1;
-        }
-        unsigned<1> valid_eew_emul(unsigned<6> EEW, signed<3> EMUL_pow){
-            return EEW >= 8 && EEW <= ELEN && EEW <= EEW_MAX && EMUL_pow >= -3 && EMUL_pow <= 3;
-        }
-        unsigned<1> valid_segment(unsigned<4> nf, signed<3> EMUL_pow){
-            if (EMUL_pow < 0) {
-                unsigned<8> neg_EMUL = (unsigned<8>)(8'sb1 << -EMUL_pow) & ~8'b1;
-                return nf / neg_EMUL <= 8;
-                }
-            else {
-                unsigned<8> EMUL = (unsigned<8>)(8'sb1 << EMUL_pow) & ~8'b1;
-                return nf * EMUL <= 8;
-                }
-        }
-        unsigned<1> illegal_load(unsigned<5> vd, unsigned<1> vm, unsigned<4> nf, unsigned<6> EEW, signed<3> EMUL_pow){
-            return !valid_vtype() | ! valid_rd_mask(vd, vm) | !valid_eew_emul(EEW, EMUL_pow) | !valid_segment(nf, EMUL_pow);
-        }
-        unsigned<1> illegal_store(unsigned<4> nf, unsigned<6> EEW, signed<3> EMUL_pow) {
-            return !valid_vtype() | !valid_eew_emul(EEW, EMUL_pow) | !valid_segment(nf, EMUL_pow);
-        }
-        unsigned<1> illegal_vd_unmasked() {
-            return !valid_vtype();
-        }
-        unsigned<1> illegal_indexed_load(unsigned<5> vd, unsigned<1> vm, unsigned<4> nf, unsigned<6> EEW_index, signed<3> EMUL_pow_index, signed<3> EMUL_pow_data) {
-            return !valid_vtype() | !valid_rd_mask(vd, vm) | !valid_eew_emul(EEW_index, EMUL_pow_index) | !valid_segment(nf, EMUL_pow_data);
-        }
-        unsigned<1> illegal_indexed_store(unsigned<4> nf, unsigned<6> EEW_index, signed<3> EMUL_pow_index, signed<3> EMUL_pow_data) {
-            return !valid_vtype() | !valid_eew_emul(EEW_index, EMUL_pow_index) | !valid_segment(nf, EMUL_pow_data);
-        }
         extern void lower();
         extern unsigned<64> vlseg(unsigned<VLEN> V[32], unsigned<5> vd, unsigned<XLEN> rs1_val, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<4> elem_size_bytes, unsigned<16> elem_count, signed<3> EMUL_pow, unsigned<4> nf);
         extern unsigned<64> vsseg(unsigned<VLEN> V[32], unsigned<5> vs3, unsigned<XLEN> rs1_val, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<4> elem_size_bytes, unsigned<16> elem_count, signed<3> EMUL_pow, unsigned<4> nf);
@@ -186,7 +153,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     unsigned<6> EEW = (unsigned<6>)(elem_size_bytes * 8);
                     // The instructions operate with an effective vector length, evl=NFIELDS*VLEN/EEW, regardless of current settings in vtype and vl
                     unsigned<XLEN> evl = (unsigned<XLEN>)(nf_int * VLEN/EEW);
-                    if(!(nf_int == 1 | nf_int == 2 | nf_int == 4 | nf_int == 8) || vd % nf_int) raise(0,2);
+                    if(!(nf_int == 1 || nf_int == 2 || nf_int == 4 || nf_int == 8) || vd % nf_int) raise(0,2);
                     else {
                         //                       vlseg(V, vd, rs1_val, vl, vstart, vtype, vm,  elem_size_bytes, elem_count, EMUL_pow, nf);
                         vstart = (unsigned<XLEN>)vlseg(V, vd, X[rs1], evl, vstart, vtype, 1, elem_size_bytes, (unsigned<16>)evl, 0, 1);
@@ -203,7 +170,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     unsigned<4> nf_int = nf+1;
                     // The instructions operate with an effective vector length, evl=NFIELDS*VLEN/8, regardless of current settings in vtype and vl
                     unsigned<XLEN> evl = (unsigned<XLEN>)(nf_int * VLEN/8);
-                    if(!(nf_int == 1 | nf_int == 2 | nf_int == 4 | nf_int == 8) || vs3 % nf_int) raise(0,2);
+                    if(!(nf_int == 1 || nf_int == 2 || nf_int == 4 || nf_int == 8) || vs3 % nf_int) raise(0,2);
                     else {
                         //                       vsseg(V, vs3, rs1_val, vl, vstart, vtype, vm,  elem_size_bytes, elem_count, EMUL_pow, nf);
                         vstart = (unsigned<XLEN>)vsseg(V, vs3, X[rs1], evl, vstart, vtype, 1, 1, (unsigned<16>)evl, 0, 1);
