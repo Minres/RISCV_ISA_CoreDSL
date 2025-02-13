@@ -126,6 +126,9 @@ InstructionSet RVVBase extends Zicsr {
             } else if(EMUL_pow_rs > EMUL_pow_rd){
                 return (rd <= rs) || (rd >= rs + rs_group);
             } else return true;
-        }    
+        }
+        unsigned<1> illegal_vd_masked(unsigned<5> vd) {
+            return !(valid_vtype()) || vd == 0b00000;
+        }
 }
 }
