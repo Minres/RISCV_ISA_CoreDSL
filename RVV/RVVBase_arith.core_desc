@@ -537,5 +537,80 @@ InstructionSet RVVBase_arith extends RVVBase {
                     mask_vector_imm_op(V, 6'b010011, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
+    
+        // 31.11.5. Vector Bitwise Logical Instructions
+        VAND__VI  {
+            encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_imm_op(V, 6'b001001, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VAND__VV  {
+            encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_vector_op(V, 6'b001001, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VAND__VX  {
+            encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b001001, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VOR__VI  {
+            encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_imm_op(V, 6'b001010, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VOR__VV  {
+            encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_vector_op(V, 6'b001010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VOR__VX  {
+            encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b001010, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VXOR__VI  {
+            encoding: 6'b001011 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_imm_op(V, 6'b001011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VXOR__VV  {
+            encoding: 6'b001011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_vector_op(V, 6'b001011, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VXOR__VX  {
+            encoding: 6'b001011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b001011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+
     }
 }
