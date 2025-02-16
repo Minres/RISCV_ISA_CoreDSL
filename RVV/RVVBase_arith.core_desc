@@ -14,10 +14,12 @@ InstructionSet RVVBase_arith extends RVVBase {
         extern void vector_extend(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_pow, unsigned<2> enc);
         extern void vector_vector_m(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew, unsigned<2> enc);
         extern void vector_imm_m(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew, unsigned<2> enc);
-        extern void mask_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
+        extern void carry_mask_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void carry_mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         extern void vector_vector_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_imm_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
+        extern void mask_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         
     }
     instructions{
@@ -449,7 +451,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, v0";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_vector_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
+                    carry_mask_vector_vector_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
                 }
         }
         VMADC__VXM  {
@@ -457,7 +459,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, v0";
             behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    carry_mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
         VMADC__VIM  {
@@ -465,7 +467,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, v0";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                    carry_mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
                 }
         }
         VMADC__VV  {
@@ -473,7 +475,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_vector_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, vs1, sew());
+                    carry_mask_vector_vector_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, vs1, sew());
                 }
         }
         VMADC__VX  {
@@ -481,7 +483,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}";
             behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    carry_mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
         VMADC__VI  {
@@ -489,7 +491,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                    carry_mask_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
                 }
         }
         VSBC__VVM  {
@@ -513,7 +515,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, v0";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_vector_op(V, 6'b010011, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
+                    carry_mask_vector_vector_op(V, 6'b010011, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
                 }
         }
         VMSBC__VXM  {
@@ -521,7 +523,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, v0";
             behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_imm_op(V, 6'b010011, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    carry_mask_vector_imm_op(V, 6'b010011, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
         VMSBC__VV  {
@@ -529,7 +531,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_vector_op(V, 6'b010011, vl, vstart, vtype, 1, vd, vs2, vs1, sew());
+                    carry_mask_vector_vector_op(V, 6'b010011, vl, vstart, vtype, 1, vd, vs2, vs1, sew());
                 }
         }
         VMSBC__VX  {
@@ -537,7 +539,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}";
             behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_vector_imm_op(V, 6'b010011, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    carry_mask_vector_imm_op(V, 6'b010011, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
     
@@ -775,6 +777,168 @@ InstructionSet RVVBase_arith extends RVVBase {
                             vector_imm_vw(V, 6'b101101, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
                         }
                     }
+        }
+    
+        // 31.11.8. Vector Integer Compare Instructions
+        VMSEQ__VI  {
+            encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_imm_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VMSEQ__VV  {
+            encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_vector_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMSEQ__VX  {
+            encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMSNE__VI  {
+            encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_imm_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VMSNE__VV  {
+            encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_vector_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMSNE__VX  {
+            encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMSLTU__VV  {
+            encoding: 6'b011010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_vector_op(V, 6'b011010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMSLTU__VX  {
+            encoding: 6'b011010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011010, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMSLT__VV  {
+            encoding: 6'b011011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_vector_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMSLT__VX  {
+            encoding: 6'b011011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMSLEU__VI  {
+            encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_imm_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VMSLEU__VV  {
+            encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_vector_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMSLEU__VX  {
+            encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMSLE__VI  {
+            encoding: 6'b011101 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_imm_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VMSLE__VV  {
+            encoding: 6'b011101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_vector_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMSLE__VX  {
+            encoding: 6'b011101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMSGTU__VI  {
+            encoding: 6'b011110 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_imm_op(V, 6'b011110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VMSGTU__VX  {
+            encoding: 6'b011110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMSGT__VI  {
+            encoding: 6'b011111 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+                else {
+                    mask_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                }
+        }
+        VMSGT__VX  {
+            encoding: 6'b011111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    mask_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
         }
     }
 }
