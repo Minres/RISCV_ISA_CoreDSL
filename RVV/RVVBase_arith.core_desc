@@ -940,5 +940,71 @@ InstructionSet RVVBase_arith extends RVVBase {
                     mask_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
+    
+        // 31.11.9. Vector Integer Min/Max Instructions
+        VMINU__VV  {
+            encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_vector_op(V, 6'b000100, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMINU__VX  {
+            encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b000100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMIN__VV  {
+            encoding: 6'b000101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
+            behavior:if(illegal_normal(vd, vm)) raise(0, 2); 
+                else  {
+                    vector_vector_op(V, 6'b000101, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMIN__VX  {
+            encoding: 6'b000101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b000101, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMAXU__VV  {
+            encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vector_vector_op(V, 6'b000110, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMAXU__VX  {
+            encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b000110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMAX__VV  {
+            encoding: 6'b000111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
+            behavior:if(illegal_normal(vd, vm)) raise(0, 2); 
+                else  {
+                    vector_vector_op(V, 6'b000111, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMAX__VX  {
+            encoding: 6'b000111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b000111, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
     }
 }
