@@ -563,7 +563,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VAND__VX  {
             encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
                 else {
                     vector_imm_op(V, 6'b001001, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
