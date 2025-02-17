@@ -1,0 +1,12 @@
+import "RVVBase.core_desc"
+
+InstructionSet RVV_stubs extends RVVBase {
+    instructions{
+        VMV__V__I  {
+            encoding: 12'b010111100000 :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{simm}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+    }
+}
