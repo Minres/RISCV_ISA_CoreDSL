@@ -1006,5 +1006,71 @@ InstructionSet RVVBase_arith extends RVVBase {
                     vector_imm_op(V, 6'b000111, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
+
+        // 31.11.10. Vector Single-Width Integer Multiply Instructions
+        VMUL__VV  {
+            encoding: 6'b100101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMUL__VX  {
+            encoding: 6'b100101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMULH__VV  {
+            encoding: 6'b100111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMULH__VX  {
+            encoding: 6'b100111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100111, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMULHU__VV  {
+            encoding: 6'b100100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMULHU__VX  {
+            encoding: 6'b100100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100100, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMULHSU__VV  {
+            encoding: 6'b100110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100110, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMULHSU__VX  {
+            encoding: 6'b100110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100110, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
     }
 }
