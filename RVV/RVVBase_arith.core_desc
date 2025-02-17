@@ -1072,5 +1072,71 @@ InstructionSet RVVBase_arith extends RVVBase {
                     vector_imm_op(V, 6'b100110, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                 }
         }
+    
+        // 31.11.11. Vector Integer Divide Instructions
+        VDIVU__VV  {
+            encoding: 6'b100000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100000, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VDIVU__VX  {
+            encoding: 6'b100000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100000, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VDIV__VV  {
+            encoding: 6'b100001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VDIV__VX  {
+            encoding: 6'b100001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100001, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VREMU__VV  {
+            encoding: 6'b100010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100010, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREMU__VX  {
+            encoding: 6'b100010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100010, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VREM__VV  {
+            encoding: 6'b100011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b100011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREM__VX  {
+            encoding: 6'b100011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b100011, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
     }
 }
