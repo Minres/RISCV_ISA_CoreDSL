@@ -2,9 +2,6 @@ import "RVVBase.core_desc"
 
 InstructionSet RVVBase_arith extends RVVBase {
     functions {
-        unsigned<1> illegal_normal(unsigned<5> vd, unsigned<1>vm) {
-            return !(valid_vtype()) || !(valid_rd_mask(vd, vm));
-        }
         extern void vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         extern void vector_vector_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
@@ -22,7 +19,6 @@ InstructionSet RVVBase_arith extends RVVBase {
         extern void mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_imm_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        
     }
     instructions{
         // 31.11.1. Vector Single-Width Integer Add and Subtract

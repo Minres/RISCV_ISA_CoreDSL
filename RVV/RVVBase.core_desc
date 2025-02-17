@@ -130,5 +130,8 @@ InstructionSet RVVBase extends Zicsr {
         unsigned<1> illegal_vd_masked(unsigned<5> vd) {
             return !(valid_vtype()) || vd == 0b00000;
         }
+        unsigned<1> illegal_normal(unsigned<5> vd, unsigned<1>vm) {
+            return !(valid_vtype()) || !(valid_rd_mask(vd, vm));
+        }
 }
 }
