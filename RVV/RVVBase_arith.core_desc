@@ -20,6 +20,8 @@ InstructionSet RVVBase_arith extends RVVBase {
         extern void vector_imm_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         extern void mask_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
+        extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         
     }
     instructions{
@@ -1295,5 +1297,159 @@ InstructionSet RVVBase_arith extends RVVBase {
         }
     
         // 31.11.14. Vector Widening Integer Multiply-Add Instructions
+        VWMACCU__VV  {
+            encoding: 6'b111100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: {
+                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0,2);
+                else {
+                    vector_vector_wv(V, 6'b111100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+            }
+        }
+        VWMACCU__VX  {
+            encoding: 6'b111100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                else {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0,2);
+                    else {
+                        vector_imm_wv(V, 6'b111100, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    }
+                }
+        }
+        VWMACC__VV  {
+            encoding: 6'b111101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: {
+                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0,2);
+                else {
+                    vector_vector_wv(V, 6'b111101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+            }
+        }
+        VWMACC__VX  {
+            encoding: 6'b111101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                else {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0,2);
+                    else {
+                        vector_imm_wv(V, 6'b111101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    }
+                }
+        }
+        VWMACCSU__VV  {
+            encoding: 6'b111111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: {
+                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0,2);
+                else {
+                    vector_vector_wv(V, 6'b111111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+            }
+        }
+        VWMACCSU__VX  {
+            encoding: 6'b111111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                else {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0,2);
+                    else {
+                        vector_imm_wv(V, 6'b111111, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    }
+                }
+        }
+        VWMACCUS__VX  {
+            encoding: 6'b111110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                else {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0,2);
+                    else {
+                        vector_imm_wv(V, 6'b111110, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    }
+                }
+        }
+    
+        // 31.11.15. Vector Integer Merge Instructions
+        VMERGE__VIM  {
+            encoding: 6'b010111 :: 1'b0 :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}";
+            behavior: if(illegal_vd_masked(vd)) raise(0, 2);
+                else {
+                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                    }
+        }
+        VMERGE__VVM  {
+            encoding: 6'b010111 :: 1'b0 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
+            behavior: if(illegal_vd_masked(vd)) raise(0, 2);
+                else {
+                        vector_vector_merge(V, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
+                    }
+        }
+        VMERGE__VXM  {
+            encoding: 6'b010111 :: 1'b0 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}";
+            behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, 2);
+                    else {
+                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    }
+        }
+
+        // 31.11.16. Vector Integer Move Instructions
+        VMV__V__I  {
+            encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {simm}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+                else {
+                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (signed<ELEN>)(signed<5>)simm, sew());
+                    }
+        }
+        VMV__V__V  {
+            encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs1)}";
+            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+                else {
+                        vector_vector_merge(V, vl, vstart, vtype, 1, vd, 0, vs1, sew());
+                    }
+        }
+        VMV__V__X  {
+            encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {name(rs1)}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                    else {
+                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    }
+        }
     }
 }
