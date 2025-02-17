@@ -1227,5 +1227,73 @@ InstructionSet RVVBase_arith extends RVVBase {
                     }
                 }
         }
+    
+        // 31.11.13. Vector Single-Width Integer Multiply-Add Instructions
+        VMACC__VV  {
+            encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b101101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMACC__VX  {
+            encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b101101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VNMSAC__VV  {
+            encoding: 6'b101111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b101111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VNMSAC__VX  {
+            encoding: 6'b101111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b101111, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMADD__VV  {
+            encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b101001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VMADD__VX  {
+            encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b101001, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VNMSUB__VV  {
+            encoding: 6'b101011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_vector_op(V, 6'b101011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VNMSUB__VX  {
+            encoding: 6'b101011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_imm_op(V, 6'b101011, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+    
+        // 31.11.14. Vector Widening Integer Multiply-Add Instructions
     }
 }
