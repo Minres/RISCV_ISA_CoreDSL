@@ -1,5 +1,11 @@
 import "RVVBase.core_desc"
-
+// This file does not include the following (Floating Point) Instructions:
+// vfredosum
+// vfredusum
+// vfredmax
+// vfredmin
+// vfwredosum
+// vfwredusum
 InstructionSet RVVBase_red extends RVVBase {
     functions {
         unsigned<1> illegal_reduction(){
@@ -9,6 +15,7 @@ InstructionSet RVVBase_red extends RVVBase {
             return illegal_reduction() || !valid_eew_emul(EEW, EMUL_pow);
         }
         extern void vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_red_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
     }
     instructions{
         // 31.14.1. Vector Single-Width Integer Reduction Instructions
@@ -74,6 +81,36 @@ InstructionSet RVVBase_red extends RVVBase {
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
                     vector_red_op(V, 6'b000011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+    
+        // 31.14.2. Vector Widening Integer Reduction Instructions
+        VWREDSUMU__VS  {
+            encoding: 6'b110000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                    else {
+                        vector_red_wv(V, 6'b110000, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    }
+                }
+        }
+        VWREDSUM__VS  {
+            encoding: 6'b110001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                    else {
+                        vector_red_wv(V, 6'b110001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    }
                 }
         }
     }
