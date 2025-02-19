@@ -18,6 +18,8 @@ InstructionSet RVVBase extends Zicsr {
         unsigned<32> VLENB_ADDR = 0xC22;
     
         unsigned<XLEN>& vstart = CSR[VSTART_ADDR];
+        unsigned<XLEN>& vxsat = CSR[VXSAT_ADDR];
+        unsigned<XLEN>& vxrm = CSR[VXRM_ADDR];
         unsigned<XLEN>& vl = CSR[VL_ADDR];
         unsigned<XLEN>& vtype = CSR[VTYPE_ADDR];
 
