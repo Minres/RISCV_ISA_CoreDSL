@@ -1,0 +1,80 @@
+import "RVVBase.core_desc"
+
+InstructionSet RVVBase_red extends RVVBase {
+    functions {
+        unsigned<1> illegal_reduction(){
+            return !valid_vtype() || vstart !=0;
+        }
+        unsigned<1> illegal_reduction_widen(unsigned<7> EEW, signed<4> EMUL_pow){
+            return illegal_reduction() || !valid_eew_emul(EEW, EMUL_pow);
+        }
+        extern void vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+    }
+    instructions{
+        // 31.14.1. Vector Single-Width Integer Reduction Instructions
+        VREDSUM__VS  {
+            encoding: 6'b000000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000000, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREDMAXU__VS  {
+            encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000110, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREDMAX__VS  {
+            encoding: 6'b000111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREDMINU__VS  {
+            encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREDMIN__VS  {
+            encoding: 6'b000101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREDAND__VS  {
+            encoding: 6'b000001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREDOR__VS  {
+            encoding: 6'b000010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000010, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+        VREDXOR__VS  {
+            encoding: 6'b000011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_reduction()) raise(0, 2);
+                else {
+                    vector_red_op(V, 6'b000011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                }
+        }
+    }
+}
