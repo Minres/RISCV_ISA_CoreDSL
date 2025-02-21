@@ -3,6 +3,11 @@ import "RVVBase.core_desc"
 InstructionSet RVVBase_mask extends RVVBase {
     functions {
         extern void mask_mask_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1);
+        extern unsigned<XLEN> vcpop(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<1> vm, unsigned<5> vs2);
+        extern unsigned<XLEN> vfirst(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<1> vm, unsigned<5> vs2);
+        extern void  mask_set_op(unsigned<VLEN> V[32], unsigned<5> enc, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2);
+        extern void viota(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_val);
+        extern void vid(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<3> sew_val);
     }
     instructions{
         // 31.15.1. Vector Mask-Register Logical Instructions
@@ -68,6 +73,76 @@ InstructionSet RVVBase_mask extends RVVBase {
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
                     mask_mask_op(V, 6'b011111, 3'b010, vl, vstart, vd, vs2, vs1);
+                }
+        }
+
+        // 31.15.2. Vector count population in mask vcpop.m
+        VCPOP__M  {
+            encoding: 6'b010000 :: vm[0:0] :: vs2[4:0] :: 5'b10000 :: 3'b010 :: rd[4:0] :: 7'b1010111;
+            assembly: "{name(rd)}, {vname(vs2)}, {vm},";
+            behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = vcpop(V, vl, vstart, vm, vs2);
+                    }
+        }
+
+        // 31.15.3. vfirst find-first-set mask bit
+        VFIRST__M  {
+            encoding: 6'b010000 :: vm[0:0] :: vs2[4:0] :: 5'b10001 :: 3'b010 :: rd[4:0] :: 7'b1010111;
+            assembly: "{name(rd)}, {vname(vs2)}, {vm},";
+            behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = vfirst(V, vl, vstart, vm, vs2);
+                    }
+        }
+
+        // 31.15.4. vmsbf.m set-before-first mask bit
+        VMSBF__M  {
+            encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b00001 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
+            behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
+                else {
+                    mask_set_op(V, 5'b00001, vl, vstart, vm, vd, vs2);
+                }
+        }
+
+        // 31.15.5. vmsif.m set-including-first mask bit
+        VMSIF__M  {
+            encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b00011 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
+            behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
+                else {
+                    mask_set_op(V, 5'b00011, vl, vstart, vm, vd, vs2);
+                }
+        }
+
+        // 31.15.6. vmsof.m set-only-first mask bit
+        VMSOF__M  {
+            encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b00010 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
+            behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
+                else {
+                    mask_set_op(V, 5'b00010, vl, vstart, vm, vd, vs2);
+                }
+        }
+    
+        // 31.15.8. Vector Iota Instruction
+        VIOTA__M  {
+            encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b10000 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {vname(vs2)}, {vm}";
+            behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
+                else {
+                    viota(V, vl, vstart, vtype, vm, vd, vs2, sew());
+                }
+        }
+
+        // 31.15.9. Vector Element Index Instruction
+        VID__V  {
+            encoding: 6'b010100 :: vm[0:0] :: 5'b00000 :: 5'b10001 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vm},";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+                else {
+                    vid(V, vl, vstart, vtype, vm, vd, sew());
                 }
         }
     }
