@@ -4,7 +4,7 @@ import "RVVBase.core_desc"
 InstructionSet RVVBase_perm extends RVVBase {
     functions {
         extern unsigned<XLEN> scalar_from_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, unsigned<3> sew_val);
-        extern unsigned<XLEN> scalar_to_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, signed<ELEN> val, unsigned<3> sew_val);
+        extern void scalar_to_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, signed<ELEN> val, unsigned<3> sew_val);
         extern void vector_slideup(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew_val);
         extern void vector_slidedown(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew_val);
         extern void vector_slide1up(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<XLEN> imm, unsigned<3> sew_val);
