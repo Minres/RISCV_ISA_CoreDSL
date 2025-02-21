@@ -12,6 +12,8 @@ InstructionSet RVVBase_perm extends RVVBase {
         extern void vector_vector_gather(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_vector_gatherei16(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_imm_gather(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew);        extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_compress(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_whole_move(unsigned<VLEN> V[32], unsigned<5> vd, unsigned<5> vs2, unsigned<4> count);
     }
     instructions{
 
@@ -115,6 +117,49 @@ InstructionSet RVVBase_perm extends RVVBase {
             behavior: if(illegal_normal(vd, vm) || vs1 == vd || vs2 == vd) raise(0, 2);
                 else {
                     vector_vector_gatherei16(V, vl, vstart, vtype, vm, vd, vs2, vs1,  sew());
+                }
+        }
+    
+        // 31.16.5. Vector Compress Instruction
+        VCOMPRESS__VM  {
+            encoding: 7'b0101111 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
+            behavior: if(vstart != 0 | vs1 == vd | vs2 == vd | illegal_vd_unmasked()) raise(0,2);
+                else {
+                    vector_compress(V, vl, vstart, vtype, vd, vs2, vs1,  sew());
+                }
+        }
+
+        // 31.16.6. Whole Vector Register Move
+        VMV1R__V  {
+            encoding: 7'b1001111 :: vs2[4:0] :: 5'b00000 :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}";
+            behavior: {
+                        vector_whole_move(V, vd, vs2, 1);
+                    }
+        }
+        VMV2R__V  {
+            encoding: 7'b1001111 :: vs2[4:0] :: 5'b00001 :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}";
+            behavior: if(vd % 2 || vs2 % 2) raise(0, 2); 
+                else {
+                    vector_whole_move(V, vd, vs2, 2);
+                }
+        }
+        VMV4R__V  {
+            encoding: 7'b1001111 :: vs2[4:0] :: 5'b00011 :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}";
+            behavior: if(vd % 4 || vs2 % 4) raise(0, 2); 
+                else {
+                    vector_whole_move(V, vd, vs2, 4);
+                }
+        }
+        VMV8R__V  {
+            encoding: 7'b1001111 :: vs2[4:0] :: 5'b00111 :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}";
+            behavior: if(vd % 8 || vs2 % 8) raise(0, 2); 
+                else {
+                    vector_whole_move(V, vd, vs2, 8);
                 }
         }
     }
