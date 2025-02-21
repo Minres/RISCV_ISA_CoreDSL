@@ -1,0 +1,84 @@
+import "RVVBase.core_desc"
+// This file does not include the Floating-Point Scalar Move Instructions and Floating-Point Slide Instructions
+
+InstructionSet RVVBase_perm extends RVVBase {
+    functions {
+        extern unsigned<XLEN> scalar_from_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, unsigned<3> sew_val);
+        extern unsigned<XLEN> scalar_to_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, signed<ELEN> val, unsigned<3> sew_val);
+        extern void vector_slideup(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew_val);
+        extern void vector_slidedown(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew_val);
+        extern void vector_slide1up(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<XLEN> imm, unsigned<3> sew_val);
+        extern void vector_slide1down(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<XLEN> imm, unsigned<3> sew_val);
+    }
+    instructions{
+
+        // 31.16.1. Integer Scalar Move Instructions
+        VMV__S__X  {
+            encoding: 12'b010000100000 :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: " {vname(vd)}, {name(rs1)}";
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else if(vstart<vl){
+                    scalar_to_vector(V, vtype, vd,(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VMV__X__S  {
+            encoding: 7'b0100001 :: vs2[4:0] :: 8'b00000010 :: rd[4:0] :: 7'b1010111;
+            assembly: "{name(rd)}, {vname(vs2)}";
+            behavior: if(rd >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else if(rd != 0){
+                    X[rd] = scalar_from_vector(V, vtype, vs2, sew());
+                }
+        }
+
+        // 31.16.3. Vector Slide Instructions
+        VSLIDEUP__VI  {
+            encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
+                else if(vstart<vl){
+                    vector_slideup(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm, sew());
+                }
+        }
+        VSLIDEUP__VX  {
+            encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
+                else if(vstart<vl){
+                    vector_slideup(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], sew());
+                }
+        }
+        VSLIDEDOWN__VI  {
+            encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_slidedown(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm, sew());
+                }
+        }
+        VSLIDEDOWN__VX  {
+            encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_slidedown(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], sew());
+
+                }
+        }
+        VSLIDE1UP__VX  {
+            encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
+                else if(vstart<vl){
+                    vector_slide1up(V, vl, vstart, vtype, vm, vd, vs2, (signed<XLEN>)X[rs1], sew());
+                }
+        }
+        VSLIDE1DOWN__VX  {
+            encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                else {
+                    vector_slide1down(V, vl, vstart, vtype, vm, vd, vs2, (signed<XLEN>)X[rs1], sew());
+                }
+        }
+    }
+}
