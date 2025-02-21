@@ -9,6 +9,9 @@ InstructionSet RVVBase_perm extends RVVBase {
         extern void vector_slidedown(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew_val);
         extern void vector_slide1up(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<XLEN> imm, unsigned<3> sew_val);
         extern void vector_slide1down(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<XLEN> imm, unsigned<3> sew_val);
+        extern void vector_vector_gather(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_vector_gatherei16(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_gather(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew);        extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
     }
     instructions{
 
@@ -78,6 +81,40 @@ InstructionSet RVVBase_perm extends RVVBase {
             behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
                 else {
                     vector_slide1down(V, vl, vstart, vtype, vm, vd, vs2, (signed<XLEN>)X[rs1], sew());
+                }
+        }
+
+        // 31.16.4. Vector Register Gather Instructions  
+        VRGATHER__VI  {
+            encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
+            behavior: if(illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
+                else {
+                    vector_imm_gather(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm,  sew());
+                }
+        }
+        VRGATHER__VV  {
+            encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm) || vs1 == vd || vs2 == vd) raise(0, 2);
+                else {
+                    vector_vector_gather(V, vl, vstart, vtype, vm, vd, vs2, vs1,  sew());
+                }
+        }
+        VRGATHER__VX  {
+            encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
+                else {
+                    vector_imm_gather(V, vl, vstart, vtype, vm, vd, vs2, X[rs1],  sew());
+                }
+        }
+        VRGATHEREI16__VV  {
+            encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
+            behavior: if(illegal_normal(vd, vm) || vs1 == vd || vs2 == vd) raise(0, 2);
+                else {
+                    vector_vector_gatherei16(V, vl, vstart, vtype, vm, vd, vs2, vs1,  sew());
                 }
         }
     }
