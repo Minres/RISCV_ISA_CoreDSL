@@ -67,7 +67,7 @@ InstructionSet RVF extends Zicsr {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
             assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
-                F[rd] = (unsigned<FLEN>)fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 0, get_rm((unsigned<3>)rm));
+                F[rd] = (unsigned<FLEN>)fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 0, get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -77,7 +77,7 @@ InstructionSet RVF extends Zicsr {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
             assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
-                unsigned<32> res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 0, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 0, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -88,7 +88,7 @@ InstructionSet RVF extends Zicsr {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
             assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
-                F[rd] = fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 1, get_rm((unsigned<3>)rm));
+                F[rd] = fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 1, get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -98,7 +98,7 @@ InstructionSet RVF extends Zicsr {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
             assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
-                unsigned<32> res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 1, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fmadd_s(unbox_s(F[rs1]), unbox_s(F[rs2]), unbox_s(F[rs3]), 1, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -109,7 +109,7 @@ InstructionSet RVF extends Zicsr {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
             assembly: "{name(rm)}, name(rd), {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
-                F[rd] = fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 2, get_rm((unsigned<3>)rm));
+                F[rd] = fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 2, get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -122,7 +122,7 @@ InstructionSet RVF extends Zicsr {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
                 unsigned<32> frs3 = unbox_s(F[rs3]);
-                unsigned<32> res = fmadd_s(frs1, frs2, frs3, 2, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fmadd_s(frs1, frs2, frs3, 2, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -133,7 +133,7 @@ InstructionSet RVF extends Zicsr {
             encoding: rs3[4:0] :: 2'b00 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
             assembly: "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}";
             behavior: {
-                F[rd] = fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 3, get_rm((unsigned<3>)rm));
+                F[rd] = fmadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], (unsigned<32>)F[rs3], 3, get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -146,7 +146,7 @@ InstructionSet RVF extends Zicsr {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
                 unsigned<32> frs3 = unbox_s(F[rs3]);
-                unsigned<32> res = fmadd_s(frs1, frs2, frs3, 3, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fmadd_s(frs1, frs2, frs3, 3, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -157,7 +157,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b0000000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fadd.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                F[rd] = fadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm((unsigned<3>)rm));
+                F[rd] = fadd_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -169,7 +169,7 @@ InstructionSet RVF extends Zicsr {
             behavior: {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
-                unsigned<32> res = fadd_s(frs1, frs2, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fadd_s(frs1, frs2, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -180,7 +180,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fsub.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                F[rd] = fsub_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm((unsigned<3>)rm));
+                F[rd] = fsub_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -192,7 +192,7 @@ InstructionSet RVF extends Zicsr {
             behavior: {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
-                unsigned<32> res = fsub_s(frs1, frs2, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fsub_s(frs1, frs2, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -203,7 +203,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b0001000 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fmul.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                F[rd] = fmul_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm((unsigned<3>)rm));
+                F[rd] = fmul_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -215,7 +215,7 @@ InstructionSet RVF extends Zicsr {
             behavior: {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
-                unsigned<32> res = fmul_s(frs1, frs2, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fmul_s(frs1, frs2, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -226,7 +226,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b0001100 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fdiv.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
-                F[rd] = fdiv_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm((unsigned<3>)rm));
+                F[rd] = fdiv_s((unsigned<32>)F[rs1], (unsigned<32>)F[rs2], get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -238,7 +238,7 @@ InstructionSet RVF extends Zicsr {
             behavior: {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 unsigned<32> frs2 = unbox_s(F[rs2]);
-                unsigned<32> res = fdiv_s(frs1, frs2, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fdiv_s(frs1, frs2, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -249,7 +249,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b0101100 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fsqrt.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
-                F[rd] = fsqrt_s((unsigned<32>)F[rs1], get_rm((unsigned<3>)rm));
+                F[rd] = fsqrt_s((unsigned<32>)F[rs1], get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -260,7 +260,7 @@ InstructionSet RVF extends Zicsr {
             assembly: {"fsqrt.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
-                unsigned<32> res = fsqrt_s(frs1, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fsqrt_s(frs1, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -413,7 +413,7 @@ InstructionSet RVF extends Zicsr {
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<32> frs1 = unbox_s(F[rs1]);
                 //explicit casting to ensure sign extension if XLEN > 32
-                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_s(frs1, 1, get_rm((unsigned<3>)rm));
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_s(frs1, 1, get_rm(rm));
                 if ((rd) != 0) X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -514,7 +514,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_s((unsigned<32>)X[rs1], 2, get_rm((unsigned<3>)rm));
+                F[rd] = fcvt_s((unsigned<32>)X[rs1], 2, get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -524,7 +524,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 2, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 2, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -535,7 +535,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_s((unsigned<32>)X[rs1], 3, get_rm((unsigned<3>)rm));
+                F[rd] = fcvt_s((unsigned<32>)X[rs1], 3, get_rm(rm));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -545,7 +545,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 3, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fcvt_s((unsigned<32>)X[rs1], 3, get_rm(rm));
                 F[rd] = (unsigned<FLEN>)((signed<64>)-1 << 32) | (unsigned<FLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
@@ -582,7 +582,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1100000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.l.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 0, get_rm((unsigned<3>)rm));
+                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 0, get_rm(rm));
                 if ((rd) != 0)
                 	X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
@@ -594,7 +594,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1100000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.lu.s", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 1, get_rm((unsigned<3>)rm));
+                unsigned<64> res = fcvt_32_64(unbox_s(F[rs1]), 1, get_rm(rm));
                 if ((rd) != 0)
                 	X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
@@ -606,7 +606,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_64_32(X[rs1], 2, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fcvt_64_32(X[rs1], 2, get_rm(rm));
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
@@ -621,7 +621,7 @@ InstructionSet RVF extends Zicsr {
             encoding: 7'b1101000 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<32> res = fcvt_64_32(X[rs1], 3, get_rm((unsigned<3>)rm));
+                unsigned<32> res = fcvt_64_32(X[rs1], 3, get_rm(rm));
                 if (FLEN == 32)
                     F[rd] = res;
                 else { // NaN boxing
