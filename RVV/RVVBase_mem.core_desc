@@ -16,8 +16,8 @@ InstructionSet RVVBase_mem extends RVVBase {
         extern unsigned<64> vsseg(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm,  unsigned<5> vd, unsigned<XLEN> rs1_val, unsigned<3> width, unsigned<4> nf);
         extern unsigned<64> vlsseg(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm,  unsigned<5> vd, unsigned<XLEN> rs1_val, unsigned<3> width, unsigned<4> nf, signed<XLEN> rs2_val);
         extern unsigned<64> vssseg(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm,  unsigned<5> vd, unsigned<XLEN> rs1_val, unsigned<3> width, unsigned<4> nf, signed<XLEN> rs2_val);
-        extern unsigned<64> vlxseg(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> rs1_val, unsigned<4> nf, unsigned<4> index_byte_size, unsigned<3> data_byte_size,  unsigned<1> ordered);
-        extern unsigned<64> vsxseg(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vs3, unsigned<5> vs2, unsigned<XLEN> rs1_val, unsigned<4> nf, unsigned<4> index_byte_size, unsigned<3> data_byte_size,  unsigned<1> ordered);
+        extern unsigned<64> vlxseg(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<XLEN> rs1_val, unsigned<5> vs2, unsigned<4> nf, unsigned<4> index_byte_size, unsigned<3> data_byte_size,  unsigned<1> ordered);
+        extern unsigned<64> vsxseg(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vs3, unsigned<XLEN> rs1_val, unsigned<5> vs2, unsigned<4> nf, unsigned<4> index_byte_size, unsigned<3> data_byte_size,  unsigned<1> ordered);
 
     }
     instructions{
@@ -188,7 +188,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_load(vd, vm, nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
                     else {
-                        vstart = (unsigned<XLEN>) vlxseg(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], nf_int, elem_size_bytes, sew(), 1);
+                        vstart = (unsigned<XLEN>) vlxseg(V, vl, vstart, vtype, vm, vd, X[rs1], vs2, nf_int, elem_size_bytes, sew(), 1);
                     }
                 }
         }
@@ -206,7 +206,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_store(nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
                     else {
-                        vstart = (unsigned<XLEN>) vsxseg(V, vl, vstart, vtype, vm, vs3, vs2, X[rs1], nf_int, elem_size_bytes, sew(), 1);
+                        vstart = (unsigned<XLEN>) vsxseg(V, vl, vstart, vtype, vm, vs3, X[rs1], vs2, nf_int, elem_size_bytes, sew(), 1);
                     }
                 }
         }
@@ -224,7 +224,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_load(vd, vm, nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
                     else {
-                        vstart = (unsigned<XLEN>) vlxseg(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], nf_int, elem_size_bytes, sew(), 0);
+                        vstart = (unsigned<XLEN>) vlxseg(V, vl, vstart, vtype, vm, vd,  X[rs1], vs2, nf_int, elem_size_bytes, sew(), 0);
                     }
                 }
         }
@@ -242,7 +242,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_store(nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
                     else {
-                        vstart = (unsigned<XLEN>) vsxseg(V, vl, vstart, vtype, vm, vs3, vs2, X[rs1], nf_int, elem_size_bytes, sew(), 0);
+                        vstart = (unsigned<XLEN>) vsxseg(V, vl, vstart, vtype, vm, vs3, X[rs1], vs2, nf_int, elem_size_bytes, sew(), 0);
                     }
                 }
         }
