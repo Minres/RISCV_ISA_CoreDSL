@@ -1,5 +1,4 @@
 import "RVVBase.core_desc"
-// This file does not include the Floating-Point Scalar Move Instructions and Floating-Point Slide Instructions
 
 InstructionSet RVVBase_perm extends RVVBase {
     functions {
@@ -161,6 +160,69 @@ InstructionSet RVVBase_perm extends RVVBase {
                 else {
                     vector_whole_move(V, vd, vs2, 8);
                 }
+        }
+    }
+}
+
+InstructionSet RVVBase_perm_fp extends RVVBase_perm {
+    functions {
+        extern unsigned<FLEN> fp_scalar_from_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, unsigned<3> sew_val);
+        extern void fp_vector_slide1up(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<FLEN> imm, unsigned<3> sew_val);
+        extern void fp_vector_slide1down(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<FLEN> imm, unsigned<3> sew_val);
+   
+    }
+    instructions {
+
+        // 31.16.2. Floating-Point Scalar Move Instructions
+        VFMV__S__F  {
+            encoding: 12'b010000100000 :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {fname(rs1)}";
+            behavior: {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                else if(vstart<vl) {
+                    scalar_to_vector(V, vtype, vd,(signed<ELEN>)(unsigned<ELEN>)F[rs1], sew());
+                }
+            }
+        }
+        VFMV__F__S  {
+            encoding: 7'b0100001 :: vs2[4:0] :: 8'b00000001 :: rd[4:0] :: 7'b1010111;
+            assembly: "{fname(rd)}, {vname(vs2)}";
+            behavior: {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_vd_unmasked(SEW, rm) || SEW > FLEN) raise(0, 2);
+                else{
+                    F[rd] = fp_scalar_from_vector(V, vtype, vs2, sew());
+                }
+            }
+        }
+
+        // 31.16.3. Vector Slide Instructions
+        VFSLIDE1UP__VF  {
+            encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
+            behavior:{
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                else if(vstart<vl) {
+                    fp_vector_slide1up(V, vl, vstart, vtype, vm, vd, vs2, F[rs1], sew());
+                }
+            }
+        }
+        VFSLIDE1DOWN__VF  {
+            encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
+            behavior:{
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                else if(vstart<vl) {
+                    fp_vector_slide1down(V, vl, vstart, vtype, vm, vd, vs2, F[rs1], sew());
+                }
+            }
         }
     }
 }
