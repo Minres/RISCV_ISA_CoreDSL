@@ -157,8 +157,6 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
                     fp_vector_red_op(V, 6'b000111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                 }
             }
         }
@@ -171,8 +169,6 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
                     fp_vector_red_op(V, 6'b000101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                 }
             }
         }
