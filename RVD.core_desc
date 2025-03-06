@@ -40,7 +40,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FMADD_D {
+        FMADD__D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
             assembly: {"fmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
@@ -50,7 +50,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FMSUB_D {
+        FMSUB__D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
             assembly: {"fmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
@@ -60,7 +60,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FNMADD_D {
+        FNMADD__D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
             assembly: {"fnmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
@@ -70,7 +70,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FNMSUB_D {
+        FNMSUB__D {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
             assembly: {"fnmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
             behavior: {
@@ -80,7 +80,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FADD_D {
+        FADD__D {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -90,7 +90,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FSUB_D {
+        FSUB__D {
             encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -100,7 +100,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FMUL_D {
+        FMUL__D {
             encoding: 7'b0001001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fmul.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -110,7 +110,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FDIV_D {
+        FDIV__D {
             encoding: 7'b0001101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fdiv.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -120,7 +120,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FSQRT_D {
+        FSQRT__D {
             encoding: 7'b0101101 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fsqrt.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: {
@@ -130,7 +130,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FSGNJ_D {
+        FSGNJ__D {
             encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fsgnj.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -138,7 +138,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FSGNJN_D {
+        FSGNJN__D {
             encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: {"fsgnjn.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -146,7 +146,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FSGNJX_D {
+        FSGNJX__D {
             encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
             assembly: {"fsgnjx.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -154,7 +154,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FMIN_D {
+        FMIN__D {
             encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fmin.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -164,7 +164,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FMAX_D {
+        FMAX__D {
             encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: {"fmax.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: {
@@ -174,18 +174,18 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_S_D {
+        FCVT__S__D {
             encoding: 7'b0100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.s.d", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
                 unsigned<32> res = fconv_d2f(F[rs1], get_rm(rm));
-                F[rd] = (unsigned<FLEN>)(((signed<64>)-1<<32) + res);
+                F[rd] = (unsigned<FLEN>)(((unsigned<FLEN>)-1<<32) + res);
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
 
-        FCVT_D_S {
+        FCVT__D__S {
             encoding: 7'b0100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
             behavior: {
@@ -193,7 +193,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FEQ_D {
+        FEQ__D {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
             assembly: {"feq.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -205,7 +205,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FLT_D {
+        FLT__D {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: {"flt.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -217,7 +217,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FLE_D {
+        FLE__D {
             encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fle.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -229,7 +229,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCLASS_D {
+        FCLASS__D {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
             assembly: {"flass.d", "{name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -238,7 +238,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_W_D {
+        FCVT__W__D {
             encoding: 7'b1100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.w.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -251,7 +251,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_WU_D {
+        FCVT__WU__D {
             encoding: 7'b1100001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.wu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -264,7 +264,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_D_W {
+        FCVT__D__W {
             encoding: 7'b1101001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -272,7 +272,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_D_WU {
+        FCVT__D__WU {
             encoding: 7'b1101001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -280,7 +280,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_L_D [[enable=XLEN==64]] {
+        FCVT__L__D [[enable=XLEN==64]] {
             encoding: 7'b1100001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.l.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -292,7 +292,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_LU_D [[enable=XLEN==64]] {
+        FCVT__LU__D [[enable=XLEN==64]] {
             encoding: 7'b1100001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.lu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -304,7 +304,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_D_L [[enable=XLEN==64]] {
+        FCVT__D__L [[enable=XLEN==64]] {
             encoding: 7'b1101001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -314,7 +314,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FCVT_D_LU [[enable=XLEN==64]] {
+        FCVT__D__LU [[enable=XLEN==64]] {
             encoding: 7'b1101001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: {"fcvt.d.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -324,7 +324,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FMV_X_D [[enable=XLEN==64]] {
+        FMV__X__D [[enable=XLEN==64]] {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fmv.x.d", "{name(rd)}, {fname(rs1)}"};
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -333,7 +333,7 @@ InstructionSet RVD extends RVF {
             }
         }
 
-        FMV_D_X [[enable=XLEN==64]] {
+        FMV__D__X [[enable=XLEN==64]] {
             encoding: 7'b1111001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: {"fmv.d.x", "{fname(rd)}, {name(rs1)}"};
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
