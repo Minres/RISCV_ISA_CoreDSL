@@ -1,5 +1,5 @@
-import "../RVI.core_desc"
-InstructionSet RVVBase extends Zicsr {
+import "../RVD.core_desc"
+InstructionSet RVVBase extends RVF {
 
     architectural_state {
         unsigned<32> VLEN;
@@ -9,6 +9,9 @@ InstructionSet RVVBase extends Zicsr {
         // __static_assert(ELEN>=8);
         unsigned<32> EEW_MAX = ELEN; //for profiles
         // __static_assert(EEW_MAX<=ELEN);
+        unsigned<32> FP_SEW_MIN = 32;
+        unsigned<32> FP_SEW_MAX = 64;
+
         unsigned<32> VSTART_ADDR = 0x008;
         unsigned<32> VXSAT_ADDR = 0x009;
         unsigned<32> VXRM_ADDR = 0x00A;
@@ -132,8 +135,19 @@ InstructionSet RVVBase extends Zicsr {
         unsigned<1> illegal_vd_masked(unsigned<5> vd) {
             return !(valid_vtype()) || vd == 0b00000;
         }
-        unsigned<1> illegal_normal(unsigned<5> vd, unsigned<1>vm) {
+        unsigned<1> illegal_normal(unsigned<5> vd, unsigned<1> vm) {
             return !(valid_vtype()) || !(valid_rd_mask(vd, vm));
+        }
+        unsigned<1> valid_fp_op(unsigned<8> SEW, unsigned<3> rm) {
+            bool valid_sew = (FP_SEW_MIN >= 32 & SEW <= FP_SEW_MAX);
+            bool valid_rm = !(rm == 0b101 | rm == 0b110 | rm == 0b111);
+            return valid_sew && valid_rm;
+        }
+        unsigned<1> illegal_fp_vd_unmasked(unsigned<8>SEW, unsigned<3> rm) {
+            return !(valid_vtype()) || !(valid_fp_op(SEW, rm));
+        }
+        unsigned<1> illegal_fp_normal(unsigned<5> vd, unsigned<1> vm, unsigned<8> SEW, unsigned<3> rm) {
+            return !(valid_vtype()) || !(valid_rd_mask(vd, vm)) || !(valid_fp_op(SEW, rm));
         }
 }
 }

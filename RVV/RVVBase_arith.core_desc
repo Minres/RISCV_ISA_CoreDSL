@@ -18,7 +18,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         extern void mask_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_imm_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
+        extern void vector_imm_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<ELEN> imm, unsigned<3> sew);
     }
     instructions{
         // 31.11.1. Vector Single-Width Integer Add and Subtract
@@ -1402,7 +1402,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}";
             behavior: if(illegal_vd_masked(vd)) raise(0, 2);
                 else {
-                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
+                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (unsigned<ELEN>)(signed<ELEN>)(signed<5>)simm, sew());
                     }
         }
         VMERGE__VVM  {
@@ -1418,7 +1418,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}";
             behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, 2);
                     else {
-                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (unsigned<ELEN>)(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                     }
         }
 
@@ -1428,7 +1428,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {simm}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (signed<ELEN>)(signed<5>)simm, sew());
+                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)(signed<ELEN>)(signed<5>)simm, sew());
                     }
         }
         VMV__V__V  {
@@ -1444,7 +1444,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {name(rs1)}";
             behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
                     else {
-                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
                     }
         }
     }
