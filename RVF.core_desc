@@ -50,7 +50,7 @@ InstructionSet RVF extends Zicsr {
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<32>)(X[rs1] + (signed<12>)imm);
                 unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
-                F[rd] = (unsigned<FLEN>)((signed<FLEN>)-1 << 32) | (unsigned<FLEN>)res;
+                F[rd] = (unsigned<FLEN>)((unsigned<FLEN>)-1 << 32) | (unsigned<FLEN>)res;
             }
         }
 
