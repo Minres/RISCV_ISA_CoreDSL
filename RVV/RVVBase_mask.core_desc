@@ -11,138 +11,161 @@ InstructionSet RVVBase_mask extends RVVBase {
     }
     instructions{
         // 31.15.1. Vector Mask-Register Logical Instructions
-        VMAND__MM  {
+        VMAND__MM {
             encoding: 6'b011001 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011001, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011001, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
-        VMNAND__MM  {
+        VMNAND__MM {
             encoding: 6'b011101 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011101, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011101, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
-        VMANDN__MM  {
+        VMANDN__MM {
             encoding: 6'b011000 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011000, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011000, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
-        VMXOR__MM  {
+        VMXOR__MM {
             encoding: 6'b011011 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011011, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011011, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
-        VMOR__MM  {
+        VMOR__MM {
             encoding: 6'b011010 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011010, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011010, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
-        VMNOR__MM  {
+        VMNOR__MM {
             encoding: 6'b011110 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011110, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011110, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
-        VMORN__MM  {
+        VMORN__MM {
             encoding: 6'b011100 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011100, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011100, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
-        VMXNOR__MM  {
+        VMXNOR__MM {
             encoding: 6'b011111 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(illegal_vd_unmasked()) raise(0, 2);
                 else {
-                    mask_mask_op(V, 6'b011111, 3'b010, vl, vstart, vd, vs2, vs1);
+                    if(vl > vstart)
+                        mask_mask_op(V, 6'b011111, 3'b010, vl, vstart, vd, vs2, vs1);
+                    vstart = 0;
                 }
         }
 
         // 31.15.2. Vector count population in mask vcpop.m
-        VCPOP__M  {
+        VCPOP__M {
             encoding: 6'b010000 :: vm[0:0] :: vs2[4:0] :: 5'b10000 :: 3'b010 :: rd[4:0] :: 7'b1010111;
             assembly: "{name(rd)}, {vname(vs2)}, {vm},";
             behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, 2);
-                    else if(rd != 0){
-                        X[rd] = vcpop(V, vl, vstart, vm, vs2);
-                    }
+                else if(rd != 0){
+                    X[rd] = vcpop(V, vl, vstart, vm, vs2);
+                    vstart = 0;
+                }
         }
 
         // 31.15.3. vfirst find-first-set mask bit
-        VFIRST__M  {
+        VFIRST__M {
             encoding: 6'b010000 :: vm[0:0] :: vs2[4:0] :: 5'b10001 :: 3'b010 :: rd[4:0] :: 7'b1010111;
             assembly: "{name(rd)}, {vname(vs2)}, {vm},";
             behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, 2);
-                    else if(rd != 0){
-                        X[rd] = vfirst(V, vl, vstart, vm, vs2);
-                    }
+                else if(rd != 0){
+                    X[rd] = vfirst(V, vl, vstart, vm, vs2);
+                    vstart = 0;
+                }
         }
 
         // 31.15.4. vmsbf.m set-before-first mask bit
-        VMSBF__M  {
+        VMSBF__M {
             encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b00001 :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
                 else {
                     mask_set_op(V, 5'b00001, vl, vstart, vm, vd, vs2);
+                    vstart = 0;
                 }
         }
 
         // 31.15.5. vmsif.m set-including-first mask bit
-        VMSIF__M  {
+        VMSIF__M {
             encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b00011 :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
                 else {
                     mask_set_op(V, 5'b00011, vl, vstart, vm, vd, vs2);
+                    vstart = 0;
                 }
         }
 
         // 31.15.6. vmsof.m set-only-first mask bit
-        VMSOF__M  {
+        VMSOF__M {
             encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b00010 :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
                 else {
                     mask_set_op(V, 5'b00010, vl, vstart, vm, vd, vs2);
+                    vstart = 0;
                 }
         }
     
         // 31.15.8. Vector Iota Instruction
-        VIOTA__M  {
+        VIOTA__M {
             encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: 5'b10000 :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {vm}";
             behavior: if(illegal_vd_unmasked() || vstart != 0 || vd == vs2 || (vm && vd == 0)) raise(0,2);
                 else {
                     viota(V, vl, vstart, vtype, vm, vd, vs2, sew());
+                    vstart = 0;
                 }
         }
 
         // 31.15.9. Vector Element Index Instruction
-        VID__V  {
+        VID__V {
             encoding: 6'b010100 :: vm[0:0] :: 5'b00000 :: 5'b10001 :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vm},";
             behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
                 else {
                     vid(V, vl, vstart, vtype, vm, vd, sew());
+                    vstart = 0;
                 }
         }
     }

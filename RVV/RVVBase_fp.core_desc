@@ -25,7 +25,7 @@ InstructionSet RVVBase_fp extends RVVBase {
     }
     instructions{
         // 31.13.2. Vector Single-Width Floating-Point Add/Subtract Instructions
-        VFADD__VF  {
+        VFADD__VF {
             encoding: 6'b000000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -33,13 +33,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b000000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b000000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFADD__VV  {
+        VFADD__VV {
             encoding: 6'b000000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -47,13 +50,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b000000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b000000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFSUB__VF  {
+        VFSUB__VF {
             encoding: 6'b000010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -61,13 +67,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b000010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b000010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFSUB__VV  {
+        VFSUB__VV {
             encoding: 6'b000010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -75,13 +84,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b000010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b000010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFRSUB__VF  {
+        VFRSUB__VF {
             encoding: 6'b100111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -89,15 +101,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b100111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b100111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.3. Vector Widening Floating-Point Add/Subtract Instructions
-        VFWADD__VF  {
+        VFWADD__VF {
             encoding: 6'b110000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -108,13 +123,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_wv(V, 6'b110000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_wv(V, 6'b110000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWADD__VV  {
+        VFWADD__VV {
             encoding: 6'b110000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -125,13 +143,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_wv(V, 6'b110000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_wv(V, 6'b110000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWSUB__VF  {
+        VFWSUB__VF {
             encoding: 6'b110010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -142,13 +163,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_wv(V, 6'b110010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_wv(V, 6'b110010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWSUB__VV  {
+        VFWSUB__VV {
             encoding: 6'b110010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -159,13 +183,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_wv(V, 6'b110010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_wv(V, 6'b110010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWADD__WF  {
+        VFWADD__WF {
             encoding: 6'b110100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -176,13 +203,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_ww(V, 6'b110100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_ww(V, 6'b110100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWADD__WV  {
+        VFWADD__WV {
             encoding: 6'b110100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -193,13 +223,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_ww(V, 6'b110100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_ww(V, 6'b110100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWSUB__WF  {
+        VFWSUB__WF {
             encoding: 6'b110110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -210,13 +243,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_ww(V, 6'b110110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_ww(V, 6'b110110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWSUB__WV  {
+        VFWSUB__WV {
             encoding: 6'b110110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -227,15 +263,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_ww(V, 6'b110110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_ww(V, 6'b110110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.4. Vector Single-Width Floating-Point Multiply/Divide Instructions
-        VFMUL__VF  {
+        VFMUL__VF {
             encoding: 6'b100100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -243,13 +282,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b100100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b100100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMUL__VV  {
+        VFMUL__VV {
             encoding: 6'b100100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
             behavior: {
@@ -257,13 +299,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b100100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b100100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFDIV__VF  {
+        VFDIV__VF {
             encoding: 6'b100000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -271,13 +316,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b100000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b100000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFDIV__VV  {
+        VFDIV__VV {
             encoding: 6'b100000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
             behavior: {
@@ -285,13 +333,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b100000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b100000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFRDIV__VF  {
+        VFRDIV__VF {
             encoding: 6'b100001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -299,15 +350,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b100001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b100001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.5. Vector Widening Floating-Point Multiply
-        VFWMUL__VF  {
+        VFWMUL__VF {
             encoding: 6'b111000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -318,13 +372,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_wv(V, 6'b111000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_wv(V, 6'b111000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWMUL__VV  {
+        VFWMUL__VV {
             encoding: 6'b111000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -335,15 +392,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_wv(V, 6'b111000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_wv(V, 6'b111000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions
-        VFMACC__VF  {
+        VFMACC__VF {
             encoding: 6'b101100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -351,13 +411,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMACC__VV  {
+        VFMACC__VV {
             encoding: 6'b101100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -365,13 +428,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFNMACC__VF  {
+        VFNMACC__VF {
             encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -379,13 +445,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101101, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101101, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }        
         }
-        VFNMACC__VV  {
+        VFNMACC__VV {
             encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -393,13 +462,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMSAC__VF  {
+        VFMSAC__VF {
             encoding: 6'b101110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -407,13 +479,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMSAC__VV  {
+        VFMSAC__VV {
             encoding: 6'b101110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -421,13 +496,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFNMSAC__VF  {
+        VFNMSAC__VF {
             encoding: 6'b101111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -435,13 +513,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFNMSAC__VV  {
+        VFNMSAC__VV {
             encoding: 6'b101111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -449,13 +530,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMADD__VF  {
+        VFMADD__VF {
             encoding: 6'b101000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -463,13 +547,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMADD__VV  {
+        VFMADD__VV {
             encoding: 6'b101000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -477,13 +564,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFNMADD__VF  {
+        VFNMADD__VF {
             encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -491,13 +581,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFNMADD__VV  {
+        VFNMADD__VV {
             encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -505,13 +598,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMSUB__VF  {
+        VFMSUB__VF {
             encoding: 6'b101010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -519,13 +615,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFMSUB__VV  {
+        VFMSUB__VV {
             encoding: 6'b101010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -533,13 +632,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFNMSUB__VF  {
+        VFNMSUB__VF {
             encoding: 6'b101011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -547,13 +649,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b101011, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_op(V, 6'b101011, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFNMSUB__VV  {
+        VFNMSUB__VV {
             encoding: 6'b101011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -561,15 +666,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b101011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_op(V, 6'b101011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.7. Vector Widening Floating-Point Fused Multiply-Add Instructions
-        VFWMACC__VF  {
+        VFWMACC__VF {
             encoding: 6'b111100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -580,13 +688,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_wv(V, 6'b111100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_wv(V, 6'b111100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWMACC__VV  {
+        VFWMACC__VV {
             encoding: 6'b111100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -597,13 +708,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_wv(V, 6'b111100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_wv(V, 6'b111100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWNMACC__VF  {
+        VFWNMACC__VF {
             encoding: 6'b111101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -614,13 +728,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_wv(V, 6'b111101, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_wv(V, 6'b111101, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWNMACC__VV  {
+        VFWNMACC__VV {
             encoding: 6'b111101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -631,13 +748,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_wv(V, 6'b111101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_wv(V, 6'b111101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWMSAC__VF  {
+        VFWMSAC__VF {
             encoding: 6'b111110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -648,13 +768,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_wv(V, 6'b111110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_wv(V, 6'b111110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWMSAC__VV  {
+        VFWMSAC__VV {
             encoding: 6'b111110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -665,13 +788,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_wv(V, 6'b111110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_wv(V, 6'b111110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWNMSAC__VF  {
+        VFWNMSAC__VF {
             encoding: 6'b111111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -682,13 +808,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_imm_wv(V, 6'b111111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_imm_wv(V, 6'b111111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWNMSAC__VV  {
+        VFWNMSAC__VV {
             encoding: 6'b111111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -699,15 +828,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
-                    fp_vector_vector_wv(V, 6'b111111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_vector_wv(V, 6'b111111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.8. Vector Floating-Point Square-Root Instruction
-        VFSQRT__V  {
+        VFSQRT__V {
             encoding: 6'b010011 :: vm[0:0] :: vs2[4:0] :: 5'b00000 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -715,15 +847,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010011, 5'b00000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_unary_op(V, 6'b010011, 5'b00000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
 
         // 31.13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction
-        VFRSQRT7__V  {
+        VFRSQRT7__V {
             encoding: 6'b010011 :: vm[0:0] :: vs2[4:0] :: 5'b00100 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -731,15 +866,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010011, 5'b00100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_unary_op(V, 6'b010011, 5'b00100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
 
         // 31.13.10. Vector Floating-Point Reciprocal Estimate Instruction
-        VFREC7__V  {
+        VFREC7__V {
             encoding: 6'b010011 :: vm[0:0] :: vs2[4:0] :: 5'b00101 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -747,15 +885,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010011, 5'b00101, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_unary_op(V, 6'b010011, 5'b00101, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
 
         // 31.13.11. Vector Floating-Point MIN/MAX Instructions
-        VFMIN__VF  {
+        VFMIN__VF {
             encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -763,11 +904,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b000100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    if(vl > vstart)
+                        fp_vector_imm_op(V, 6'b000100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFMIN__VV  {
+        VFMIN__VV {
             encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -775,11 +918,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b000100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_vector_op(V, 6'b000100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFMAX__VF  {
+        VFMAX__VF {
             encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
            behavior: {
@@ -787,11 +932,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b000110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    if(vl > vstart)
+                        fp_vector_imm_op(V, 6'b000110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFMAX__VV  {
+        VFMAX__VV {
             encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -799,13 +946,15 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b000110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_vector_op(V, 6'b000110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    vstart = 0;
                 }
             }
         }
 
         // 31.13.12. Vector Floating-Point Sign-Injection Instructions
-        VFSGNJ__VF  {
+        VFSGNJ__VF {
             encoding: 6'b001000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -813,11 +962,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b001000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    if(vl > vstart)
+                        fp_vector_imm_op(V, 6'b001000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFSGNJ__VV  {
+        VFSGNJ__VV {
             encoding: 6'b001000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -825,11 +976,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b001000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_vector_op(V, 6'b001000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFSGNJN__VF  {
+        VFSGNJN__VF {
             encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -837,11 +990,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b001001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    if(vl > vstart)
+                        fp_vector_imm_op(V, 6'b001001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFSGNJN__VV  {
+        VFSGNJN__VV {
             encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -849,11 +1004,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b001001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_vector_op(V, 6'b001001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFSGNJX__VF  {
+        VFSGNJX__VF {
             encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -861,11 +1018,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_imm_op(V, 6'b001010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    if(vl > vstart)
+                        fp_vector_imm_op(V, 6'b001010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFSGNJX__VV  {
+        VFSGNJX__VV {
             encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -873,14 +1032,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_vector_op(V, 6'b001010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_vector_op(V, 6'b001010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    vstart = 0;
                 }
             }
         }
 
 
         // 31.13.13. Vector Floating-Point Compare Instructions
-        VMFEQ__VF  {
+        VMFEQ__VF {
             encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -888,13 +1049,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_imm_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_imm_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFEQ__VV  {
+        VMFEQ__VV {
             encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -902,13 +1066,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_vector_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_vector_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFNE__VF  {
+        VMFNE__VF {
             encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -916,13 +1083,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_imm_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_imm_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFNE__VV  {
+        VMFNE__VV {
             encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -930,13 +1100,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_vector_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_vector_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFLT__VF  {
+        VMFLT__VF {
             encoding: 6'b011011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -944,13 +1117,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_imm_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_imm_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFLT__VV  {
+        VMFLT__VV {
             encoding: 6'b011011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -958,13 +1134,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_vector_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_vector_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFLE__VF  {
+        VMFLE__VF {
             encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -972,13 +1151,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_imm_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_imm_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFLE__VV  {
+        VMFLE__VV {
             encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -986,13 +1168,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_vector_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_vector_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFGT__VF  {
+        VMFGT__VF {
             encoding: 6'b011101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -1000,13 +1185,16 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_imm_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_imm_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VMFGE__VF  {
+        VMFGE__VF {
             encoding: 6'b011111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior: {
@@ -1014,15 +1202,18 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    mask_fp_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        mask_fp_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
 
         // 31.13.14. Vector Floating-Point Classify Instruction
-        VFCLASS__V  {
+        VFCLASS__V {
             encoding: 6'b010011 :: vm[0:0] :: vs2[4:0] :: 5'b10000 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -1030,13 +1221,15 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010011, 5'b10000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_unary_op(V, 6'b010011, 5'b10000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.15. Vector Floating-Point Merge Instruction
-        VFMERGE__VFM  {
+        VFMERGE__VFM {
             encoding: 6'b010111 :: 1'b0 :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}";
             behavior: {
@@ -1044,13 +1237,15 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_masked(vd, SEW, rm)) raise(0, 2);
                 else {
-                    vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, F[rs1], sew());
+                    if(vl > vstart)
+                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, F[rs1], sew());
+                    vstart = 0;
                 }
             }
         }
         
         // 31.13.16. Vector Floating-Point Move Instruction
-        VFMV__V__F  {
+        VFMV__V__F {
             encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {fname(rs1)}";
             behavior: {
@@ -1058,13 +1253,15 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
-                    vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, F[rs1], sew());
+                    if(vl > vstart)
+                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, F[rs1], sew());
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.17. Single-Width Floating-Point/Integer Type-Convert Instructions
-        VFCVT__XU__F__V  {
+        VFCVT__XU__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b00000 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -1072,11 +1269,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010010, 5'b00000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_unary_op(V, 6'b010010, 5'b00000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFCVT__X__F__V  {
+        VFCVT__X__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b00001 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -1084,11 +1283,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010010, 5'b00001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_unary_op(V, 6'b010010, 5'b00001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFCVT__RTZ__XU__F__V  {
+        VFCVT__RTZ__XU__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b00110 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -1096,11 +1297,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = 3'b001;
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010010, 5'b00110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_unary_op(V, 6'b010010, 5'b00110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFCVT__RTZ__X__F__V  {
+        VFCVT__RTZ__X__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b00111 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -1108,11 +1311,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = 3'b001;
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010010, 5'b00111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_unary_op(V, 6'b010010, 5'b00111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFCVT__F__XU__V  {
+        VFCVT__F__XU__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b00010 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -1120,11 +1325,13 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010010, 5'b00010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_unary_op(V, 6'b010010, 5'b00010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFCVT__F__X__V  {
+        VFCVT__F__X__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b00011 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
@@ -1132,237 +1339,269 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_unary_op(V, 6'b010010, 5'b00011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_unary_op(V, 6'b010010, 5'b00011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                    vstart = 0;
                 }
             }
         }
     
         // 31.13.18. Widening Floating-Point/Integer Type-Convert Instructions
-        VFWCVT__XU__F__V  {
+        VFWCVT__XU__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01000 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_w(V, 6'b010010, 5'b01000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFWCVT__X__F__V  {
+        VFWCVT__X__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01001 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_w(V, 6'b010010, 5'b01001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFWCVT__RTZ__XU__F__V  {
+        VFWCVT__RTZ__XU__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01110 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = 3'b001;
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = 3'b001;
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_w(V, 6'b010010, 5'b01110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFWCVT__RTZ__X__F__V  {
+        VFWCVT__RTZ__X__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01111 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = 3'b001;
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = 3'b001;
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_w(V, 6'b010010, 5'b01111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFWCVT__F__XU__V  {
+        VFWCVT__F__XU__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01010 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_w(V, 6'b010010, 5'b01010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFWCVT__F__X__V  {
+        VFWCVT__F__X__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01011 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_w(V, 6'b010010, 5'b01011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFWCVT__F__F__V  {
+        VFWCVT__F__F__V {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01100 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_w(V, 6'b010010, 5'b01100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
     
         // 31.13.19. Narrowing Floating-Point/Integer Type-Convert Instructions
-        VFNCVT__X__F__W  {
+        VFNCVT__X__F__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10001 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFNCVT__XU__F__W  {
+        VFNCVT__XU__F__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10000 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFNCVT__RTZ__XU__F__W  {
+        VFNCVT__RTZ__XU__F__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10110 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = 3'b001;
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = 3'b001;
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFNCVT__RTZ__X__F__W  {
+        VFNCVT__RTZ__X__F__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10111 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = 3'b001;
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = 3'b001;
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFNCVT__F__XU__W  {
+        VFNCVT__F__XU__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10010 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFNCVT__F__X__W  {
+        VFNCVT__F__X__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10011 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFNCVT__F__F__W  {
+        VFNCVT__F__F__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10100 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = FCSR[7:5];
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = FCSR[7:5];
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
-        VFNCVT__ROD__F__F__W  {
+        VFNCVT__ROD__F__F__W {
             encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b10101 :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    unsigned<3> rm = 3'b110;
-                    if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
-                    else {
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                unsigned<3> rm = 3'b110;
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                else {
+                    if(vl > vstart)
                         fp_vector_unary_n(V, 6'b010010, 5'b10101, vl, vstart, vtype, vm, vd, vs2, rm, sew());
-                    }
+                    vstart = 0;
+                }
             }
         }
     }

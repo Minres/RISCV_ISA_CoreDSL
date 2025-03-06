@@ -13,73 +13,89 @@ InstructionSet RVVBase_red extends RVVBase {
     }
     instructions {
         // 31.14.1. Vector Single-Width Integer Reduction Instructions
-        VREDSUM__VS  {
+        VREDSUM__VS {
             encoding: 6'b000000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000000, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000000, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
-        VREDMAXU__VS  {
+        VREDMAXU__VS {
             encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000110, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000110, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
-        VREDMAX__VS  {
+        VREDMAX__VS {
             encoding: 6'b000111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
-        VREDMINU__VS  {
+        VREDMINU__VS {
             encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
-        VREDMIN__VS  {
+        VREDMIN__VS {
             encoding: 6'b000101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
-        VREDAND__VS  {
+        VREDAND__VS {
             encoding: 6'b000001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
-        VREDOR__VS  {
+        VREDOR__VS {
             encoding: 6'b000010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000010, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000010, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
-        VREDXOR__VS  {
+        VREDXOR__VS {
             encoding: 6'b000011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_reduction()) raise(0, 2);
                 else {
-                    vector_red_op(V, 6'b000011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    if(vl > vstart)
+                        vector_red_op(V, 6'b000011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
                 }
         }
     
         // 31.14.2. Vector Widening Integer Reduction Instructions
-        VWREDSUMU__VS  {
+        VWREDSUMU__VS {
             encoding: 6'b110000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -89,11 +105,13 @@ InstructionSet RVVBase_red extends RVVBase {
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, 2);
                     else {
-                        vector_red_wv(V, 6'b110000, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                        if(vl > vstart)
+                            vector_red_wv(V, 6'b110000, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                        vstart = 0;
                     }
                 }
         }
-        VWREDSUM__VS  {
+        VWREDSUM__VS {
             encoding: 6'b110001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -103,7 +121,9 @@ InstructionSet RVVBase_red extends RVVBase {
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, 2);
                     else {
-                        vector_red_wv(V, 6'b110001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                        if(vl > vstart)
+                            vector_red_wv(V, 6'b110001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                        vstart = 0;
                     }
                 }
         }
@@ -120,7 +140,7 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
     
     }
     instructions {
-        VFREDOSUM__VS  {
+        VFREDOSUM__VS {
             encoding: 6'b000011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -128,13 +148,16 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_red_op(V, 6'b000011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_red_op(V, 6'b000011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFREDUSUM__VS  {
+        VFREDUSUM__VS {
             encoding: 6'b000001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -142,13 +165,16 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_red_op(V, 6'b000001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_red_op(V, 6'b000001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFREDMAX__VS  {
+        VFREDMAX__VS {
             encoding: 6'b000111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -156,11 +182,13 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_red_op(V, 6'b000111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_red_op(V, 6'b000111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFREDMIN__VS  {
+        VFREDMIN__VS {
             encoding: 6'b000101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -168,11 +196,13 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_red_op(V, 6'b000101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    if(vl > vstart)
+                        fp_vector_red_op(V, 6'b000101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                    vstart = 0;
                 }
             }
         }
-        VFWREDOSUM__VS  {
+        VFWREDOSUM__VS {
             encoding: 6'b110011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -180,13 +210,16 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_red_wv(V, 6'b110011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_red_wv(V, 6'b110011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }
-        VFWREDUSUM__VS  {
+        VFWREDUSUM__VS {
             encoding: 6'b110001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b001 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
@@ -194,9 +227,12 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_reduction(SEW, rm)) raise(0, 2);
                 else {
-                    fp_vector_red_wv(V, 6'b110001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
-                    unsigned<32> flags = fget_flags();
-                    FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    if(vl > vstart){
+                        fp_vector_red_wv(V, 6'b110001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
+                        unsigned<32> flags = fget_flags();
+                        FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+                    }
+                    vstart = 0;
                 }
             }
         }

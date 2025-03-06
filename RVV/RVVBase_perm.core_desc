@@ -17,127 +17,150 @@ InstructionSet RVVBase_perm extends RVVBase {
     instructions{
 
         // 31.16.1. Integer Scalar Move Instructions
-        VMV__S__X  {
+        VMV__S__X {
             encoding: 12'b010000100000 :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {name(rs1)}";
             behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
-                else if(vstart<vl){
-                    scalar_to_vector(V, vtype, vd,(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                else {
+                    if(vl > vstart)
+                        scalar_to_vector(V, vtype, vd,(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    vstart = 0;
                 }
         }
-        VMV__X__S  {
+        VMV__X__S {
             encoding: 7'b0100001 :: vs2[4:0] :: 8'b00000010 :: rd[4:0] :: 7'b1010111;
             assembly: "{name(rd)}, {vname(vs2)}";
-            behavior: if(rd >=RFS || illegal_vd_unmasked()) raise(0, 2);
-                else if(rd != 0){
-                    X[rd] = scalar_from_vector(V, vtype, vs2, sew());
+            behavior: {
+                if(rd >=RFS || illegal_vd_unmasked()) raise(0, 2);
+                else {
+                    if(rd != 0)
+                        X[rd] = scalar_from_vector(V, vtype, vs2, sew());
+                    vstart = 0;
                 }
+            }
         }
 
         // 31.16.3. Vector Slide Instructions
-        VSLIDEUP__VI  {
+        VSLIDEUP__VI {
             encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
             behavior: if(illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
-                else if(vstart<vl){
-                    vector_slideup(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm, sew());
+                else {
+                    if(vl > vstart)
+                        vector_slideup(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm, sew());
+                    vstart = 0;
                 }
         }
-        VSLIDEUP__VX  {
+        VSLIDEUP__VX {
             encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS || illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
-                else if(vstart<vl){
-                    vector_slideup(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], sew());
+                else {
+                    if(vl > vstart)
+                        vector_slideup(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], sew());
+                    vstart = 0;
                 }
         }
-        VSLIDEDOWN__VI  {
+        VSLIDEDOWN__VI {
             encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
             behavior: if(illegal_normal(vd, vm)) raise(0, 2);
                 else {
-                    vector_slidedown(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm, sew());
+                    if(vl > vstart)
+                        vector_slidedown(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm, sew());
+                    vstart = 0;
                 }
         }
-        VSLIDEDOWN__VX  {
+        VSLIDEDOWN__VX {
             encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
                 else {
-                    vector_slidedown(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], sew());
-
+                    if(vl > vstart)
+                        vector_slidedown(V, vl, vstart, vtype, vm, vd, vs2, X[rs1], sew());
+                    vstart = 0;
                 }
         }
-        VSLIDE1UP__VX  {
+        VSLIDE1UP__VX {
             encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS || illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
-                else if(vstart<vl){
-                    vector_slide1up(V, vl, vstart, vtype, vm, vd, vs2, (signed<XLEN>)X[rs1], sew());
+                else {
+                    if(vl > vstart)
+                        vector_slide1up(V, vl, vstart, vtype, vm, vd, vs2, (signed<XLEN>)X[rs1], sew());
+                    vstart = 0;
                 }
         }
-        VSLIDE1DOWN__VX  {
+        VSLIDE1DOWN__VX {
             encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
                 else {
-                    vector_slide1down(V, vl, vstart, vtype, vm, vd, vs2, (signed<XLEN>)X[rs1], sew());
+                    if(vl > vstart)
+                        vector_slide1down(V, vl, vstart, vtype, vm, vd, vs2, (signed<XLEN>)X[rs1], sew());
+                    vstart = 0;
                 }
         }
 
         // 31.16.4. Vector Register Gather Instructions  
-        VRGATHER__VI  {
+        VRGATHER__VI {
             encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
             behavior: if(illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
                 else {
                     vector_imm_gather(V, vl, vstart, vtype, vm, vd, vs2, (unsigned<XLEN>)simm,  sew());
+                    vstart = 0;
                 }
         }
-        VRGATHER__VV  {
+        VRGATHER__VV {
             encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_normal(vd, vm) || vs1 == vd || vs2 == vd) raise(0, 2);
                 else {
                     vector_vector_gather(V, vl, vstart, vtype, vm, vd, vs2, vs1,  sew());
+                    vstart = 0;
                 }
         }
-        VRGATHER__VX  {
+        VRGATHER__VX {
             encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS || illegal_normal(vd, vm) || vs2 == vd) raise(0, 2);
                 else {
                     vector_imm_gather(V, vl, vstart, vtype, vm, vd, vs2, X[rs1],  sew());
+                    vstart = 0;
                 }
         }
-        VRGATHEREI16__VV  {
+        VRGATHEREI16__VV {
             encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: if(illegal_normal(vd, vm) || vs1 == vd || vs2 == vd) raise(0, 2);
                 else {
                     vector_vector_gatherei16(V, vl, vstart, vtype, vm, vd, vs2, vs1,  sew());
+                    vstart = 0;
                 }
         }
     
         // 31.16.5. Vector Compress Instruction
-        VCOMPRESS__VM  {
+        VCOMPRESS__VM {
             encoding: 7'b0101111 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
             behavior: if(vstart != 0 | vs1 == vd | vs2 == vd | illegal_vd_unmasked()) raise(0,2);
                 else {
-                    vector_compress(V, vl, vstart, vtype, vd, vs2, vs1,  sew());
+                    if(vl > vstart)
+                        vector_compress(V, vl, vstart, vtype, vd, vs2, vs1,  sew());
+                    vstart = 0;
                 }
         }
 
         // 31.16.6. Whole Vector Register Move
-        VMV1R__V  {
+        VMV1R__V {
             encoding: 7'b1001111 :: vs2[4:0] :: 5'b00000 :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}";
             behavior: {
                         vector_whole_move(V, vd, vs2, 1);
                     }
         }
-        VMV2R__V  {
+        VMV2R__V {
             encoding: 7'b1001111 :: vs2[4:0] :: 5'b00001 :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}";
             behavior: if(vd % 2 || vs2 % 2) raise(0, 2); 
@@ -145,7 +168,7 @@ InstructionSet RVVBase_perm extends RVVBase {
                     vector_whole_move(V, vd, vs2, 2);
                 }
         }
-        VMV4R__V  {
+        VMV4R__V {
             encoding: 7'b1001111 :: vs2[4:0] :: 5'b00011 :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}";
             behavior: if(vd % 4 || vs2 % 4) raise(0, 2); 
@@ -153,7 +176,7 @@ InstructionSet RVVBase_perm extends RVVBase {
                     vector_whole_move(V, vd, vs2, 4);
                 }
         }
-        VMV8R__V  {
+        VMV8R__V {
             encoding: 7'b1001111 :: vs2[4:0] :: 5'b00111 :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}";
             behavior: if(vd % 8 || vs2 % 8) raise(0, 2); 
@@ -174,19 +197,21 @@ InstructionSet RVVBase_perm_fp extends RVVBase_perm {
     instructions {
 
         // 31.16.2. Floating-Point Scalar Move Instructions
-        VFMV__S__F  {
+        VFMV__S__F {
             encoding: 12'b010000100000 :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {fname(rs1)}";
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
-                else if(vstart<vl) {
-                    scalar_to_vector(V, vtype, vd,(signed<ELEN>)(unsigned<ELEN>)F[rs1], sew());
+                else  
+                if(vl > vstart){
+                        scalar_to_vector(V, vtype, vd,(signed<ELEN>)(unsigned<ELEN>)F[rs1], sew());
+                    vstart = 0;
                 }
             }
         }
-        VFMV__F__S  {
+        VFMV__F__S {
             encoding: 7'b0100001 :: vs2[4:0] :: 8'b00000001 :: rd[4:0] :: 7'b1010111;
             assembly: "{fname(rd)}, {vname(vs2)}";
             behavior: {
@@ -195,32 +220,37 @@ InstructionSet RVVBase_perm_fp extends RVVBase_perm {
                 if(illegal_fp_vd_unmasked(SEW, rm) || SEW > FLEN) raise(0, 2);
                 else{
                     F[rd] = fp_scalar_from_vector(V, vtype, vs2, sew());
+                    vstart = 0;
                 }
             }
         }
 
         // 31.16.3. Vector Slide Instructions
-        VFSLIDE1UP__VF  {
+        VFSLIDE1UP__VF {
             encoding: 6'b001110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior:{
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
-                else if(vstart<vl) {
-                    fp_vector_slide1up(V, vl, vstart, vtype, vm, vd, vs2, F[rs1], sew());
+                else {
+                    if(vl > vstart)
+                        fp_vector_slide1up(V, vl, vstart, vtype, vm, vd, vs2, F[rs1], sew());
+                    vstart = 0;
                 }
             }
         }
-        VFSLIDE1DOWN__VF  {
+        VFSLIDE1DOWN__VF {
             encoding: 6'b001111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b101 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {fname(rs1)}, {vm}";
             behavior:{
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
-                else if(vstart<vl) {
-                    fp_vector_slide1down(V, vl, vstart, vtype, vm, vd, vs2, F[rs1], sew());
+                else {
+                    if(vl > vstart)
+                        fp_vector_slide1down(V, vl, vstart, vtype, vm, vd, vs2, F[rs1], sew());
+                    vstart = 0;
                 }
             }
         }

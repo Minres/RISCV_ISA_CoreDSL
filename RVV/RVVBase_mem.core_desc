@@ -34,7 +34,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_load(vd, vm, nf_int, EEW, EMUL_pow)) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>)vlseg(V, vl, vstart, vtype, vm, vd, X[rs1], width, nf_int);
                     }
                 }
@@ -53,7 +53,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_store(nf_int, EEW, EMUL_pow)) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>)vsseg(V, vl, vstart, vtype, vm, vs3, X[rs1], width, nf_int);
                     }
                 }
@@ -71,7 +71,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_load(vd, vm, nf_int, EEW, EMUL_pow)) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>)vlsseg(V, vl, vstart, vtype, vm, vd, X[rs1], width, nf_int, (signed)X[rs2]);
                     }
                 }
@@ -89,7 +89,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_store(nf_int, EEW, EMUL_pow)) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>)vssseg(V, vl, vstart, vtype, vm, vs3, X[rs1], width, nf_int, (signed)X[rs2]);
                     }
                 }
@@ -143,7 +143,6 @@ InstructionSet RVVBase_mem extends RVVBase {
         // Vector Load Unit-Stride Whole Register (vm=0b1, mop=0b00, lumop=0b01000)
         VLRE {
             encoding: nf[2:0] :: mew[0:0] :: 2'b00 :: 1 :: 5'b01000 :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
-            // assembly also needs to encodes width and register count
             assembly: "{vname(vd)}, ({name(rs1)})";
             behavior: if(rs1 >=RFS) raise(0, 2);
                 else {
@@ -153,7 +152,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     // The instructions operate with an effective vector length, evl=NFIELDS*VLEN/EEW, regardless of current settings in vtype and vl
                     unsigned<XLEN> evl = (unsigned<XLEN>)(nf_int * VLEN/EEW);
                     if(!(nf_int == 1 || nf_int == 2 || nf_int == 4 || nf_int == 8) || vd % nf_int) raise(0,2);
-                    else {
+                    else if(evl > vstart){
                         vstart = (unsigned<XLEN>)vlseg(V, evl, vstart, vtype, 1, vd, X[rs1], width, 1);
                     }
                 }
@@ -161,7 +160,6 @@ InstructionSet RVVBase_mem extends RVVBase {
         // Vector Store Unit-Stride Whole Register (mew=0b0, vm=0b1, mop=0b00, lumop=0b01000) 
         VSRE {
             encoding: nf[2:0] :: 9'b000101000 :: rs1[4:0] :: 3'b000 :: vs3[4:0] :: 7'b0100111;
-            // assembly also needs to encodes width and register count
             assembly: "{vname(vs3)}, ({name(rs1)})";
             behavior: if(rs1 >=RFS) raise(0, 2);
                 else {
@@ -169,14 +167,13 @@ InstructionSet RVVBase_mem extends RVVBase {
                     // The instructions operate with an effective vector length, evl=NFIELDS*VLEN/8, regardless of current settings in vtype and vl
                     unsigned<XLEN> evl = (unsigned<XLEN>)(nf_int * VLEN/8);
                     if(!(nf_int == 1 || nf_int == 2 || nf_int == 4 || nf_int == 8) || vs3 % nf_int) raise(0,2);
-                    else {
+                    else if(evl > vstart){
                         vstart = (unsigned<XLEN>)vsseg(V, evl, vstart, vtype, 1, vs3, X[rs1], 3'b000, 1);
                     }
                 }
         }
         // Vector Load Indexed Ordered Normal & Segment (mop=0b11)
         VLOXSEG {
-            //
             encoding: nf[2:0] :: mew[0:0] :: 2'b11 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             assembly: "{vname(vd)}, ({name(rs1)}), {vname(vs2)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, 2);
@@ -187,14 +184,13 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_load(vd, vm, nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>) vlxseg(V, vl, vstart, vtype, vm, vd, X[rs1], vs2, nf_int, elem_size_bytes, sew(), 1);
                     }
                 }
         }
         // Vector Store Indexed Ordered Normal & Segment (mop=0b11)
         VSOXSEG {
-            //
             encoding: nf[2:0] :: mew[0:0] :: 2'b11 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vs3[4:0] :: 7'b0100111;
             assembly: "{vname(vs3)}, ({name(rs1)}), {vname(vs2)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, 2);
@@ -205,14 +201,13 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_store(nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>) vsxseg(V, vl, vstart, vtype, vm, vs3, X[rs1], vs2, nf_int, elem_size_bytes, sew(), 1);
                     }
                 }
         }
         // Vector Load Indexed Unordered Normal & Segment (mop=0b01)
         VLUXSEG {
-            //
             encoding: nf[2:0] :: mew[0:0] :: 2'b01 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             assembly: "{vname(vd)}, ({name(rs1)}), {vname(vs2)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, 2);
@@ -223,14 +218,13 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_load(vd, vm, nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>) vlxseg(V, vl, vstart, vtype, vm, vd,  X[rs1], vs2, nf_int, elem_size_bytes, sew(), 0);
                     }
                 }
         }
         // Vector Store Indexed Unordered Normal & Segment (mop=0b01)
         VSUXSEG {
-            //
             encoding: nf[2:0] :: mew[0:0] :: 2'b01 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vs3[4:0] :: 7'b0100111;
             assembly: "{vname(vs3)}, ({name(rs1)}), {vname(vs2)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, 2);
@@ -241,7 +235,7 @@ InstructionSet RVVBase_mem extends RVVBase {
                     signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
                     unsigned<4> nf_int = nf+1;
                     if(illegal_indexed_store(nf_int, EEW, EMUL_pow, get_lmul_pow())) raise(0,2);
-                    else {
+                    else if(vl > vstart){
                         vstart = (unsigned<XLEN>) vsxseg(V, vl, vstart, vtype, vm, vs3, X[rs1], vs2, nf_int, elem_size_bytes, sew(), 0);
                     }
                 }
