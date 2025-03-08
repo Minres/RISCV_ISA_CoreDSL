@@ -1,5 +1,5 @@
 import "../RVD.core_desc"
-InstructionSet RVVBase extends RVF {
+InstructionSet RVVBase extends RVD {
 
     architectural_state {
         unsigned<32> VLEN;

@@ -1050,7 +1050,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart){
-                        mask_fp_vector_imm_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        mask_fp_vector_imm_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
                         unsigned<32> flags = fget_flags();
                         FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                     }
@@ -1084,7 +1084,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart){
-                        mask_fp_vector_imm_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        mask_fp_vector_imm_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
                         unsigned<32> flags = fget_flags();
                         FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                     }
@@ -1118,7 +1118,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart){
-                        mask_fp_vector_imm_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        mask_fp_vector_imm_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
                         unsigned<32> flags = fget_flags();
                         FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                     }
@@ -1152,7 +1152,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart){
-                        mask_fp_vector_imm_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        mask_fp_vector_imm_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
                         unsigned<32> flags = fget_flags();
                         FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                     }
@@ -1186,7 +1186,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart){
-                        mask_fp_vector_imm_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        mask_fp_vector_imm_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
                         unsigned<32> flags = fget_flags();
                         FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                     }
@@ -1203,7 +1203,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart){
-                        mask_fp_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, F[rs1], rm, sew());
+                        mask_fp_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
                         unsigned<32> flags = fget_flags();
                         FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
                     }
@@ -1238,7 +1238,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_masked(vd, SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, F[rs1], sew());
+                        vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (unsigned<ELEN>)F[rs1], sew());
                     vstart = 0;
                 }
             }
@@ -1254,7 +1254,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, F[rs1], sew());
+                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)F[rs1], sew());
                     vstart = 0;
                 }
             }
@@ -1595,11 +1595,11 @@ InstructionSet RVVBase_fp extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                unsigned<3> rm = 3'b110;
+                unsigned<3> rm = FCSR[7:5];
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10101, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 6'b010010, 5'b10101, vl, vstart, vtype, vm, vd, vs2, 3'b110, sew());
                     vstart = 0;
                 }
             }
