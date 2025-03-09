@@ -13,8 +13,8 @@ InstructionSet RVVBase_fp extends RVVBase {
         extern void mask_fp_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<ELEN> imm, unsigned<3> rm, unsigned<3> sew);
         // same function as in RVVBase_arith.core_desc
         extern void vector_imm_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<ELEN> imm, unsigned<3> sew);
-        extern void fp_vector_unary_w(unsigned<VLEN> V[32], unsigned<6> encoding_space, unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> rm, unsigned<3> sew);
-        extern void fp_vector_unary_n(unsigned<VLEN> V[32], unsigned<6> encoding_space, unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> rm, unsigned<3> sew);
+        extern void fp_vector_unary_w(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> rm, unsigned<3> sew);
+        extern void fp_vector_unary_n(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> rm, unsigned<3> sew);
 
         unsigned<1> illegal_fp_variable_width(unsigned<5> vd, unsigned<1>vm, unsigned<8> SEW, unsigned<3> rm,  unsigned<7> SEW_new, signed<4> LMUL_pow_new) {
             return !(valid_vtype()) || !(valid_rd_mask(vd, vm)) || !(valid_fp_op(SEW, rm)) || !(valid_eew_emul(SEW_new, LMUL_pow_new));
@@ -1359,7 +1359,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_w(V, 6'b010010, 5'b01000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_w(V, 5'b01000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1376,7 +1376,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_w(V, 6'b010010, 5'b01001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_w(V, 5'b01001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1393,7 +1393,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_w(V, 6'b010010, 5'b01110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_w(V, 5'b01110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1410,7 +1410,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_w(V, 6'b010010, 5'b01111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_w(V, 5'b01111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1427,7 +1427,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_w(V, 6'b010010, 5'b01010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_w(V, 5'b01010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1444,7 +1444,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_w(V, 6'b010010, 5'b01011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_w(V, 5'b01011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1461,7 +1461,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_w(V, 6'b010010, 5'b01100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_w(V, 5'b01100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1480,7 +1480,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 5'b10001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1497,7 +1497,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 5'b10000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1514,7 +1514,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 5'b10110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1531,7 +1531,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 5'b10111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1548,7 +1548,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 5'b10010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1565,7 +1565,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 5'b10011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1582,7 +1582,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
+                        fp_vector_unary_n(V, 5'b10100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
                     vstart = 0;
                 }
             }
@@ -1599,7 +1599,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        fp_vector_unary_n(V, 6'b010010, 5'b10101, vl, vstart, vtype, vm, vd, vs2, 3'b110, sew());
+                        fp_vector_unary_n(V, 5'b10101, vl, vstart, vtype, vm, vd, vs2, 3'b110, sew());
                     vstart = 0;
                 }
             }
