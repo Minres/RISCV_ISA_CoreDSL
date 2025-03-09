@@ -9,8 +9,8 @@ InstructionSet RVVBase_arith extends RVVBase {
         extern void vector_vector_ww(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_imm_ww(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         extern void vector_extend(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_pow, unsigned<2> enc);
-        extern void vector_vector_m(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew, unsigned<2> enc);
-        extern void vector_imm_m(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew, unsigned<2> enc);
+        extern void vector_vector_carry(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew, signed<2> val);
+        extern void vector_imm_carry(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew, signed<2> val);
         extern void carry_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void carry_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
         extern void vector_vector_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
@@ -484,7 +484,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             behavior: if(illegal_vd_masked(vd)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        vector_vector_m(V, 6'b010000, 3'b000, vl, vstart, vtype, vd, vs2, vs1, sew(), 1);
+                        vector_vector_carry(V, 6'b010000, 3'b000, vl, vstart, vtype, vd, vs2, vs1, sew(), 1);
                     vstart = 0;
                 }
         }
@@ -494,7 +494,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        vector_imm_m(V, 6'b010000, 3'b100, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew(), 1);
+                        vector_imm_carry(V, 6'b010000, 3'b100, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew(), 1);
                     vstart = 0;
                 }
         }
@@ -504,7 +504,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             behavior: if(illegal_vd_unmasked())raise(0, 2);
                 else {
                     if(vl > vstart)
-                        vector_imm_m(V, 6'b010000, 3'b011, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew(), 1);
+                        vector_imm_carry(V, 6'b010000, 3'b011, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew(), 1);
                     vstart = 0;
                 }
         }
@@ -574,7 +574,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             behavior: if(illegal_vd_masked(vd)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        vector_vector_m(V, 6'b010010, 3'b000, vl, vstart, vtype, vd, vs2, vs1, sew(), 2);
+                        vector_vector_carry(V, 6'b010010, 3'b000, vl, vstart, vtype, vd, vs2, vs1, sew(), -1);
                     vstart = 0;
                 }
         }
@@ -584,7 +584,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, 2);
                 else {
                     if(vl > vstart)
-                        vector_imm_m(V, 6'b010010, 3'b100, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew(), 2);
+                        vector_imm_carry(V, 6'b010010, 3'b100, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew(), -1);
                     vstart = 0;
                 }
         }
@@ -1719,11 +1719,11 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {name(rs1)}";
             behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
-                else {
-                    if(vl > vstart)
-                        vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
-                    vstart = 0;
-                }
+                    else {
+                        if(vl > vstart)
+                            vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                        vstart = 0;
+                    }
         }
     }
 }
