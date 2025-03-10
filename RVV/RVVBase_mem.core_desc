@@ -26,7 +26,7 @@ InstructionSet RVVBase_mem extends RVVBase {
             encoding: nf[2:0] :: mew[0:0] :: 2'b00 :: vm[0:0] :: 5'b00000 :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             // assembly also needs to encodes width and segment size
             assembly: "{vname(vd)}, ({name(rs1)}), eew={convert_width(width)}, seg={nf+1}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -45,7 +45,7 @@ InstructionSet RVVBase_mem extends RVVBase {
             encoding: nf[2:0] :: mew[0:0] :: 2'b00 :: vm[0:0] :: 5'b00000 :: rs1[4:0] :: width[2:0] :: vs3[4:0] :: 7'b0100111;
             // assembly also needs to encodes width and segment size
             assembly: "{vname(vs3)}, ({name(rs1)}), eew={convert_width(width)}, seg={nf+1}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -63,7 +63,7 @@ InstructionSet RVVBase_mem extends RVVBase {
             encoding: nf[2:0] :: mew[0:0] :: 2'b10 :: vm[0:0] :: rs2[4:0] :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             // assembly also needs to encodes width, segment size and stride length (nf)
             assembly: "{vname(vd)}, ({name(rs1)}), eew={convert_width(width)}, seg={nf+1}";
-            behavior: if(rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS || rs2 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -81,7 +81,7 @@ InstructionSet RVVBase_mem extends RVVBase {
             encoding: nf[2:0] :: mew[0:0] :: 2'b10 :: vm[0:0] :: rs2[4:0] :: rs1[4:0] :: width[2:0] :: vs3[4:0] :: 7'b0100111;
             // assembly also needs to encodes width, segment size and stride length (nf)
             assembly: "{vname(vs3)}, ({name(rs1)}), eew={convert_width(width)}, seg={nf+1}";
-            behavior: if(rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS || rs2 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -99,7 +99,7 @@ InstructionSet RVVBase_mem extends RVVBase {
             encoding: nf[2:0] :: mew[0:0] :: 2'b00 :: vm[0:0] :: 5'b10000 :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             // assembly also needs to encodes width and and segment size
             assembly: "{vname(vd)}, ({name(rs1)})";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -119,10 +119,10 @@ InstructionSet RVVBase_mem extends RVVBase {
         VSM__V {
             encoding: 12'b000000101011 :: rs1[4:0] :: 3'b000 :: vs3[4:0] :: 7'b0100111;
             assembly: "{name(rs1)}, {vname(vs3)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<XLEN>evl = vl%8 == 0 ? vl/8 : (unsigned<XLEN>)(vl/8+1);
-                    if (illegal_vd_unmasked()) raise(0, 2);
+                    if (illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     // we hand over a "fake" vtype which encodes vta (0b1) and sew = 8, while vl = evl
                     unsigned<XLEN> _vtype = vtype[XLEN-1:7] :: 1 :: 3'b000 :: vtype[2:0];
                     vstart = (unsigned<XLEN>)vsseg(V, evl, vstart, _vtype, 1, vs3, X[rs1], 3'b000, 1);
@@ -131,10 +131,10 @@ InstructionSet RVVBase_mem extends RVVBase {
          VLM__V {
             encoding: 12'b000000101011 :: rs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b0000111;
             assembly: "{name(rs1)}, {vname(vd)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<XLEN>evl = vl%8 == 0 ? vl/8 : (unsigned<XLEN>)(vl/8+1);
-                    if (illegal_vd_unmasked()) raise(0, 2);
+                    if (illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     // we hand over a "fake" vtype which encodes vta (0b1) and sew = 8, while vl = evl
                     unsigned<XLEN> _vtype = vtype[XLEN-1:7] :: 1 :: 3'b000 :: vtype[2:0];
                     vstart = (unsigned<XLEN>)vlseg(V, evl, vstart, _vtype, 1, vd, X[rs1], 3'b000, 1);
@@ -144,7 +144,7 @@ InstructionSet RVVBase_mem extends RVVBase {
         VLRE {
             encoding: nf[2:0] :: mew[0:0] :: 2'b00 :: 1 :: 5'b01000 :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             assembly: "{vname(vd)}, ({name(rs1)})";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<4> nf_int = nf+1;
@@ -161,7 +161,7 @@ InstructionSet RVVBase_mem extends RVVBase {
         VSRE {
             encoding: nf[2:0] :: 9'b000101000 :: rs1[4:0] :: 3'b000 :: vs3[4:0] :: 7'b0100111;
             assembly: "{vname(vs3)}, ({name(rs1)})";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> nf_int = nf+1;
                     // The instructions operate with an effective vector length, evl=NFIELDS*VLEN/8, regardless of current settings in vtype and vl
@@ -176,7 +176,7 @@ InstructionSet RVVBase_mem extends RVVBase {
         VLOXSEG {
             encoding: nf[2:0] :: mew[0:0] :: 2'b11 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             assembly: "{vname(vd)}, ({name(rs1)}), {vname(vs2)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -193,7 +193,7 @@ InstructionSet RVVBase_mem extends RVVBase {
         VSOXSEG {
             encoding: nf[2:0] :: mew[0:0] :: 2'b11 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vs3[4:0] :: 7'b0100111;
             assembly: "{vname(vs3)}, ({name(rs1)}), {vname(vs2)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -210,7 +210,7 @@ InstructionSet RVVBase_mem extends RVVBase {
         VLUXSEG {
             encoding: nf[2:0] :: mew[0:0] :: 2'b01 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vd[4:0] :: 7'b0000111;
             assembly: "{vname(vd)}, ({name(rs1)}), {vname(vs2)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();
@@ -227,7 +227,7 @@ InstructionSet RVVBase_mem extends RVVBase {
         VSUXSEG {
             encoding: nf[2:0] :: mew[0:0] :: 2'b01 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: width[2:0] :: vs3[4:0] :: 7'b0100111;
             assembly: "{vname(vs3)}, ({name(rs1)}), {vname(vs2)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<4> elem_size_bytes = convert_width(width);
                     unsigned<16> elem_count = get_elem_count();

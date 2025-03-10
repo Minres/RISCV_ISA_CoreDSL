@@ -31,7 +31,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b000000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -48,7 +48,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b000000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -65,7 +65,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b000010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -82,7 +82,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b000010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -99,7 +99,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b100111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -121,7 +121,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_wv(V, 6'b110000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -141,7 +141,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_wv(V, 6'b110000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -161,7 +161,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_wv(V, 6'b110010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -181,7 +181,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_wv(V, 6'b110010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -201,7 +201,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_ww(V, 6'b110100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -221,7 +221,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_ww(V, 6'b110100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -241,7 +241,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_ww(V, 6'b110110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -261,7 +261,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_ww(V, 6'b110110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -280,7 +280,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b100100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -297,7 +297,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b100100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -314,7 +314,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b100000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -331,7 +331,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b100000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -348,7 +348,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b100001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -370,7 +370,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_wv(V, 6'b111000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -390,7 +390,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_wv(V, 6'b111000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -409,7 +409,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -426,7 +426,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -443,7 +443,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101101, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -460,7 +460,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -477,7 +477,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -494,7 +494,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -511,7 +511,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -528,7 +528,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -545,7 +545,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -562,7 +562,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -579,7 +579,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -596,7 +596,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -613,7 +613,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -630,7 +630,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -647,7 +647,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_op(V, 6'b101011, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -664,7 +664,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_op(V, 6'b101011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -686,7 +686,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_wv(V, 6'b111100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -706,7 +706,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_wv(V, 6'b111100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -726,7 +726,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_wv(V, 6'b111101, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -746,7 +746,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_wv(V, 6'b111101, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -766,7 +766,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_wv(V, 6'b111110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -786,7 +786,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_wv(V, 6'b111110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -806,7 +806,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_imm_wv(V, 6'b111111, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -826,7 +826,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_vector_wv(V, 6'b111111, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -845,7 +845,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_unary_op(V, 6'b010011, 5'b00000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -864,7 +864,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_unary_op(V, 6'b010011, 5'b00100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -883,7 +883,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_unary_op(V, 6'b010011, 5'b00101, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -902,7 +902,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_imm_op(V, 6'b000100, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -916,7 +916,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_vector_op(V, 6'b000100, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -930,7 +930,7 @@ InstructionSet RVVBase_fp extends RVVBase {
            behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_imm_op(V, 6'b000110, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -944,7 +944,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_vector_op(V, 6'b000110, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -960,7 +960,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_imm_op(V, 6'b001000, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -974,7 +974,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_vector_op(V, 6'b001000, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -988,7 +988,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_imm_op(V, 6'b001001, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1002,7 +1002,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_vector_op(V, 6'b001001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -1016,7 +1016,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_imm_op(V, 6'b001010, 3'b101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1030,7 +1030,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_vector_op(V, 6'b001010, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -1047,7 +1047,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_imm_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1064,7 +1064,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_vector_op(V, 6'b011000, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -1081,7 +1081,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_imm_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1098,7 +1098,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_vector_op(V, 6'b011100, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -1115,7 +1115,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_imm_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1132,7 +1132,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_vector_op(V, 6'b011011, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -1149,7 +1149,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_imm_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1166,7 +1166,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_vector_op(V, 6'b011001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -1183,7 +1183,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_imm_op(V, 6'b011101, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1200,7 +1200,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         mask_fp_vector_imm_op(V, 6'b011111, vl, vstart, vtype, vm, vd, vs2, (unsigned<ELEN>)F[rs1], rm, sew());
@@ -1219,7 +1219,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_op(V, 6'b010011, 5'b10000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1235,7 +1235,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_masked(vd, SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_masked(vd, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (unsigned<ELEN>)F[rs1], sew());
@@ -1251,7 +1251,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, 2);
+                if(illegal_fp_vd_unmasked(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)F[rs1], sew());
@@ -1267,7 +1267,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_op(V, 6'b010010, 5'b00000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1281,7 +1281,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_op(V, 6'b010010, 5'b00001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1295,7 +1295,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = 3'b001;
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_op(V, 6'b010010, 5'b00110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1309,7 +1309,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = 3'b001;
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_op(V, 6'b010010, 5'b00111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1323,7 +1323,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_op(V, 6'b010010, 5'b00010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1337,7 +1337,7 @@ InstructionSet RVVBase_fp extends RVVBase {
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, 2);
+                if(illegal_fp_normal(vd, vm, SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_op(V, 6'b010010, 5'b00011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1356,7 +1356,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_w(V, 5'b01000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1373,7 +1373,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_w(V, 5'b01001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1390,7 +1390,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = 3'b001;
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_w(V, 5'b01110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1407,7 +1407,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = 3'b001;
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_w(V, 5'b01111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1424,7 +1424,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_w(V, 5'b01010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1441,7 +1441,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_w(V, 5'b01011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1458,7 +1458,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_w(V, 5'b01100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1477,7 +1477,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10001, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1494,7 +1494,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10000, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1511,7 +1511,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = 3'b001;
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10110, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1528,7 +1528,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = 3'b001;
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10111, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1545,7 +1545,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10010, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1562,7 +1562,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10011, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1579,7 +1579,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10100, vl, vstart, vtype, vm, vd, vs2, rm, sew());
@@ -1596,7 +1596,7 @@ InstructionSet RVVBase_fp extends RVVBase {
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, 2);
+                if(illegal_fp_variable_width(vd, vm, SEW, rm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         fp_vector_unary_n(V, 5'b10101, vl, vstart, vtype, vm, vd, vs2, 3'b110, sew());

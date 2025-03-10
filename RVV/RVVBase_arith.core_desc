@@ -26,7 +26,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b000000 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
             behavior: {
-                if(illegal_normal(vd, vm)) raise(0, 2);
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000000, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -38,7 +38,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b000000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                if(illegal_normal(vd, vm)) raise(0, 2);
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b000000, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -50,7 +50,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b000000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: {
-                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000000, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -62,7 +62,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b000010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                if(illegal_normal(vd, vm)) raise(0, 2);
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b000010, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -74,7 +74,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b000010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: {
-                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000010, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -86,7 +86,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b000011 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
             behavior: {
-                if(illegal_normal(vd, vm)) raise(0, 2);
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000011, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -98,7 +98,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b000011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: {
-                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000011, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -116,7 +116,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b110000, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -127,13 +127,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWADDU__VX {
             encoding: 6'b110000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b110000, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -149,7 +149,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b110010, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -160,13 +160,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWSUBU__VX {
             encoding: 6'b110010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b110010, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -182,7 +182,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b110001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -193,13 +193,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWADD__VX {
             encoding: 6'b110001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b110001, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -215,7 +215,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b110011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -226,13 +226,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWSUB__VX {
             encoding: 6'b110011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b110011, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -248,7 +248,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_ww(V, 6'b110100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -259,13 +259,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWADDU__WX {
             encoding: 6'b110100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_ww(V, 6'b110100, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -281,7 +281,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_ww(V, 6'b110110, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -292,13 +292,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWSUBU__WX {
             encoding: 6'b110110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_ww(V, 6'b110110, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -314,7 +314,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_ww(V, 6'b110101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -325,13 +325,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWADD__WX {
             encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_ww(V, 6'b110101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -347,7 +347,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_ww(V, 6'b110111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -358,13 +358,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWSUB__WX {
             encoding: 6'b110111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_ww(V, 6'b110111, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -383,7 +383,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<6> SEW_target = SEW / 2;
                 signed<4> LMUL_pow_target = LMUL_pow - 1;
-                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_extend(V,  5'b00110, vl, vstart, vtype, vm, vd, vs2, SEW_pow, 1);
@@ -400,7 +400,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<6> SEW_target = SEW / 2;
                 signed<4> LMUL_pow_target = LMUL_pow - 1;
-                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_extend(V,  5'b00111, vl, vstart, vtype, vm, vd, vs2, SEW_pow, 1);
@@ -417,7 +417,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<6> SEW_target = SEW / 4;
                 signed<4> LMUL_pow_target = LMUL_pow - 2;
-                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_extend(V,  5'b00100, vl, vstart, vtype, vm, vd, vs2, SEW_pow, 2);
@@ -434,7 +434,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<6> SEW_target = SEW / 4;
                 signed<4> LMUL_pow_target = LMUL_pow - 2;
-                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_extend(V,  5'b00101, vl, vstart, vtype, vm, vd, vs2, SEW_pow, 2);
@@ -451,7 +451,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<6> SEW_target = SEW / 8;
                 signed<4> LMUL_pow_target = LMUL_pow - 3;
-                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_extend(V,  5'b00010, vl, vstart, vtype, vm, vd, vs2, SEW_pow, 3);
@@ -468,7 +468,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<6> SEW_target = SEW / 8;
                 signed<4> LMUL_pow_target = LMUL_pow - 3;
-                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_extend(V,  5'b00011, vl, vstart, vtype, vm, vd, vs2, SEW_pow, 3);
@@ -481,7 +481,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VADC__VVM {
             encoding: 6'b010000 :: 1'b0 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, v0";
-            behavior: if(illegal_vd_masked(vd)) raise(0, 2);
+            behavior: if(illegal_vd_masked(vd)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_carry(V, 6'b010000, 3'b000, vl, vstart, vtype, vd, vs2, vs1, sew(), 1);
@@ -491,7 +491,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VADC__VXM {
             encoding: 6'b010000 :: 1'b0 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, v0";
-            behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_carry(V, 6'b010000, 3'b100, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew(), 1);
@@ -501,7 +501,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VADC__VIM {
             encoding: 6'b010000 :: 1'b0 :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, v0";
-            behavior: if(illegal_vd_unmasked())raise(0, 2);
+            behavior: if(illegal_vd_unmasked())raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_carry(V, 6'b010000, 3'b011, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew(), 1);
@@ -511,7 +511,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADC__VVM {
             encoding: 6'b010001 :: 1'b0 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, v0";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_vector_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
@@ -521,7 +521,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADC__VXM {
             encoding: 6'b010001 :: 1'b0 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, v0";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -531,7 +531,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADC__VIM {
             encoding: 6'b010001 :: 1'b0 :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, v0";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -541,7 +541,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADC__VV {
             encoding: 6'b010001 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_vector_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, vs1, sew());
@@ -551,7 +551,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADC__VX {
             encoding: 6'b010001 :: 1'b1 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -561,7 +561,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADC__VI {
             encoding: 6'b010001 :: 1'b1 :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_imm_op(V, 6'b010001, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -571,7 +571,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSBC__VVM {
             encoding: 6'b010010 :: 1'b0 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, v0";
-            behavior: if(illegal_vd_masked(vd)) raise(0, 2);
+            behavior: if(illegal_vd_masked(vd)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_carry(V, 6'b010010, 3'b000, vl, vstart, vtype, vd, vs2, vs1, sew(), -1);
@@ -581,7 +581,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSBC__VXM {
             encoding: 6'b010010 :: 1'b0 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, v0";
-            behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_carry(V, 6'b010010, 3'b100, vl, vstart, vtype, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew(), -1);
@@ -591,7 +591,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSBC__VVM {
             encoding: 6'b010011 :: 1'b0 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, v0";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_vector_op(V, 6'b010011, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
@@ -601,7 +601,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSBC__VXM {
             encoding: 6'b010011 :: 1'b0 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, v0";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_imm_op(V, 6'b010011, vl, vstart, vtype, 0, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -611,7 +611,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSBC__VV {
             encoding: 6'b010011 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_vector_op(V, 6'b010011, vl, vstart, vtype, 1, vd, vs2, vs1, sew());
@@ -621,7 +621,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSBC__VX {
             encoding: 6'b010011 :: 1'b1 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         carry_vector_imm_op(V, 6'b010011, vl, vstart, vtype, 1, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -633,7 +633,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VAND__VI {
             encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001001, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -643,7 +643,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VAND__VV {
             encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b001001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -653,7 +653,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VAND__VX {
             encoding: 6'b001001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001001, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -663,7 +663,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VOR__VI {
             encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001010, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -673,7 +673,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VOR__VV {
             encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b001010, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -683,7 +683,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VOR__VX {
             encoding: 6'b001010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001010, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -693,7 +693,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VXOR__VI {
             encoding: 6'b001011 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001011, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -703,7 +703,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VXOR__VV {
             encoding: 6'b001011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b001011, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -713,7 +713,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VXOR__VX {
             encoding: 6'b001011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001011, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -725,7 +725,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSLL__VI {
             encoding: 6'b100101 :: vm[0:0] :: vs2[4:0] :: imm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {imm}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100101, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)imm, sew());
@@ -735,7 +735,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSLL__VV {
             encoding: 6'b100101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100101, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -745,7 +745,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSLL__VX {
             encoding: 6'b100101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100101, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
@@ -755,7 +755,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSRL__VI {
             encoding: 6'b101000 :: vm[0:0] :: vs2[4:0] :: imm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {imm}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101000, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)imm, sew());
@@ -765,7 +765,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSRL__VV {
             encoding: 6'b101000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b101000, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -775,7 +775,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSRL__VX {
             encoding: 6'b101000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101000, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
@@ -785,7 +785,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSRA__VI {
             encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: imm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {imm}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101001, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)imm, sew());
@@ -795,7 +795,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSRA__VV {
             encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b101001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -805,7 +805,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VSRA__VX {
             encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101001, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
@@ -822,7 +822,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_vw(V, 6'b101100, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)simm, sew());
@@ -838,7 +838,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_vw(V, 6'b101100, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -849,13 +849,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VNSRL__WX {
             encoding: 6'b101100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_vw(V, 6'b101100, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
@@ -871,7 +871,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_vw(V, 6'b101101, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)simm, sew());
@@ -887,7 +887,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_vw(V, 6'b101101, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -898,13 +898,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VNSRA__WX {
             encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_vw(V, 6'b101101, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
@@ -917,7 +917,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSEQ__VI {
             encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011000, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -927,7 +927,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSEQ__VV {
             encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_vector_op(V, 6'b011000, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -937,7 +937,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSEQ__VX {
             encoding: 6'b011000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011000, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -947,7 +947,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSNE__VI {
             encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011001, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -957,7 +957,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSNE__VV {
             encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_vector_op(V, 6'b011001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -967,7 +967,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSNE__VX {
             encoding: 6'b011001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011001, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -977,7 +977,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLTU__VV {
             encoding: 6'b011010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_vector_op(V, 6'b011010, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -987,7 +987,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLTU__VX {
             encoding: 6'b011010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011010, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -997,7 +997,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLT__VV {
             encoding: 6'b011011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_vector_op(V, 6'b011011, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1007,7 +1007,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLT__VX {
             encoding: 6'b011011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011011, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1017,7 +1017,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLEU__VI {
             encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011100, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -1027,7 +1027,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLEU__VV {
             encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_vector_op(V, 6'b011100, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1037,7 +1037,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLEU__VX {
             encoding: 6'b011100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011100, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1047,7 +1047,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLE__VI {
             encoding: 6'b011101 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011101, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -1057,7 +1057,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLE__VV {
             encoding: 6'b011101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_vector_op(V, 6'b011101, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1067,7 +1067,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSLE__VX {
             encoding: 6'b011101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011101, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1077,7 +1077,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSGTU__VI {
             encoding: 6'b011110 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011110, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -1087,7 +1087,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSGTU__VX {
             encoding: 6'b011110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011110, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1097,7 +1097,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSGT__VI {
             encoding: 6'b011111 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2); 
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011111, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<5>)simm, sew());
@@ -1107,7 +1107,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMSGT__VX {
             encoding: 6'b011111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_vector_imm_op(V, 6'b011111, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1119,7 +1119,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMINU__VV {
             encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b000100, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1129,7 +1129,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMINU__VX {
             encoding: 6'b000100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000100, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1139,7 +1139,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMIN__VV {
             encoding: 6'b000101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
-            behavior:if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior:if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b000101, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1149,7 +1149,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMIN__VX {
             encoding: 6'b000101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000101, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1159,7 +1159,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMAXU__VV {
             encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b000110, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1169,7 +1169,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMAXU__VX {
             encoding: 6'b000110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000110, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1179,7 +1179,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMAX__VV {
             encoding: 6'b000111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm},";
-            behavior:if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior:if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b000111, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1189,7 +1189,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMAX__VX {
             encoding: 6'b000111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm},";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b000111, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1201,7 +1201,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMUL__VV {
             encoding: 6'b100101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1211,7 +1211,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMUL__VX {
             encoding: 6'b100101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1221,7 +1221,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMULH__VV {
             encoding: 6'b100111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1231,7 +1231,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMULH__VX {
             encoding: 6'b100111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100111, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1241,7 +1241,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMULHU__VV {
             encoding: 6'b100100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1251,7 +1251,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMULHU__VX {
             encoding: 6'b100100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100100, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1261,7 +1261,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMULHSU__VV {
             encoding: 6'b100110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100110, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1271,7 +1271,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMULHSU__VX {
             encoding: 6'b100110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: " {vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100110, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1283,7 +1283,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VDIVU__VV {
             encoding: 6'b100000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100000, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1293,7 +1293,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VDIVU__VX {
             encoding: 6'b100000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100000, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1303,7 +1303,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VDIV__VV {
             encoding: 6'b100001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1313,7 +1313,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VDIV__VX {
             encoding: 6'b100001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100001, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1323,7 +1323,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VREMU__VV {
             encoding: 6'b100010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100010, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1333,7 +1333,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VREMU__VX {
             encoding: 6'b100010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100010, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1343,7 +1343,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VREM__VV {
             encoding: 6'b100011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b100011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1353,7 +1353,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VREM__VX {
             encoding: 6'b100011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b100011, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1370,7 +1370,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b111011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1381,13 +1381,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWMUL__VX {
             encoding: 6'b111011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b111011, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1403,7 +1403,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b111000, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1414,13 +1414,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWMULU__VX {
             encoding: 6'b111000 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b111000, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1436,7 +1436,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b111010, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1447,13 +1447,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWMULSU__VX {
             encoding: 6'b111010 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b111010, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1466,7 +1466,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMACC__VV {
             encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b101101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1476,7 +1476,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMACC__VX {
             encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1486,7 +1486,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VNMSAC__VV {
             encoding: 6'b101111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b101111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1496,7 +1496,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VNMSAC__VX {
             encoding: 6'b101111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101111, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1506,7 +1506,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADD__VV {
             encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b101001, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1516,7 +1516,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMADD__VX {
             encoding: 6'b101001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101001, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1526,7 +1526,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VNMSUB__VV {
             encoding: 6'b101011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b101011, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1536,7 +1536,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VNMSUB__VX {
             encoding: 6'b101011 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b101011, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1553,7 +1553,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b111100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1564,13 +1564,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWMACCU__VX {
             encoding: 6'b111100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b111100, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1586,7 +1586,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b111101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1597,13 +1597,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWMACC__VX {
             encoding: 6'b111101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b111101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1619,7 +1619,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 signed<3> LMUL_pow = get_lmul_pow();
                 unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_wv(V, 6'b111111, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -1630,13 +1630,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWMACCSU__VX {
             encoding: 6'b111111 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b111111, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1647,13 +1647,13 @@ InstructionSet RVVBase_arith extends RVVBase {
         VWMACCUS__VX {
             encoding: 6'b111110 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, 2);
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_wv(V, 6'b111110, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1666,7 +1666,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMERGE__VIM {
             encoding: 6'b010111 :: 1'b0 :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}";
-            behavior: if(illegal_vd_masked(vd)) raise(0, 2);
+            behavior: if(illegal_vd_masked(vd)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                             vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (unsigned<ELEN>)(signed<ELEN>)(signed<5>)simm, sew());
@@ -1676,7 +1676,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMERGE__VVM {
             encoding: 6'b010111 :: 1'b0 :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_masked(vd)) raise(0, 2);
+            behavior: if(illegal_vd_masked(vd)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                             vector_vector_merge(V, vl, vstart, vtype, 0, vd, vs2, vs1, sew());
@@ -1686,7 +1686,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMERGE__VXM {
             encoding: 6'b010111 :: 1'b0 :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}";
-            behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_masked(vd)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_merge(V, vl, vstart, vtype, 0, vd, vs2, (unsigned<ELEN>)(signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -1698,7 +1698,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMV__V__I {
             encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {simm}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                             vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)(signed<ELEN>)(signed<5>)simm, sew());
@@ -1708,7 +1708,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMV__V__V {
             encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_merge(V, vl, vstart, vtype, 1, vd, 0, vs1, sew());
@@ -1718,7 +1718,7 @@ InstructionSet RVVBase_arith extends RVVBase {
         VMV__V__X {
             encoding: 6'b010111 :: 1'b1 :: 5'b00000 :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {name(rs1)}";
-            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(rs1 >=RFS || illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_imm_merge(V, vl, vstart, vtype, 1, vd, 0, (unsigned<ELEN>)(signed<ELEN>)(signed<XLEN>)X[rs1], sew());

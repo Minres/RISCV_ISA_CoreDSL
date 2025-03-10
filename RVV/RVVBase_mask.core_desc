@@ -14,7 +14,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMAND__MM {
             encoding: 6'b011001 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011001, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -24,7 +24,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMNAND__MM {
             encoding: 6'b011101 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011101, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -34,7 +34,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMANDN__MM {
             encoding: 6'b011000 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011000, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -44,7 +44,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMXOR__MM {
             encoding: 6'b011011 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011011, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -54,7 +54,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMOR__MM {
             encoding: 6'b011010 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011010, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -64,7 +64,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMNOR__MM {
             encoding: 6'b011110 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011110, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -74,7 +74,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMORN__MM {
             encoding: 6'b011100 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011100, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -84,7 +84,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VMXNOR__MM {
             encoding: 6'b011111 :: 1'b1 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}";
-            behavior: if(illegal_vd_unmasked()) raise(0, 2);
+            behavior: if(illegal_vd_unmasked()) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         mask_mask_op(V, 6'b011111, 3'b010, vl, vstart, vd, vs2, vs1);
@@ -96,7 +96,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VCPOP__M {
             encoding: 6'b010000 :: vm[0:0] :: vs2[4:0] :: 5'b10000 :: 3'b010 :: rd[4:0] :: 7'b1010111;
             assembly: "{name(rd)}, {vname(vs2)}, {vm},";
-            behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, 2);
+            behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else if(rd != 0){
                     X[rd] = vcpop(V, vl, vstart, vm, vs2);
                     vstart = 0;
@@ -107,7 +107,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VFIRST__M {
             encoding: 6'b010000 :: vm[0:0] :: vs2[4:0] :: 5'b10001 :: 3'b010 :: rd[4:0] :: 7'b1010111;
             assembly: "{name(rd)}, {vname(vs2)}, {vm},";
-            behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, 2);
+            behavior: if(rd >=RFS || illegal_vd_unmasked() || vstart != 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else if(rd != 0){
                     X[rd] = vfirst(V, vl, vstart, vm, vs2);
                     vstart = 0;
@@ -162,7 +162,7 @@ InstructionSet RVVBase_mask extends RVVBase {
         VID__V {
             encoding: 6'b010100 :: vm[0:0] :: 5'b00000 :: 5'b10001 :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vm},";
-            behavior: if(illegal_normal(vd, vm)) raise(0, 2); 
+            behavior: if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); 
                 else {
                     vid(V, vl, vstart, vtype, vm, vd, sew());
                     vstart = 0;
