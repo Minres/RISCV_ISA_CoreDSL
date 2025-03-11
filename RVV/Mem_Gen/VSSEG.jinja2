@@ -1,0 +1,13 @@
+        VS{{"SEG"~segment_size if segment_size >1}}E{{elem_size}}__V {
+            encoding: 3'b{{segment_bits}} :: mew[0:0] :: 2'b00 :: vm[0:0] :: 5'b00000 :: rs1[4:0] :: 3'b{{elem_bits}} :: vs3[4:0] :: 7'b0100111;
+            assembly: "{vname(vs3)}, ({name(rs1)}), {vm}";
+            behavior: if(rs1>=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    unsigned<7> EEW = {{elem_size}};
+                    signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
+                    if(illegal_store({{segment_size}}, EEW, EMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    else if(vl > vstart){
+                        vstart = (unsigned<XLEN>)vsseg(V, vl, vstart, vtype, vm, vs3, X[rs1], 3'b{{elem_bits}}, {{segment_size}});
+                    }
+                }
+        }
