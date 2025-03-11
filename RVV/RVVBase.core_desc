@@ -105,20 +105,8 @@ InstructionSet RVVBase extends RVD {
                 return nf * EMUL <= 8;
                 }
         }
-        unsigned<1> illegal_load(unsigned<5> vd, unsigned<1> vm, unsigned<4> nf, unsigned<6> EEW, signed<3> EMUL_pow){
-            return !valid_vtype() || ! valid_rd_mask(vd, vm) || !valid_eew_emul(EEW, EMUL_pow) || !valid_segment(nf, EMUL_pow);
-        }
-        unsigned<1> illegal_store(unsigned<4> nf, unsigned<6> EEW, signed<3> EMUL_pow) {
-            return !valid_vtype() || !valid_eew_emul(EEW, EMUL_pow) || !valid_segment(nf, EMUL_pow);
-        }
         unsigned<1> illegal_vd_unmasked() {
             return !valid_vtype();
-        }
-        unsigned<1> illegal_indexed_load(unsigned<5> vd, unsigned<1> vm, unsigned<4> nf, unsigned<6> EEW_index, signed<3> EMUL_pow_index, signed<3> EMUL_pow_data) {
-            return !valid_vtype() || !valid_rd_mask(vd, vm) || !valid_eew_emul(EEW_index, EMUL_pow_index) || !valid_segment(nf, EMUL_pow_data);
-        }
-        unsigned<1> illegal_indexed_store(unsigned<4> nf, unsigned<6> EEW_index, signed<3> EMUL_pow_index, signed<3> EMUL_pow_data) {
-            return !valid_vtype() || !valid_eew_emul(EEW_index, EMUL_pow_index) || !valid_segment(nf, EMUL_pow_data);
         }
         unsigned<1> illegal_variable_width(unsigned<5> vd, unsigned<1> vm, unsigned<7> SEW_new, signed<4> LMUL_pow_new) {
             return !(valid_vtype()) || !(valid_rd_mask(vd, vm)) || !(valid_eew_emul(SEW_new, LMUL_pow_new));
