@@ -7,18 +7,33 @@ InstructionSet RVD extends RVF {
     }
 
     functions {
-        extern unsigned<64> fadd_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
-        extern unsigned<64> fsub_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
-        extern unsigned<64> fmul_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
-        extern unsigned<64> fdiv_d(unsigned<64> rs1, unsigned<64> rs2, unsigned char mode);
-        extern unsigned<64> fmadd_d(unsigned<64> rs1, unsigned<64> rs2, unsigned<64>rs3, unsigned<32>rd, unsigned char mode);
-        extern unsigned<64> fsel_d(unsigned<64> rs1, unsigned<64> rs2, unsigned<32> rd);
-        extern unsigned<64> fsqrt_d(unsigned<64> rs1, unsigned char mode);
-        extern unsigned<64> fcmp_d(unsigned<64> rs1, unsigned<64> rs2, unsigned<32> rd);
-        extern unsigned<64> fcvt_d(unsigned<64> rs1, unsigned<32> rs2, unsigned char mode);
-        extern unsigned<32> fconv_d2f(unsigned<64> rs1, unsigned char mode);
-        extern unsigned<64> fconv_f2d(unsigned<32> rs1, unsigned char mode);
-        extern unsigned<64> fclass_d(unsigned<64> rs1);
+        unsigned<FLEN> NaNBox64(unsigned<64> val){
+            if(FLEN == 64) return (unsigned<FLEN>)val;
+            else {
+                unsigned<FLEN> box = ~((unsigned<FLEN>)0);
+                return (unsigned<FLEN>)(box :: val);
+            }
+        }
+        extern unsigned<64> fadd_d(unsigned<64> l, unsigned<64> r, unsigned char m);
+        extern unsigned<64> fsub_d(unsigned<64> l, unsigned<64> r, unsigned char m);
+        extern unsigned<64> fmul_d(unsigned<64> l, unsigned<64> r, unsigned char m);
+        extern unsigned<64> fdiv_d(unsigned<64> l, unsigned<64> r, unsigned char m);
+        extern unsigned<64> fmadd_d(unsigned<64> l, unsigned<64> r, unsigned<64> s, unsigned<64> o, unsigned char m);
+        extern unsigned<64> fsel_d(unsigned<64> l, unsigned<64> r, unsigned<32> o);
+        extern unsigned<64> fsqrt_d(unsigned<64> l, unsigned char m);
+        extern unsigned<64> fcmp_d(unsigned<64> l, unsigned<64> r, unsigned<32> o);
+        extern unsigned<64> fclass_d(unsigned<64> v);
+        extern unsigned<64> unbox_d(unsigned int Flen, unsigned<64> v);
+        extern unsigned<64> f32tof64(unsigned<32> v, unsigned<3> rm);
+        extern unsigned<32> f64tof32(unsigned<64> v, unsigned<3> rm);
+        extern unsigned<32> f64toi32(unsigned<64> v, unsigned<3> rm);
+        extern unsigned<32> f64toui32(unsigned<64> v, unsigned<3> rm);
+        extern unsigned<64> f64toi64(unsigned<64> v, unsigned<3> rm);
+        extern unsigned<64> f64toui64(unsigned<64> v, unsigned<3> rm);
+        extern unsigned<64> i32tof64(unsigned<32> v, unsigned<3> rm);
+        extern unsigned<64> ui32tof64(unsigned<32> v, unsigned<3> rm);
+        extern unsigned<64> i64tof64(unsigned<64> v, unsigned<3> rm);
+        extern unsigned<64> ui64tof64(unsigned<64> v, unsigned<3> rm);
     }
 
     instructions {
@@ -27,317 +42,285 @@ InstructionSet RVD extends RVF {
             assembly: "{fname(rd)}, {imm}({name(rs1)})";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
-                F[rd] = MEM[offs+7:offs];
+                F[rd] = NaNBox64(MEM[offs+7:offs]);
             }
         }
-
         FSD {
             encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: imm[4:0] :: 7'b0100111;
             assembly: "{fname(rs2)}, {imm}({name(rs1)})";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
-                MEM[offs+7:offs] = F[rs2];
+                MEM[offs+7:offs] = (unsigned<64>)F[rs2];
             }
         }
-
-        FMADD__D {
-            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
-            assembly: {"fmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
-            behavior: {
-                F[rd] = fmadd_d(F[rs1], F[rs2], F[rs3], 0, get_rm(rm));
-                unsigned<32> flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
-            }
-        }
-
-        FMSUB__D {
-            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
-            assembly: {"fmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
-            behavior: {
-                F[rd] = fmadd_d(F[rs1], F[rs2], F[rs3], 1, get_rm(rm));
-                unsigned<32> flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
-            }
-        }
-
-        FNMADD__D {
-            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
-            assembly: {"fnmadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
-            behavior: {
-                F[rd] = fmadd_d(F[rs1], F[rs2], F[rs3], 2, get_rm(rm));
-                unsigned<32> flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
-            }
-        }
-
-        FNMSUB__D {
-            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
-            assembly: {"fnmsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}"};
-            behavior: {
-                F[rd] = fmadd_d(F[rs1], F[rs2], F[rs3], 3, get_rm(rm));
-                unsigned<32> flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
-            }
-        }
-
         FADD__D {
             encoding: 7'b0000001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fadd.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
             behavior: {
-                F[rd] = fadd_d(F[rs1], F[rs2], get_rm(rm));
+                F[rd] = NaNBox64(fadd_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
         FSUB__D {
             encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsub.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
             behavior: {
-                F[rd] = fsub_d(F[rs1], F[rs2], get_rm(rm));
+                F[rd] = NaNBox64(fsub_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
         FMUL__D {
             encoding: 7'b0001001 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmul.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
             behavior: {
-                F[rd] = fmul_d(F[rs1], F[rs2], get_rm(rm));
+                F[rd] = NaNBox64(fmul_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
         FDIV__D {
             encoding: 7'b0001101 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fdiv.d", "{name(rm)}, {name(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
             behavior: {
-                F[rd] = fdiv_d(F[rs1], F[rs2], get_rm(rm));
+                F[rd] = NaNBox64(fdiv_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FSQRT__D {
-            encoding: 7'b0101101 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsqrt.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
-            behavior: {
-                F[rd] = fsqrt_d(F[rs1], get_rm(rm));
-                unsigned<32> flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
-            }
-        }
-
-        FSGNJ__D {
-            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnj.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
-            behavior: {
-                F[rd] = F[rs2][63:63] :: F[rs1][62:0];
-            }
-        }
-
-        FSGNJN__D {
-            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnjn.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
-            behavior: {
-                F[rd] = ~F[rs2][63:63] :: F[rs1][62:0];
-            }
-        }
-
-        FSGNJX__D {
-            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fsgnjx.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
-            behavior: {
-                F[rd] = F[rs1] ^ (F[rs2] & ((unsigned<64>)1 << 63));
-            }
-        }
-
         FMIN__D {
             encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmin.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
             behavior: {
-                F[rd] = fsel_d(F[rs1], F[rs2], 0);
+                F[rd] = NaNBox64(fsel_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), 0));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
         FMAX__D {
             encoding: 7'b0010101 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmax.d", "{fname(rd)}, {fname(rs1)}, {fname(rs2)}"};
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
             behavior: {
-                F[rd] = fsel_d(F[rs1], F[rs2], 1);
+                F[rd] = NaNBox64(fsel_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), 1));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FCVT__S__D {
-            encoding: 7'b0100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.s.d", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
+        FSQRT__D {
+            encoding: 7'b0101101 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
-                unsigned<32> res = fconv_d2f(F[rs1], get_rm(rm));
-                F[rd] = (unsigned<FLEN>)(((unsigned<FLEN>)-1<<32) + res);
+                F[rd] = NaNBox64(fsqrt_d(unbox_d(FLEN, F[rs1]), get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FCVT__D__S {
-            encoding: 7'b0100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.s", "{name(rm)}, {fname(rd)}, {fname(rs1)}"};
+        FMADD__D {
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
             behavior: {
-                F[rd] = fconv_f2d((unsigned<32>)F[rs1], get_rm(rm));
-            }
-        }
-
-        FEQ__D {
-            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
-            assembly: {"feq.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<64> res = fcmp_d(F[rs1], F[rs2], 0);
-                if (rd != 0)
-                	X[rd] = (unsigned<XLEN>)res;
+                F[rd] = NaNBox64(fmadd_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), unbox_d(FLEN, F[rs3]), 0, get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FLT__D {
-            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"flt.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<64> res = fcmp_d(F[rs1], F[rs2], 2);
-                if (rd != 0)
-                	X[rd] = (unsigned<XLEN>)res;
+        FMSUB__D {
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
+            behavior: {
+                unsigned<FLEN> res = NaNBox64(fmadd_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), unbox_d(FLEN, F[rs3]), 1, get_rm(rm)));
+                F[rd] = res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FLE__D {
-            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fle.d", "{name(rd)}, {fname(rs1)}, {fname(rs2)}"};
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<64> res = fcmp_d(F[rs1], F[rs2], 1);
-                if (rd != 0)
-                	X[rd] = (unsigned<XLEN>)res;
+        FNMADD__D {
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";            
+            behavior: {
+                F[rd] = NaNBox64(fmadd_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), unbox_d(FLEN, F[rs3]), 2, get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FCLASS__D {
-            encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
-            assembly: {"flass.d", "{name(rd)}, {fname(rs1)}"};
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                if(rd != 0)
-                    X[rd] = (unsigned<XLEN>)fclass_d(F[rs1]);
+        FNMSUB__D {
+            encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";            
+            behavior: {
+                F[rd] = NaNBox64(fmadd_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), unbox_d(FLEN, F[rs3]), 3, get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
         FCVT__W__D {
             encoding: 7'b1100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.w.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                //explicit casting to ensure sign extension if XLEN > 32
-                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_64_32(F[rs1], 0, get_rm(rm));
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)f64toi32(unbox_d(FLEN, F[rs1]), get_rm(rm));
                 if (rd != 0)
                 	X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
         FCVT__WU__D {
             encoding: 7'b1100001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.wu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                //explicit casting to ensure sign extension if XLEN > 32
-                signed<XLEN> res = (signed<XLEN>)(signed<32>)fcvt_64_32(F[rs1], 1, get_rm(rm));
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)f64toui32(unbox_d(FLEN, F[rs1]), get_rm(rm));
                 if (rd != 0)
                     X[rd] = (unsigned<XLEN>)res;
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
+        FCVT__L__D [[enable=XLEN>=64]] {
+            encoding: 7'b1100001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                signed<XLEN> res = (signed<XLEN>)(signed<64>)f64toi64(unbox_d(FLEN, F[rs1]), get_rm(rm));
+                if (rd != 0)
+                    X[rd] = (unsigned<XLEN>)res; 
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__LU__D [[enable=XLEN>=64]] {
+            encoding: 7'b1100001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> res = f64toui64(unbox_d(FLEN, F[rs1]), get_rm(rm));
+                if (rd != 0)
+                    X[rd] = res; 
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
         FCVT__D__W {
             encoding: 7'b1101001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.w", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_32_64((unsigned<32>)X[rs1], 2, get_rm(rm));
+                F[rd] = NaNBox64(i32tof64((unsigned<32>)X[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
         FCVT__D__WU {
             encoding: 7'b1101001 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.wu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_32_64((unsigned<32>)X[rs1], 3, get_rm(rm));
-            }
-        }
-
-        FCVT__L__D [[enable=XLEN==64]] {
-            encoding: 7'b1100001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.l.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<XLEN> res = (unsigned<XLEN>)fcvt_d(F[rs1], 0, get_rm(rm));
-                if (rd != 0)
-                    X[rd] = (unsigned<XLEN>)res;
+                F[rd] = NaNBox64(ui32tof64((unsigned<32>)X[rs1], get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FCVT__LU__D [[enable=XLEN==64]] {
-            encoding: 7'b1100001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.lu.d", "{name(rm)}, {name(rd)}, {fname(rs1)}"};
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                unsigned<XLEN> res = (unsigned<XLEN>)fcvt_d(F[rs1], 1, get_rm(rm));
-                if (rd != 0)
-                    X[rd] = (unsigned<XLEN>)res;
-                unsigned<32> flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
-            }
-        }
-
         FCVT__D__L [[enable=XLEN==64]] {
             encoding: 7'b1101001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.l", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_d(X[rs1], 2, get_rm(rm));
+                F[rd] = NaNBox64(i64tof64(X[rs1], get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FCVT__D__LU [[enable=XLEN==64]] {
+        FCVT__D__LU [[enable=XLEN>=64]] {
             encoding: 7'b1101001 :: 5'b00011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
-            assembly: {"fcvt.d.lu", "{name(rm)}, {fname(rd)}, {name(rs1)}"};
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = fcvt_d(X[rs1], 3, get_rm(rm));
+                F[rd] = NaNBox64(ui64tof64(X[rs1], get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-
-        FMV__X__D [[enable=XLEN==64]] {
+        FCVT__S__D {
+            encoding: 7'b0100000 :: 5'b00001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox32(f64tof32(unbox_d(FLEN, F[rs1]), get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__D__S {
+            encoding: 7'b0100001 :: 5'b00000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox64(f32tof64(unbox_s(FLEN, F[rs1]), get_rm(rm)));
+            }
+        }
+        FSGNJ__D {
+            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: {
+                F[rd] = NaNBox64(unbox_d(FLEN, F[rs2])[63:63] :: unbox_d(FLEN, F[rs1])[62:0]);
+            }
+        }
+        FSGNJN__D {
+            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: {
+                F[rd] = NaNBox64(~unbox_d(FLEN, F[rs2])[63:63] :: unbox_d(FLEN, F[rs1])[62:0]);
+            }
+        }
+        FSGNJX__D {
+            encoding: 7'b0010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: {
+                F[rd] = NaNBox64((unbox_d(FLEN, F[rs2]) & ((unsigned<64>)1<<63)) ^ unbox_d(FLEN, F[rs1]));
+            }
+        }
+        FMV__X__D [[enable=XLEN>=64]] {
             encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmv.x.d", "{name(rd)}, {fname(rs1)}"};
+            assembly: "{name(rd)}, {fname(rs1)}";
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0)
-                    X[rd] = (unsigned<XLEN>)F[rs1];
+                	X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<64>)F[rs1];
             }
         }
-
-        FMV__D__X [[enable=XLEN==64]] {
+        FMV__D__X [[enable=XLEN>=64]] {
             encoding: 7'b1111001 :: 5'b00000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
-            assembly: {"fmv.d.x", "{fname(rd)}, {name(rs1)}"};
+            assembly: "{fname(rd)}, {name(rs1)}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = X[rs1];
+                F[rd] = NaNBox64((unsigned<64>)X[rs1]);
+            }
+        }
+        FEQ__D {
+            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<64> res = fcmp_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), 0);
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FLT__D {
+            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<64> res = fcmp_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), 2);
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FLE__D {
+            encoding: 7'b1010001 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<64> res = fcmp_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), 1);
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCLASS__D {
+            encoding: 7'b1110001 :: 5'b00000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<64> res = fclass_d(unbox_d(FLEN, F[rs1]));
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res;
             }
         }
     }

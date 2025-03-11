@@ -6,13 +6,7 @@ InstructionSet Zfhmin extends RVF {
             unsigned<FLEN> box = ~((unsigned<FLEN>)0);
             return (unsigned<FLEN>)(box :: val);
         }
-        unsigned<FLEN> NaNBox32(unsigned<32> val){
-            if(FLEN == 32) return (unsigned<FLEN>)val;
-            else {
-                unsigned<FLEN> box = ~((unsigned<FLEN>)0);
-                return (unsigned<FLEN>)(box :: val);
-            }
-        }
+        //same as in RVD
         unsigned<FLEN> NaNBox64(unsigned<64> val){
             if(FLEN == 64) return (unsigned<FLEN>)val;
             else {
@@ -42,7 +36,7 @@ InstructionSet Zfhmin extends RVF {
             assembly: "{fname(rs2)}, {imm}({name(rs1)})";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
-                MEM[offs+1:offs] = F[rs2][15:0];
+                MEM[offs+1:offs] = (unsigned<16>)F[rs2];
             }
         }
         FMV__X__H {
@@ -50,28 +44,28 @@ InstructionSet Zfhmin extends RVF {
             assembly: "{name(rd)}, {fname(rs1)}";
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 if (rd != 0)
-                    X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<16>)F[rs1][15:0];
+                    X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<16>)(unsigned<16>)F[rs1];
             }
         }
         FMV__H__X {
             encoding: 12'b111101000000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {name(rs1)}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
-                F[rd] = NaNBox16(X[rs1][15:0]);
+                F[rd] = NaNBox16((unsigned<16>)X[rs1]);
             }
         }
         FCVT__S__H {
             encoding: 12'b010000000010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
-                F[rd] = NaNBox32(f16tof32(unbox_h(FLEN, F[rs1]), rm));
+                F[rd] = NaNBox32(f16tof32(unbox_h(FLEN, F[rs1]), get_rm(rm)));
             }
         }
         FCVT__H__S {
             encoding: 12'b010001000000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
-                F[rd] = NaNBox16(f32tof16((unsigned<32>)F[rs1], rm));
+                F[rd] = NaNBox16(f32tof16((unsigned<32>)F[rs1], get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -80,14 +74,14 @@ InstructionSet Zfhmin extends RVF {
             encoding: 12'b010000100010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
-                F[rd] = NaNBox64(f16tof64(unbox_h(FLEN, F[rs1]), rm));
+                F[rd] = NaNBox64(f16tof64(unbox_h(FLEN, F[rs1]), get_rm(rm)));
             }
         }
         FCVT__H__D [[enable=FLEN>=64]] {
             encoding: 12'b010001000001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
-                F[rd] = NaNBox16(f64tof16((unsigned<64>)F[rs1], rm));
+                F[rd] = NaNBox16(f64tof16((unsigned<64>)F[rs1], get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -96,14 +90,14 @@ InstructionSet Zfhmin extends RVF {
             encoding: 12'b010001100010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
-                F[rd] = f16tof128(unbox_h(FLEN, F[rs1]), rm);
+                F[rd] = f16tof128(unbox_h(FLEN, F[rs1]), get_rm(rm));
             }
         }
         FCVT__H__Q [[enable=FLEN>=128]] {
             encoding: 12'b010001000011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
-                F[rd] = NaNBox16(f128tof16((unsigned<128>)F[rs1], rm));
+                F[rd] = NaNBox16(f128tof16((unsigned<128>)F[rs1], get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -129,8 +123,6 @@ InstructionSet Zfh extends Zfhmin {
         extern unsigned<16> ui32tof16(unsigned<32> v, unsigned<3> rm);
         extern unsigned<16> i64tof16(unsigned<64> v, unsigned<3> rm);
         extern unsigned<16> ui64tof16(unsigned<64> v, unsigned<3> rm);
-
-
     }
     instructions {
 
@@ -202,16 +194,7 @@ InstructionSet Zfh extends Zfhmin {
             encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
             assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
             behavior: {
-                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), (unsigned<16>)F[rs3], 0, get_rm(rm)));
-                unsigned<32> flags = fget_flags();
-                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
-            }
-        }
-        FNMADD__H {
-            encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
-            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
-            behavior: {
-                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), (unsigned<16>)F[rs3], 2, get_rm(rm)));
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 0, get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -220,7 +203,16 @@ InstructionSet Zfh extends Zfhmin {
             encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
             assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
             behavior: {
-                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), (unsigned<16>)F[rs3], 1, get_rm(rm)));
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 1, get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FNMADD__H {
+            encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 2, get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -229,7 +221,7 @@ InstructionSet Zfh extends Zfhmin {
             encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
             assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
             behavior: {
-                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), (unsigned<16>)F[rs3], 3, get_rm(rm)));
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 3, get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -257,7 +249,7 @@ InstructionSet Zfh extends Zfhmin {
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-        FCVT__L__H [[enable=XLEN==64]] {
+        FCVT__L__H [[enable=XLEN>=64]] {
             encoding: 12'b110001000010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rd)}, {fname(rs1)}, {rm}";
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -268,7 +260,7 @@ InstructionSet Zfh extends Zfhmin {
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-        FCVT__LU__H [[enable=XLEN==64]] {
+        FCVT__LU__H [[enable=XLEN>=64]] {
             encoding: 12'b110001000011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{name(rd)}, {fname(rs1)}, {rm}";
             behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -333,7 +325,7 @@ InstructionSet Zfh extends Zfhmin {
             encoding: 7'b0010010 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
             behavior:{
-                F[rd] = NaNBox16((unbox_h(FLEN, F[rs2]) & 0x8000) ^ unbox_h(FLEN, F[rs1]));
+                F[rd] = NaNBox16((unbox_h(FLEN, F[rs2]) & ((unsigned<16>)1<<15)) ^ unbox_h(FLEN, F[rs1]));
             }
         }
 
