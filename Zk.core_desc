@@ -1,31 +1,10 @@
 import "RISCVBase.core_desc"
+import "Zb.core_desc"
 
-InstructionSet Zbkb extends RISCVBase {
+InstructionSet Zbkb extends Zbb_common {
     instructions {
-        ANDN  {
-            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0) X[rd] = X[rs1] &  ~X[rs2];
-        }
 
-        ORN  {
-            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0) X[rd] = X[rs1] |  ~X[rs2];
-        }
-
-        XNOR  {
-            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        X[rd] = X[rs1] ^ ~X[rs2];
-                    }
-        }
-
-        BREV8  {
+        BREV8  { // called rev.b in Zb listing
             encoding: 12'b011010000111 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
@@ -40,26 +19,6 @@ InstructionSet Zbkb extends RISCVBase {
                     }
         }
         
-        REV8 [[enable=XLEN==64]] {
-            encoding: 12'b011010111000 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly: "{name(rd)}, {name(rs1)}";
-            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<XLEN> input = X[rs1];
-                        X[rd] = (unsigned<XLEN>)(input[7:0] :: input[15:8] :: input[23:16]:: input[31:24] :: input[39:32] :: input[47:40] :: input[55:48] :: input[63:56]);
-                    }
-        }
-
-        REV8 [[enable=XLEN==32]] {
-            encoding: 12'b011010011000 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly: "{name(rd)}, {name(rs1)}";
-            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<XLEN> input = X[rs1];
-                        X[rd] = input[7:0] :: input[15:8] :: input[23:16]:: input[31:24];
-                    }
-        }
-
         PACK  {
             encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
@@ -93,99 +52,6 @@ InstructionSet Zbkb extends RISCVBase {
                     }
         }
 
-        ROL [[enable=XLEN==64]]{
-            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<XLEN> shamt = X[rs2][5:0];
-                        X[rd] = (X[rs1] << shamt) |( X[rs1] >> (XLEN - shamt));
-                    }
-        }
-
-        ROL [[enable=XLEN==32]] {
-            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<XLEN> shamt = X[rs2][4:0];
-                        X[rd] = (X[rs1] << shamt) |( X[rs1] >> (XLEN - shamt));
-                    }
-        }
-
-        ROLW [[enable=XLEN==64]] {
-            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0111011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<32> rs1_data = X[rs1][31:0];
-                        unsigned<5> shamt = X[rs2][4:0];
-                        unsigned<32> result = (rs1_data << shamt) | (rs1_data >> (32 - shamt));
-                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
-                    }
-        }
-
-        ROR [[enable=XLEN==32]] {
-            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<5> shamt = X[rs2][4:0];
-                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
-                    }
-        }
-
-        ROR [[enable=XLEN==64]] {
-            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<6> shamt = X[rs2][5:0];
-                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
-                    }
-        }
-
-        RORI [[enable=XLEN==64]] {
-            encoding: 6'b011000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
-                    }
-        }
-
-        RORI [[enable=XLEN==32]] {
-            encoding: 7'b0110000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
-            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
-                    }
-        }
-
-        RORIW [[enable=XLEN==64]] {
-            encoding: 7'b0110000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0011011;
-            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
-            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<XLEN> rs1_data = (unsigned<XLEN>)X[rs1][31:0];
-                        unsigned<XLEN> result = (rs1_data >> shamt) | (rs1_data << (32 - shamt));
-                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(result[31:0]);
-                    }
-        }
-
-        RORW [[enable=XLEN==64]] {
-            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<32> rs1_data = X[rs1][31:0];
-                        unsigned<5> shamt = X[rs2][4:0];
-                        unsigned<32> result = (rs1_data >> shamt) | (rs1_data << (32 - shamt));
-                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
-                    }
-        }
-
         ZIP [[enable=XLEN==32]] {
             encoding: 12'b000010001111 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
             assembly: "{name(rd)}, {name(rs1)}";
@@ -212,41 +78,6 @@ InstructionSet Zbkb extends RISCVBase {
     }
 }
 
-InstructionSet Zbkc extends RISCVBase {
-    instructions {
-        CLMUL  {
-            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<XLEN> rs1_val = X[rs1];
-                        unsigned<XLEN> rs2_val = X[rs2];
-                        unsigned<XLEN> output = 0;
-                        for(unsigned int i=0; i<=XLEN-1; i++){
-                            if((rs2_val >> i) & 1)
-                                output = output ^ (rs1_val << i);
-                        }
-                        X[rd] = output;
-                    }
-        }
-
-        CLMULH  {
-            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
-            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
-                    else if(rd != 0){
-                        unsigned<XLEN> rs1_val = X[rs1];
-                        unsigned<XLEN> rs2_val = X[rs2];
-                        unsigned<XLEN> output = 0;
-                        for(unsigned int i=1; i<XLEN; i++){
-                            if((rs2_val >> i) & 1)
-                                output =  output ^ (rs1_val >> (XLEN - i));
-                        }
-                        X[rd] = output;
-                    }
-        }
-    }
-}
 
 InstructionSet Zbkx extends RISCVBase {
     instructions {
@@ -405,7 +236,7 @@ InstructionSet Zknd extends ZKn_common {
                     else if(rd != 0){
                         unsigned<8> si = X[rs2][bs+7:bs];
                         unsigned<32> so = (unsigned<32>)aes_sbox_inv(si);
-                        unsigned<32> result = X[rs1][31:0] ^ ((so << bs) | (so >> (32 - bs)));
+                        unsigned<32> result = X[rs1] ^ ((so << bs) | (so >> (32 - bs)));
                         X[rd] = (unsigned<XLEN>)result;
                     }
         }
@@ -418,7 +249,7 @@ InstructionSet Zknd extends ZKn_common {
                         unsigned<8> si = X[rs2][bs+7:bs];
                         unsigned<8> so = aes_sbox_inv(si);
                         unsigned<32> mixed = aes_mixcolumn_byte_inv(so);
-                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << bs) | (mixed >> (32 - bs)));
+                        unsigned<32> result = X[rs1] ^ ((mixed << bs) | (mixed >> (32 - bs)));
                         X[rd] = result;
                     }
         }
@@ -466,7 +297,7 @@ InstructionSet Zkne extends ZKn_common {
                     else if(rd != 0){
                         unsigned<8> si = X[rs2][bs+7:bs];
                         unsigned<32> so = (unsigned<32>)aes_sbox_fwd(si);
-                        unsigned<32> result = X[rs1][31:0] ^ ((so << bs) | (so >> (32 - bs)));
+                        unsigned<32> result = X[rs1] ^ ((so << bs) | (so >> (32 - bs)));
                         X[rd] = (unsigned<XLEN>)result;
                     }
         }
@@ -479,7 +310,7 @@ InstructionSet Zkne extends ZKn_common {
                         unsigned<8> si = X[rs2][bs+7:bs];
                         unsigned<8> so = aes_sbox_fwd(si);
                         unsigned<32> mixed = aes_mixcolumn_byte_fwd(so);
-                        unsigned<32> result = X[rs1][31:0] ^ ((mixed << bs) | (mixed >> (32 - bs)));
+                        unsigned<32> result = X[rs1] ^ ((mixed << bs) | (mixed >> (32 - bs)));
                         X[rd] = result;
                     }
         }
@@ -523,7 +354,7 @@ InstructionSet Zknh extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> inb = (unsigned<32>)X[rs1];
                         unsigned<32> result = ror32(inb, 7) ^ ror32(inb, 18) ^ (inb >> 3);
                         X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
                     }
@@ -534,7 +365,7 @@ InstructionSet Zknh extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> inb = (unsigned<32>)X[rs1];
                         unsigned<32> result = ror32(inb, 17) ^ ror32(inb, 19) ^ (inb >> 10);
                         X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
                     }
@@ -545,7 +376,7 @@ InstructionSet Zknh extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> inb = (unsigned<32>)X[rs1];
                         unsigned<32> result = ror32(inb, 2) ^ ror32(inb, 13) ^ ror32(inb, 22);
                         X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(result);
                     }
@@ -556,7 +387,7 @@ InstructionSet Zknh extends RISCVBase {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<32> inb = X[rs1][31:0];
+                        unsigned<32> inb = (unsigned<32>)X[rs1];
                         unsigned<32> result = ror32(inb, 6) ^ ror32(inb, 11) ^ ror32(inb, 25);
                         X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(result);
                     }
@@ -663,6 +494,6 @@ InstructionSet Zkr extends RVPrivBase{
 InstructionSet Zkt {
     // this is empty as there is no concept for Data Independent Execution Latency in ISS
 }
-
+InstructionSet Zbkc combines Zbc_common;
 InstructionSet Zkn combines Zbkb, Zbkc, Zbkx, Zknd, Zkne, Zknh;
 InstructionSet Zk combines Zkn, Zkr, Zkt;
