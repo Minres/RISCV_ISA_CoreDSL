@@ -169,30 +169,31 @@ InstructionSet AESBase extends RISCVBase {
             return aes_sbox_fwd(x[63:56])::aes_sbox_fwd(x[55:48])::aes_sbox_fwd(x[47:40])::aes_sbox_fwd(x[39:32])::aes_sbox_fwd(x[31:24])::aes_sbox_fwd(x[23:16])::aes_sbox_fwd(x[15:8])::aes_sbox_fwd(x[7:0]);
         }
         unsigned<32> aes_decode_rcon(unsigned<4> r) {
-            if (r == 0x0) {
-                return 0x00000001;
-            } else if (r == 0x1) {
-                return 0x00000002;
-            } else if (r == 0x2) {
-                return 0x00000004;
-            } else if (r == 0x3) {
-                return 0x00000008;
-            } else if (r == 0x4) {
-                return 0x00000010;
-            } else if (r == 0x5) {
-                return 0x00000020;
-            } else if (r == 0x6) {
-                return 0x00000040;
-            } else if (r == 0x7) {
-                return 0x00000080;
-            } else if (r == 0x8) {
-                return 0x0000001b;
-            } else if (r == 0x9) {
-                return 0x00000036;
-            } else {
-                return 32'b0;
+            switch(r){
+                case 0x0:
+                    return 0x00000001;
+                case 0x1: 
+                    return 0x00000002;
+                case 0x2: 
+                    return 0x00000004;
+                case 0x3: 
+                    return 0x00000008;
+                case 0x4: 
+                    return 0x00000010;
+                case 0x5: 
+                    return 0x00000020;
+                case 0x6: 
+                    return 0x00000040;
+                case 0x7: 
+                    return 0x00000080;
+                case 0x8: 
+                    return 0x0000001b;
+                case 0x9: 
+                    return 0x00000036;
             }
+            return 32'b0;
         }
+        
         unsigned<32> aes_subword_fwd(unsigned<32> x){
             return aes_sbox_fwd(x[31:24]) :: aes_sbox_fwd(x[23:16]) :: aes_sbox_fwd(x[15:8]) :: aes_sbox_fwd(x[7:0]);
         }

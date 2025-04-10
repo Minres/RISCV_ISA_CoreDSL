@@ -195,7 +195,6 @@ InstructionSet Zbb_common extends RISCVBase{
         }
     }
 }
-
 InstructionSet Zbb extends Zbb_common{
     instructions {
         CLZ {
@@ -529,3 +528,5 @@ InstructionSet Zbs extends RISCVBase{
         }
     }
 }
+
+InstructionSet RVB combines Zba, Zbb, Zbs;
