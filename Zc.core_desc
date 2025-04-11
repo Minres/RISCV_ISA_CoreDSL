@@ -341,11 +341,7 @@ InstructionSet Zcf extends RVF {
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8]+uimm);
                 unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
-                if (FLEN == 32)
-                    F[rd + 8] = res;
-                else { // NaN boxing
-                    F[rd + 8] = (unsigned)((signed<FLEN>)-1 << 32) | res;
-                }
+                F[rd + 8] = NaNBox32(res);
             }
         }
 
@@ -364,11 +360,7 @@ InstructionSet Zcf extends RVF {
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                 unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
-                if (FLEN == 32)
-                    F[rd] = res;
-                else { // NaN boxing
-                    F[rd] = (unsigned)((signed<FLEN>)-1 << 32) | res;
-                }
+                F[rd] = NaNBox32(res);
             }
         }
 
@@ -385,21 +377,17 @@ InstructionSet Zcf extends RVF {
 
 InstructionSet Zcd extends RVD {
     instructions {
-        C__FLD { //(RV32/64)
+        C__FLD {  
             encoding: 3'b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
                 unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
-                if (FLEN == 64)
-                    F[rd + 8] = res;
-                else { // NaN boxing
-                    F[rd + 8] = (unsigned)(-1 << 64) | res;
-                }
+                F[rd + 8] = NaNBox64(res);
             }
         }
 
-        C__FSD { //(RV32/64)
+        C__FSD {  
             encoding: 3'b101 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -408,21 +396,17 @@ InstructionSet Zcd extends RVD {
             }
         }
 
-        C__FLDSP {//(RV32/64)
+        C__FLDSP { 
             encoding: 3'b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                 unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
-                if (FLEN == 64)
-                    F[rd] = res;
-                else { // NaN boxing
-                    F[rd] = (unsigned)(-1 << 64) | res;
-                }
+                F[rd] = NaNBox64(res);
             }
         }
 
-        C__FSDSP {//(RV32/64)
+        C__FSDSP { 
             encoding: 3'b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
