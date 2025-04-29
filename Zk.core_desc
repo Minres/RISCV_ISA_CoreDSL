@@ -209,7 +209,7 @@ InstructionSet ZKn_common extends AESBase {
                     else if(rd != 0){
                         unsigned<32> tmp1 = X[rs1][63:32];
                         unsigned<32> rc = aes_decode_rcon(rnum);
-                        unsigned<32> tmp2 = (rnum ==0xA) ? tmp1 : (tmp1 >> 8) | (tmp1 << 24);
+                        unsigned<32> tmp2 = (rnum == 0xA) ? tmp1 : (tmp1 >> 8) | (tmp1 << 24);
                         unsigned<32> tmp3 = aes_subword_fwd(tmp2);
                         X[rd] = (unsigned<XLEN>)((tmp3 ^ rc) :: (tmp3 ^ rc));
                     }
