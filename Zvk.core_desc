@@ -1,0 +1,316 @@
+import "RVV/RVVBase.core_desc"
+
+InstructionSet Zvkb extends RVVBase{
+    instructions {
+        VANDN__VV {
+            encoding: 6'b000001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VANDN__VX {
+            encoding: 6'b000001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                    else {
+                    }
+        }
+
+        VBREV8__V {
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01000010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VREV8__V {
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01001010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VROL__VV {
+            encoding: 6'b010101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VROL__VX {
+            encoding: 6'b010101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                    else {
+                    }
+        }
+
+        VROR__VI {
+            encoding: 5'b01010 :: imm[5:5] :: vm[0:0] :: vs2[4:0] :: imm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{zimm6hi}, {vm}, {vname(vs2)}, {zimm6lo}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VROR__VV {
+            encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VROR__VX {
+            encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                    else {
+                    }
+        }
+    }
+}
+
+InstructionSet Zvbb extends Zvkb{
+    instructions {
+        VBREV__V {
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01010010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VCLZ__V {
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01100010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VCPOP__V {
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01110010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VCTZ__V {
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01101010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VWSLL__VI {
+            encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: imm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {imm}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VWSLL__VV {
+            encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VWSLL__VX {
+            encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                    else {
+                    }
+        }
+    }
+}
+
+InstructionSet Zvbc extends RVVBase{
+    instructions {
+        VCLMUL__VV {
+            encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VCLMUL__VX {
+            encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                    else {
+                    }
+        }
+
+        VCLMULH__VV {
+            encoding: 6'b001101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VCLMULH__VX {
+            encoding: 6'b001101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
+            behavior: if(rs1 >=RFS) raise(0, 2);
+                    else {
+                    }
+        }
+    }
+}
+
+InstructionSet Zvkg extends RVVBase{
+    instructions {
+        VGHSH__VV {
+            encoding: 7'b1011001 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VGMUL__VV {
+            encoding: 7'b1010001 :: vs2[4:0] :: 8'b10001010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+    }
+}
+
+InstructionSet Zvkned extends RVVBase{
+    instructions {
+        VAESDF__VS {
+            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00001010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESDF__VV {
+            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00001010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESDM__VS {
+            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00000010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESDM__VV {
+            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00000010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESEF__VS {
+            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00011010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESEF__VV {
+            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00011010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESEM__VS {
+            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00010010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESEM__VV {
+            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00010010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESKF1__VI {
+            encoding: 7'b1000101 :: vs2[4:0] :: imm[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {imm}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESKF2__VI {
+            encoding: 7'b1010101 :: vs2[4:0] :: imm[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {imm}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VAESZ__VS {
+            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00111010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+    }
+}
+
+InstructionSet Zvknha extends RVVBase{
+    instructions {
+        VSHA2CH__VV  {
+            encoding: 7'b1011101 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VSHA2CL__VV  {
+            encoding: 7'b1011111 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VSHA2MS__VV  {
+            encoding: 7'b1011011 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+    }
+}
+
+InstructionSet Zvknhb extends Zvknha{
+    instructions {
+        VSHA2CH__VV  {
+            encoding: 7'b1011101 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VSHA2CL__VV  {
+            encoding: 7'b1011111 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+
+        VSHA2MS__VV  {
+            encoding: 7'b1011011 :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1110111;
+            assembly: "{vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            behavior: {
+                    }
+        }
+    }
+}
+
+InstructionSet Zvkt {
+    // this is empty as there is no concept for Data Independent Execution Latency in ISS
+}
+
+InstructionSet Zvkn combines Zvkned, Zvknhb, Zvkb, Zvkt;
+InstructionSet Zvknc combines Zvkn, Zvbc;
+InstructionSet Zvkng combines Zvkn, Zvkg;
