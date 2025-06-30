@@ -1,71 +1,126 @@
 import "RVV/RVVBase.core_desc"
+import "RVV/RVVBase_arith.core_desc"
 
-InstructionSet Zvkb extends RVVBase{
+InstructionSet Zvkb extends RVVBase_arith{
+    functions {
+        extern void vector_unary_op(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_pow);
+    }
     instructions {
         VANDN__VV {
             encoding: 6'b000001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_vector_op(V, 6'b000001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VANDN__VX {
             encoding: 6'b000001 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
-                    else {
-                    }
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: {
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_imm_op(V, 6'b000001, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VBREV8__V {
-            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01000010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01000 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_unary_op(V, 5'b01000, vl, vstart, vtype, vm, vd, vs2, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VREV8__V {
-            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01001010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01001 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_unary_op(V, 5'b01001, vl, vstart, vtype, vm, vd, vs2, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VROL__VV {
             encoding: 6'b010101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_vector_op(V, 6'b010101, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VROL__VX {
             encoding: 6'b010101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
-                    else {
-                    }
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: {
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_imm_op(V, 6'b010101, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VROR__VI {
             encoding: 5'b01010 :: imm[5:5] :: vm[0:0] :: vs2[4:0] :: imm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
-            assembly: "{zimm6hi}, {vm}, {vname(vs2)}, {zimm6lo}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {imm}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_imm_op(V, 6'b010100, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)imm, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VROR__VV {
             encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_vector_op(V, 6'b010100, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VROR__VX {
             encoding: 6'b010100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
-                    else {
-                    }
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: {
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_imm_op(V, 6'b010100, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
+                    vstart = 0;
+                }
+            }
         }
     }
 }
@@ -73,87 +128,163 @@ InstructionSet Zvkb extends RVVBase{
 InstructionSet Zvbb extends Zvkb{
     instructions {
         VBREV__V {
-            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01010010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01010 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_unary_op(V, 5'b01010, vl, vstart, vtype, vm, vd, vs2, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VCLZ__V {
-            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01100010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01100 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_unary_op(V, 5'b01100, vl, vstart, vtype, vm, vd, vs2, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VCPOP__V {
-            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01110010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01110 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_unary_op(V, 5'b01110, vl, vstart, vtype, vm, vd, vs2, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VCTZ__V {
-            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 8'b01101010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vd)}";
+            encoding: 6'b010010 :: vm[0:0] :: vs2[4:0] :: 5'b01101 :: 3'b010 :: vd[4:0] :: 7'b1010111;
+            assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_unary_op(V, 5'b01101, vl, vstart, vtype, vm, vd, vs2, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VWSLL__VI {
             encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: imm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {imm}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {imm}, {vm}";
             behavior: {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    else {
+                        if(vl > vstart)
+                            vector_imm_wv(V, 6'b110101, 3'b011, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)imm, sew());
+                        vstart = 0;
                     }
+                }
         }
 
         VWSLL__VV {
             encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    }
+                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                signed<3> LMUL_pow = get_lmul_pow();
+                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_vector_wv(V, 6'b110101, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VWSLL__VX {
             encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b100 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    signed<3> LMUL_pow = get_lmul_pow();
+                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
+                    if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
+                        if(vl > vstart)
+                            vector_imm_wv(V, 6'b110101, 3'b100, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(unsigned<ELEN>)X[rs1], sew());
+                        vstart = 0;
                     }
+                }
         }
     }
 }
 
-InstructionSet Zvbc extends RVVBase{
+InstructionSet Zvbc extends RVVBase_arith{
     instructions {
         VCLMUL__VV {
             encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_vector_op(V, 6'b001100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VCLMUL__VX {
             encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
-                    else {
-                    }
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: {
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_imm_op(V, 6'b001100, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VCLMULH__VV {
             encoding: 6'b001101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {vname(vs1)}, {vname(vd)}";
+            assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    }
+                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_vector_op(V, 6'b001101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
+                    vstart = 0;
+                }
+            }
         }
 
         VCLMULH__VX {
             encoding: 6'b001101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
-            assembly: "{vm}, {vname(vs2)}, {name(rs1)}, {vname(vd)}";
-            behavior: if(rs1 >=RFS) raise(0, 2);
-                    else {
-                    }
+            assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
+            behavior: {
+                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    if(vl > vstart)
+                        vector_imm_op(V, 6'b001101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
+                    vstart = 0;
+                }
+            }
         }
     }
 }
@@ -168,7 +299,7 @@ InstructionSet Zvkg extends RVVBase{
         }
 
         VGMUL__VV {
-            encoding: 7'b1010001 :: vs2[4:0] :: 8'b10001010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010001 :: vs2[4:0] :: 5'b10001 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
@@ -179,56 +310,56 @@ InstructionSet Zvkg extends RVVBase{
 InstructionSet Zvkned extends RVVBase{
     instructions {
         VAESDF__VS {
-            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00001010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010011 :: vs2[4:0] :: 5'b00001 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
         }
 
         VAESDF__VV {
-            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00001010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010001 :: vs2[4:0] :: 5'b00001 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
         }
 
         VAESDM__VS {
-            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00000010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010011 :: vs2[4:0] :: 5'b00000 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
         }
 
         VAESDM__VV {
-            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00000010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010001 :: vs2[4:0] :: 5'b00000 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
         }
 
         VAESEF__VS {
-            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00011010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010011 :: vs2[4:0] :: 5'b00011 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
         }
 
         VAESEF__VV {
-            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00011010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010001 :: vs2[4:0] :: 5'b00011 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
         }
 
         VAESEM__VS {
-            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00010010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010011 :: vs2[4:0] :: 5'b00010 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
         }
 
         VAESEM__VV {
-            encoding: 7'b1010001 :: vs2[4:0] :: 8'b00010010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010001 :: vs2[4:0] :: 5'b00010 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
@@ -249,7 +380,7 @@ InstructionSet Zvkned extends RVVBase{
         }
 
         VAESZ__VS {
-            encoding: 7'b1010011 :: vs2[4:0] :: 8'b00111010 :: vd[4:0] :: 7'b1110111;
+            encoding: 7'b1010011 :: vs2[4:0] :: 5'b00111 :: 3'b010 :: vd[4:0] :: 7'b1110111;
             assembly: "{vname(vs2)}, {vname(vd)}";
             behavior: {
                     }
