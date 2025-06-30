@@ -239,7 +239,7 @@ InstructionSet Zvbc extends RVVBase_arith{
             encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                if(illegal_normal(vd, vm) || sew() != 0b011) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b001100, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -252,7 +252,7 @@ InstructionSet Zvbc extends RVVBase_arith{
             encoding: 6'b001100 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: {
-                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                if(rs1 >=RFS || illegal_normal(vd, vm) || sew() != 0b011) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001100, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
@@ -265,7 +265,7 @@ InstructionSet Zvbc extends RVVBase_arith{
             encoding: 6'b001101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                if(illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                if(illegal_normal(vd, vm) || sew() != 0b011) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_vector_op(V, 6'b001101, 3'b010, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -278,7 +278,7 @@ InstructionSet Zvbc extends RVVBase_arith{
             encoding: 6'b001101 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b110 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: {
-                if(rs1 >=RFS || illegal_normal(vd, vm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                if(rs1 >=RFS || illegal_normal(vd, vm) || sew() != 0b011) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart)
                         vector_imm_op(V, 6'b001101, 3'b110, vl, vstart, vtype, vm, vd, vs2, (signed<ELEN>)(signed<XLEN>)X[rs1], sew());
