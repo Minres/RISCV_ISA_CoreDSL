@@ -5,7 +5,7 @@ InstructionSet RVVBase_red extends RVVBase {
         unsigned<1> illegal_reduction(){
             return !valid_vtype() || vstart !=0;
         }
-        unsigned<1> illegal_reduction_widen(unsigned<7> EEW, signed<4> EMUL_pow){
+        unsigned<1> illegal_reduction_widen(unsigned<8> EEW, signed<4> EMUL_pow){
             return illegal_reduction() || !valid_eew_emul(EEW, EMUL_pow);
         }
         extern void vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
@@ -99,9 +99,9 @@ InstructionSet RVVBase_red extends RVVBase {
             encoding: 6'b110000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -115,9 +115,9 @@ InstructionSet RVVBase_red extends RVVBase {
             encoding: 6'b110001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {

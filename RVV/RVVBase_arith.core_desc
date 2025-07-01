@@ -112,9 +112,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -129,9 +129,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -145,9 +145,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -162,9 +162,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -178,9 +178,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110001 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -195,9 +195,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -211,9 +211,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -228,9 +228,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -244,9 +244,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -261,9 +261,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -277,9 +277,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110110 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -294,9 +294,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -310,9 +310,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -327,9 +327,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -343,9 +343,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b110111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) | !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -360,9 +360,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -818,9 +818,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b101100 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -834,9 +834,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b101100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -851,9 +851,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -867,9 +867,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: simm[4:0] :: 3'b011 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {simm}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -883,9 +883,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b101101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b000 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -900,9 +900,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !(valid_reg_overlap(vs2, vd, LMUL_pow_widen, LMUL_pow))) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -1366,9 +1366,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b111011 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -1383,9 +1383,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -1399,9 +1399,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b111000 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -1416,9 +1416,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -1432,9 +1432,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b111010 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -1449,9 +1449,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -1549,9 +1549,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b111100 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -1566,9 +1566,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -1582,9 +1582,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b111101 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -1599,9 +1599,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -1615,9 +1615,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             encoding: 6'b111111 :: vm[0:0] :: vs2[4:0] :: vs1[4:0] :: 3'b010 :: vd[4:0] :: 7'b1010111;
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                 signed<4> LMUL_pow_widen = LMUL_pow + 1;
                 if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs1, vd, LMUL_pow, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -1632,9 +1632,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
@@ -1651,7 +1651,7 @@ InstructionSet RVVBase_arith extends RVVBase {
                 else {
                     unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
-                    unsigned<7> SEW_widen = (unsigned<6>)(SEW * 2);
+                    unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
                     if(illegal_variable_width(vd, vm, SEW_widen, LMUL_pow_widen) || !valid_reg_overlap(vs2, vd, LMUL_pow, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {

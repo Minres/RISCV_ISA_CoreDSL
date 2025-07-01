@@ -92,7 +92,7 @@ InstructionSet RVVBase extends RVD {
         unsigned<1> valid_rd_mask(unsigned<5> rd, unsigned<1> vm) {
             return rd != 0 || vm != 0;
         }
-        unsigned<1> valid_eew_emul(unsigned<7> EEW, signed<4> EMUL_pow){
+        unsigned<1> valid_eew_emul(unsigned<8> EEW, signed<4> EMUL_pow){
             return EEW >= 8 && EEW <= ELEN && EEW <= EEW_MAX && EMUL_pow >= -3 && EMUL_pow <= 3;
         }
         unsigned<1> valid_segment(unsigned<4> nf, signed<3> EMUL_pow){
@@ -108,7 +108,7 @@ InstructionSet RVVBase extends RVD {
         unsigned<1> illegal_vd_unmasked() {
             return !valid_vtype();
         }
-        unsigned<1> illegal_variable_width(unsigned<5> vd, unsigned<1> vm, unsigned<7> SEW_new, signed<4> LMUL_pow_new) {
+        unsigned<1> illegal_variable_width(unsigned<5> vd, unsigned<1> vm, unsigned<8> SEW_new, signed<4> LMUL_pow_new) {
             return !(valid_vtype()) || !(valid_rd_mask(vd, vm)) || !(valid_eew_emul(SEW_new, LMUL_pow_new));
         }
         unsigned<1> valid_reg_overlap(unsigned<5> rs, unsigned<5> rd, signed<4> EMUL_pow_rs, signed<4> EMUL_pow_rd) {
