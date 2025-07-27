@@ -9,8 +9,7 @@ InstructionSet RISCVBase extends RISCVEncoding {
 
         unsigned int fence = 0;
         unsigned int fencei = 1;
-        unsigned int fencevmal = 2;
-        unsigned int fencevmau = 3;
+        unsigned int fencevma = 2;
 
         // core registers
         register unsigned<XLEN> X[RFS] [[is_main_reg]];

@@ -604,6 +604,12 @@ InstructionSet RVNMode extends RISCVBase {
 
 InstructionSet RVSMode extends RISCVBase {
     instructions {
+        SFENCE__VMA  {
+            encoding: 7'b0001001 :: asid[4:0] :: rs1[4:0] :: 3'b000 :: 5'b00000:: 7'b1110011;
+            assembly: "{name(rs1)}, {name(asid)}";
+            behavior:  FENCE[fencevma] = (unsigned<8>)rs1 :: (unsigned<8>)asid;
+        }
+
         SRET[[no_cont]]  {
             encoding: 7'b0001000 :: 5'b00010 :: 5'b00000 :: 3'b000 :: 5'b00000 :: 7'b1110011;
             behavior: leave(1);
