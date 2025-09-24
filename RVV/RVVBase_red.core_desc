@@ -5,8 +5,8 @@ InstructionSet RVVBase_red extends RVVBase {
         unsigned<1> illegal_reduction(){
             return !valid_vtype() || vstart !=0;
         }
-        unsigned<1> illegal_reduction_widen(unsigned<8> EEW, signed<4> EMUL_pow){
-            return illegal_reduction() || !valid_eew_emul(EEW, EMUL_pow);
+        unsigned<1> illegal_reduction_widen(unsigned<8> EEW){
+            return illegal_reduction() || !(EEW >= 8 && EEW <= ELEN);
         }
         extern void vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_red_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
@@ -100,10 +100,8 @@ InstructionSet RVVBase_red extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
                     unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    if(illegal_reduction_widen(SEW_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_red_wv(V, 6'b110000, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -116,10 +114,8 @@ InstructionSet RVVBase_red extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vname(vs1)}, {vm}";
             behavior: {
                     unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
-                    signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
-                    signed<4> LMUL_pow_widen = LMUL_pow + 1;
-                    if(illegal_reduction_widen(SEW_widen, LMUL_pow_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    if(illegal_reduction_widen(SEW_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                     else {
                         if(vl > vstart)
                             vector_red_wv(V, 6'b110001, 3'b000, vl, vstart, vtype, vm, vd, vs2, vs1, sew());
@@ -134,6 +130,9 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
     functions {
         unsigned<1> illegal_fp_reduction(unsigned<8> SEW, unsigned<3> rm) {
             return !valid_vtype() || vstart !=0 || !valid_fp_op(SEW, rm);
+        }
+        unsigned<1> illegal_fp_reduction_widen(unsigned<8> SEW, unsigned<3> rm, unsigned<8> EEW){
+            return illegal_fp_reduction(SEW, rm) || !(EEW >= 8 && EEW <= ELEN);
         }
         extern void fp_vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> rm, unsigned<3> sew);
         extern void fp_vector_red_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> rm, unsigned<3> sew);
@@ -208,7 +207,8 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_reduction(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
+                if(illegal_fp_reduction_widen(SEW, rm, SEW_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_red_wv(V, 6'b110011, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
@@ -225,7 +225,8 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
             behavior: {
                 unsigned<8> SEW = (unsigned<8>)(8'sb1 << (get_sew_pow())) & ~8'b1;
                 unsigned<3> rm = FCSR[7:5];
-                if(illegal_fp_reduction(SEW, rm)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
+                if(illegal_fp_reduction_widen(SEW, rm, SEW_widen)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
                     if(vl > vstart){
                         fp_vector_red_wv(V, 6'b110001, 3'b001, vl, vstart, vtype, vm, vd, vs2, vs1, rm, sew());
