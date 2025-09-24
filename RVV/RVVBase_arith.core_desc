@@ -1649,7 +1649,7 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {name(rs1)}, {vm}";
             behavior: if(rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
-                    unsigned<6> SEW = (unsigned<5>)(5'sb1 << get_sew_pow()) & ~5'b1;
+                    unsigned<8> SEW = (unsigned<8>)(8'sb1 << get_sew_pow()) & ~8'b1;
                     signed<3> LMUL_pow = get_lmul_pow();
                     unsigned<8> SEW_widen = (unsigned<8>)(SEW * 2);
                     signed<4> LMUL_pow_widen = LMUL_pow + 1;
