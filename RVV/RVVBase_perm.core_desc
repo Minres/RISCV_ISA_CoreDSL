@@ -2,16 +2,17 @@ import "RVVBase.core_desc"
 
 InstructionSet RVVBase_perm extends RVVBase {
     functions {
-        extern unsigned<XLEN> scalar_from_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, unsigned<3> sew_val);
-        extern void scalar_to_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, signed<ELEN> val, unsigned<3> sew_val);
-        extern void vector_slideup(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew_val);
-        extern void vector_slidedown(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew_val);
-        extern void vector_slide1up(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<XLEN> imm, unsigned<3> sew_val);
-        extern void vector_slide1down(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<XLEN> imm, unsigned<3> sew_val);
-        extern void vector_vector_gather(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_vector_gatherei16(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_imm_gather(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<XLEN> imm, unsigned<3> sew);        extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_compress(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern unsigned<XLEN> scalar_from_vector(unsigned<VLEN> V[32], unsigned<64> vtype, unsigned<5> vd, unsigned<3> sew_val);
+        extern void scalar_to_vector(unsigned<VLEN> V[32], unsigned<64> vtype, unsigned<5> vd, signed<ELEN> val, unsigned<3> sew_val);
+        extern void vector_slideup(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<64> imm, unsigned<3> sew_val);
+        extern void vector_slidedown(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<64> imm, unsigned<3> sew_val);
+        extern void vector_slide1up(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew_val);
+        extern void vector_slide1down(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew_val);
+        extern void vector_vector_gather(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_vector_gatherei16(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_gather(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<64> imm, unsigned<3> sew);
+        extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_compress(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
         extern void vector_whole_move(unsigned<VLEN> V[32], unsigned<5> vd, unsigned<5> vs2, unsigned<4> count);
     }
     instructions{
@@ -189,9 +190,9 @@ InstructionSet RVVBase_perm extends RVVBase {
 
 InstructionSet RVVBase_perm_fp extends RVVBase_perm {
     functions {
-        extern unsigned<FLEN> fp_scalar_from_vector(unsigned<VLEN> V[32], unsigned<XLEN> vtype, unsigned<5> vd, unsigned<3> sew_val);
-        extern void fp_vector_slide1up(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<FLEN> imm, unsigned<3> sew_val);
-        extern void fp_vector_slide1down(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<FLEN> imm, unsigned<3> sew_val);
+        extern unsigned<FLEN> fp_scalar_from_vector(unsigned<VLEN> V[32], unsigned<64> vtype, unsigned<5> vd, unsigned<3> sew_val);
+        extern void fp_vector_slide1up(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<FLEN> imm, unsigned<3> sew_val);
+        extern void fp_vector_slide1down(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, bool vm, unsigned<5> vd, unsigned<5> vs2, unsigned<FLEN> imm, unsigned<3> sew_val);
    
     }
     instructions {

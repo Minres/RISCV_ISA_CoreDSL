@@ -2,23 +2,23 @@ import "RVVBase.core_desc"
 
 InstructionSet RVVBase_arith extends RVVBase {
     functions {
-        extern void vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        extern void vector_vector_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_imm_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        extern void vector_vector_ww(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_imm_ww(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        extern void vector_extend(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_pow, unsigned<2> enc);
-        extern void vector_vector_carry(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew, signed<2> val);
-        extern void vector_imm_carry(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew, signed<2> val);
-        extern void carry_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void carry_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        extern void vector_vector_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_imm_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        extern void mask_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_imm_merge(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<ELEN> imm, unsigned<3> sew);
+        extern void vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
+        extern void vector_vector_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
+        extern void vector_vector_ww(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_ww(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
+        extern void vector_extend(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_pow, unsigned<2> enc);
+        extern void vector_vector_carry(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew, signed<2> val);
+        extern void vector_imm_carry(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew, signed<2> val);
+        extern void carry_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void carry_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
+        extern void vector_vector_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
+        extern void mask_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void mask_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
+        extern void vector_vector_merge(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_imm_merge(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<64> imm, unsigned<3> sew);
     }
     instructions{
         // 31.11.1. Vector Single-Width Integer Add and Subtract
@@ -379,9 +379,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
                 unsigned<3> SEW_pow = get_sew_pow();
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << SEW_pow) & ~5'b1;
+                unsigned<7> SEW = (unsigned<7>)(7'b1 << SEW_pow);
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<6> SEW_target = SEW / 2;
+                unsigned<6> SEW_target = (unsigned<6>)(SEW / 2);
                 signed<4> LMUL_pow_target = LMUL_pow - 1;
                 if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -396,9 +396,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
                 unsigned<3> SEW_pow = get_sew_pow();
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << SEW_pow) & ~5'b1;
+                unsigned<7> SEW = (unsigned<7>)(7'b1 << SEW_pow);
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<6> SEW_target = SEW / 2;
+                unsigned<6> SEW_target = (unsigned<6>)(SEW / 2);
                 signed<4> LMUL_pow_target = LMUL_pow - 1;
                 if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -413,9 +413,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
                 unsigned<3> SEW_pow = get_sew_pow();
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << SEW_pow) & ~5'b1;
+                unsigned<7> SEW = (unsigned<7>)(7'b1 << SEW_pow);
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<6> SEW_target = SEW / 4;
+                unsigned<6> SEW_target = (unsigned<6>)(SEW / 4);
                 signed<4> LMUL_pow_target = LMUL_pow - 2;
                 if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -430,9 +430,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
                 unsigned<3> SEW_pow = get_sew_pow();
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << SEW_pow) & ~5'b1;
+                unsigned<7> SEW = (unsigned<7>)(7'b1 << SEW_pow);
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<6> SEW_target = SEW / 4;
+                unsigned<6> SEW_target = (unsigned<6>)(SEW / 4);
                 signed<4> LMUL_pow_target = LMUL_pow - 2;
                 if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -447,9 +447,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
                 unsigned<3> SEW_pow = get_sew_pow();
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << SEW_pow) & ~5'b1;
+                unsigned<7> SEW = (unsigned<7>)(7'b1 << SEW_pow);
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<6> SEW_target = SEW / 8;
+                unsigned<6> SEW_target = (unsigned<6>)(SEW / 8);
                 signed<4> LMUL_pow_target = LMUL_pow - 3;
                 if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {
@@ -464,9 +464,9 @@ InstructionSet RVVBase_arith extends RVVBase {
             assembly: "{vname(vd)}, {vname(vs2)}, {vm}";
             behavior: {
                 unsigned<3> SEW_pow = get_sew_pow();
-                unsigned<6> SEW = (unsigned<5>)(5'sb1 << SEW_pow) & ~5'b1;
+                unsigned<7> SEW = (unsigned<7>)(7'b1 << SEW_pow);
                 signed<3> LMUL_pow = get_lmul_pow();
-                unsigned<6> SEW_target = SEW / 8;
+                unsigned<6> SEW_target = (unsigned<6>)(SEW / 8);
                 signed<4> LMUL_pow_target = LMUL_pow - 3;
                 if(illegal_variable_width(vd, vm, SEW_target, LMUL_pow_target) || !valid_reg_overlap(vs2, vd, LMUL_pow_target, LMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
                 else {

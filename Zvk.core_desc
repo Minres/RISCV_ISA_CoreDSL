@@ -3,7 +3,7 @@ import "RVV/RVVBase_arith.core_desc"
 
 InstructionSet Zvkb extends RVVBase_arith{
     functions {
-        extern void vector_unary_op(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_pow);
+        extern void vector_unary_op(unsigned<VLEN> V[32], unsigned<5> unary_op, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_pow);
     }
     instructions {
         VANDN__VV {
@@ -295,9 +295,9 @@ InstructionSet Zvbc extends RVVBase_arith{
 }
 InstructionSet ZvkBase extends RVVBase{
     functions {
-        extern void vector_vector_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> eg_len, unsigned<XLEN> eg_start, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<8> egs);
-        extern void vector_scalar_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> eg_len, unsigned<XLEN> eg_start, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<8> egs);
-        extern void vector_imm_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> eg_len, unsigned<XLEN> eg_start, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<ELEN> imm, unsigned<8> egs);
+        extern void vector_vector_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<64> eg_len, unsigned<64> eg_start, unsigned<64> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<8> egs);
+        extern void vector_scalar_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<64> eg_len, unsigned<64> eg_start, unsigned<64> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<8> egs);
+        extern void vector_imm_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<64> eg_len, unsigned<64> eg_start, unsigned<64> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<64> imm, unsigned<8> egs);
 
         bool sew_32(){
             return sew() == 0b010;
@@ -512,7 +512,7 @@ InstructionSet Zvkned extends ZvkBase{
 
 InstructionSet Zvknha extends ZvkBase{
     functions {
-        extern void vector_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<XLEN> eg_len, unsigned<XLEN> eg_start, unsigned<XLEN> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<8> egs, unsigned<8> sew);
+        extern void vector_crypto(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<64> eg_len, unsigned<64> eg_start, unsigned<64> vtype, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<8> egs, unsigned<8> sew);
     }
     instructions {
         VSHA2CH__VV  {

@@ -8,8 +8,8 @@ InstructionSet RVVBase_red extends RVVBase {
         unsigned<1> illegal_reduction_widen(unsigned<8> EEW, signed<4> EMUL_pow){
             return illegal_reduction() || !valid_eew_emul(EEW, EMUL_pow);
         }
-        extern void vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern void vector_red_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern void vector_red_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
     }
     instructions {
         // 31.14.1. Vector Single-Width Integer Reduction Instructions
@@ -135,8 +135,8 @@ InstructionSet RVVBase_red_fp extends RVVBase_red{
         unsigned<1> illegal_fp_reduction(unsigned<8> SEW, unsigned<3> rm) {
             return !valid_vtype() || vstart !=0 || !valid_fp_op(SEW, rm);
         }
-        extern void fp_vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> rm, unsigned<3> sew);
-        extern void fp_vector_red_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> rm, unsigned<3> sew);
+        extern void fp_vector_red_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> rm, unsigned<3> sew);
+        extern void fp_vector_red_wv(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> rm, unsigned<3> sew);
     
     }
     instructions {

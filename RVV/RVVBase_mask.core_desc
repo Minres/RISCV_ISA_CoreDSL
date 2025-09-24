@@ -2,12 +2,12 @@ import "RVVBase.core_desc"
 
 InstructionSet RVVBase_mask extends RVVBase {
     functions {
-        extern void mask_mask_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1);
-        extern unsigned<XLEN> vcpop(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<1> vm, unsigned<5> vs2);
-        extern unsigned<XLEN> vfirst(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<1> vm, unsigned<5> vs2);
-        extern void  mask_set_op(unsigned<VLEN> V[32], unsigned<5> enc, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2);
-        extern void viota(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_val);
-        extern void vid(unsigned<VLEN> V[32], unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<3> sew_val);
+        extern void mask_mask_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1);
+        extern unsigned<XLEN> vcpop(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<1> vm, unsigned<5> vs2);
+        extern unsigned<XLEN> vfirst(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<1> vm, unsigned<5> vs2);
+        extern void  mask_set_op(unsigned<VLEN> V[32], unsigned<5> enc, unsigned<64> vl, unsigned<64> vstart, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2);
+        extern void viota(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<3> sew_val);
+        extern void vid(unsigned<VLEN> V[32], unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<1> vm, unsigned<5> vd, unsigned<3> sew_val);
     }
     instructions{
         // 31.15.1. Vector Mask-Register Logical Instructions

@@ -2,10 +2,10 @@ import "RVVBase.core_desc"
 
 InstructionSet RVVBase_fixed extends RVVBase {
     functions {
-        extern unsigned<1> sat_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<XLEN> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern unsigned<1> sat_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<XLEN> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
-        extern unsigned<1> sat_vector_vector_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<XLEN> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
-        extern unsigned<1> sat_vector_imm_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<XLEN> vl, unsigned<XLEN> vstart, unsigned<XLEN> vtype, unsigned<XLEN> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<ELEN> imm, unsigned<3> sew);
+        extern unsigned<1> sat_vector_vector_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<64> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern unsigned<1> sat_vector_imm_op(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<64> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
+        extern unsigned<1> sat_vector_vector_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<64> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, unsigned<5> vs1, unsigned<3> sew);
+        extern unsigned<1> sat_vector_imm_vw(unsigned<VLEN> V[32], unsigned<6> funct6, unsigned<3> funct3, unsigned<64> vl, unsigned<64> vstart, unsigned<64> vtype, unsigned<64> vxrm, unsigned<1> vm, unsigned<5> vd, unsigned<5> vs2, signed<64> imm, unsigned<3> sew);
     }
     instructions{
         // 31.12.1. Vector Single-Width Saturating Add and Subtract
