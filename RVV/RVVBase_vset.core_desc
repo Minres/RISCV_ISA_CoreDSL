@@ -73,7 +73,8 @@ InstructionSet RVVBase_vset extends RVVBase {
                     else {
                         unsigned<16> VLMAX = (unsigned<16>)(16'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~16'b1;
                         vl = calculate_new_vl(uimm, VLMAX);
-                        X[rd] = vl;
+                        if(rd != 0)
+                            X[rd] = vl;
                         vstart = 0;
                     }
                 }
