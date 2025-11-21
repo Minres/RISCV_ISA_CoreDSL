@@ -243,7 +243,7 @@ InstructionSet Zca extends RVI {
 
         C__LWSP {//
             encoding: 3'b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
-            assembly: "{name(rd)}, sp, {uimm:#05x}";
+            assembly: "{name(rd)}, {uimm:#05x}(sp)";
             behavior: {
                 if(rd >= RFS || rd == 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 	unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
