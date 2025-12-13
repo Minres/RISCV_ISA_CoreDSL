@@ -1,0 +1,17 @@
+        VL{{"SEG"~segment_size if segment_size >1}}E{{elem_size}}FF__V {
+            encoding: 3'b{{segment_bits}} :: mew[0:0] :: 2'b00 :: vm[0:0] :: 5'b10000 :: rs1[4:0] :: 3'b{{elem_bits}} :: vd[4:0] :: 7'b0000111;
+            assembly: "{vname(vd)}, ({name(rs1)})";
+            behavior: if(rs1>=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    unsigned<7> EEW = {{elem_size}};
+                    signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
+                    if(illegal_load(vd, vm, {{segment_size}}, EEW, EMUL_pow)) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    else {
+                        unsigned<64> trapped_idx = (unsigned<XLEN>)vlseg(V, vl, vstart, vtype, vm, vd, X[rs1], 3'b{{elem_bits}}, {{segment_size}});
+                        if(trapped_idx != 1){
+                            vl = (unsigned<XLEN>) trapped_idx;
+                            lower();
+                        }
+                    }
+                }
+        }

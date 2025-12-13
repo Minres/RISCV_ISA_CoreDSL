@@ -1,0 +1,141 @@
+import "../RVD.core_desc"
+InstructionSet RVVBase extends RVD {
+
+    architectural_state {
+        unsigned<32> VLEN;
+        unsigned<32> ELEN; //Maximum SEW Value
+        // __static_assert(ELEN<=XLEN);
+        // __static_assert(VLEN>=ELEN);
+        // __static_assert(ELEN>=8);
+        unsigned<32> EEW_MAX = ELEN; //for profiles
+        // __static_assert(EEW_MAX<=ELEN);
+        unsigned<32> FP_SEW_MIN = 32;
+        unsigned<32> FP_SEW_MAX = 64;
+
+        unsigned<32> VSTART_ADDR = 0x008;
+        unsigned<32> VXSAT_ADDR = 0x009;
+        unsigned<32> VXRM_ADDR = 0x00A;
+        unsigned<32> VCSR_ADDR = 0x00F;
+        unsigned<32> VL_ADDR = 0xC20;
+        unsigned<32> VTYPE_ADDR = 0xC21;
+        unsigned<32> VLENB_ADDR = 0xC22;
+    
+        unsigned<XLEN>& vstart = CSR[VSTART_ADDR];
+        unsigned<XLEN>& vxsat = CSR[VXSAT_ADDR];
+        unsigned<XLEN>& vxrm = CSR[VXRM_ADDR];
+        unsigned<XLEN>& vl = CSR[VL_ADDR];
+        unsigned<XLEN>& vtype = CSR[VTYPE_ADDR];
+
+        // unsigned<1>& vill = vtype[XLEN-1]; //The generator can not deal with this as during elaboration here XLEN is not yet initilaized
+        // These are allowed but not supported by the generator, we introduce sew() and lmul() instead which return the corresponding value
+        // unsigned<1>& vma  = vtype[7];
+        // unsigned<1>& vta  = vtype[6];
+        // unsigned<3>& vsew = vtype[5:3];
+        // unsigned<3>& vlmul = vtype[2:0];
+
+        register unsigned<VLEN> V[32];
+    }
+    functions {
+        unsigned<8> get_pow(unsigned<32> val){
+            switch(val){
+                case 8: return 3;
+                case 16: return 4;
+                case 32: return 5;
+                case 64: return 6;
+                case 128: return 7;
+                case 256: return 8;
+                case 512: return 9;
+                case 1024: return 10;
+                case 2048: return 11;
+                case 4096: return 12;
+                default: raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); //This is illegal instruction error, should be a more fatal error 
+            }
+            return 0; //needed to stop validator from complainng
+        }
+        unsigned<3> lmul(){
+            return vtype[2:0];
+        }
+        unsigned<3> sew(){
+            return vtype[5:3];
+        }
+        signed<3> get_lmul_pow(){
+            switch(lmul()){
+                case 0b101: return -3;
+                case 0b110: return -2;
+                case 0b111: return -1;
+                case 0b000: return 0;
+                case 0b001: return 1;
+                case 0b010: return 2;
+                case 0b011: return 3;
+                default: raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); //This is illegal instruction error, should be a more fatal error 
+            }
+            return 0; //needed to stop validator from complainng
+        }
+        unsigned<3> get_sew_pow(){
+            switch(sew()) {
+                case 0b000: return 3;
+                case 0b001: return 4;
+                case 0b010: return 5;
+                case 0b011: return 6;
+                default: raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); //This is illegal instruction error, should be a more fatal error
+            }
+            return 0; //needed to stop validator from complainng
+        }
+        unsigned<16> get_elem_count(){
+            // num_elem = VLEN * LMUL / SEW
+            unsigned<8> total_pow = (unsigned<8>)(get_pow(VLEN) + get_lmul_pow() - get_sew_pow());
+            return (unsigned<16>)(16'sb1 << total_pow) & ~16'b1;
+        }
+        unsigned<1> valid_vtype(){
+            return vtype[XLEN-1] == 0;
+        }
+        unsigned<1> valid_rd_mask(unsigned<5> rd, unsigned<1> vm) {
+            return rd != 0 || vm != 0;
+        }
+        unsigned<1> valid_eew_emul(unsigned<8> EEW, signed<4> EMUL_pow){
+            return EEW >= 8 && EEW <= ELEN && EEW <= EEW_MAX && EMUL_pow >= -3 && EMUL_pow <= 3;
+        }
+        unsigned<1> valid_segment(unsigned<4> nf, signed<3> EMUL_pow){
+            if (EMUL_pow < 0) {
+                unsigned<8> neg_EMUL = (unsigned<8>)(8'sb1 << -EMUL_pow) & ~8'b1;
+                return nf / neg_EMUL <= 8;
+                }
+            else {
+                unsigned<8> EMUL = (unsigned<8>)(8'sb1 << EMUL_pow) & ~8'b1;
+                return nf * EMUL <= 8;
+                }
+        }
+        unsigned<1> illegal_vd_unmasked() {
+            return !valid_vtype();
+        }
+        unsigned<1> illegal_variable_width(unsigned<5> vd, unsigned<1> vm, unsigned<8> SEW_new, signed<4> LMUL_pow_new) {
+            return !(valid_vtype()) || !(valid_rd_mask(vd, vm)) || !(valid_eew_emul(SEW_new, LMUL_pow_new));
+        }
+        unsigned<1> valid_reg_overlap(unsigned<5> rs, unsigned<5> rd, signed<4> EMUL_pow_rs, signed<4> EMUL_pow_rd) {
+            unsigned<5> rs_group = EMUL_pow_rs > 0 ? (unsigned<5>)(5'sb1 << EMUL_pow_rs) & ~5'b1 : 1;
+            unsigned<5> rd_group = EMUL_pow_rd > 0 ? (unsigned<5>)(5'sb1 << EMUL_pow_rd) & ~5'b1 : 1;
+            if(EMUL_pow_rs < EMUL_pow_rd) {
+                return (rs + rs_group <= rd) || (rs >= rd + rd_group) || ((rs + rs_group == rd + rd_group) & (EMUL_pow_rs >= 0));
+            } else if(EMUL_pow_rs > EMUL_pow_rd){
+                return (rd <= rs) || (rd >= rs + rs_group);
+            } else return true;
+        }
+        unsigned<1> illegal_vd_masked(unsigned<5> vd) {
+            return !(valid_vtype()) || vd == 0b00000;
+        }
+        unsigned<1> illegal_normal(unsigned<5> vd, unsigned<1> vm) {
+            return !(valid_vtype()) || !(valid_rd_mask(vd, vm));
+        }
+        unsigned<1> valid_fp_op(unsigned<8> SEW, unsigned<3> rm) {
+            bool valid_sew = (FP_SEW_MIN >= 32 & SEW <= FP_SEW_MAX);
+            bool valid_rm = !(rm == 0b101 | rm == 0b110 | rm == 0b111);
+            return valid_sew && valid_rm;
+        }
+        unsigned<1> illegal_fp_vd_unmasked(unsigned<8>SEW, unsigned<3> rm) {
+            return !(valid_vtype()) || !(valid_fp_op(SEW, rm));
+        }
+        unsigned<1> illegal_fp_normal(unsigned<5> vd, unsigned<1> vm, unsigned<8> SEW, unsigned<3> rm) {
+            return !(valid_vtype()) || !(valid_rd_mask(vd, vm)) || !(valid_fp_op(SEW, rm));
+        }
+}
+}

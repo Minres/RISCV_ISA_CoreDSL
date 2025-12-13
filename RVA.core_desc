@@ -1,48 +1,51 @@
 import "RISCVBase.core_desc"
 
-InstructionSet RV32A extends RISCVBase {
+InstructionSet RVA extends RISCVBase {
     instructions {
         LRW {
             encoding: 5'b00010 :: aq[0:0] :: rl[0:0]  :: 5'b00000 :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: "{name(rd)}, {name(rs1)}, {name(aq)}, {name(rl)}";
-            behavior: if ((rd % RFS) != 0) {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                X[rd % RFS] = (unsigned<XLEN>)((signed)MEM[offs+3:offs]);
-                RES[offs] = (unsigned<8>)-1;
+            behavior: if(rd >= RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+            	if (rd  != 0) {
+                    unsigned<XLEN> offs = X[rs1];
+                    X[rd] = (unsigned<XLEN>)((signed<32>)MEM[offs+3:offs]);
+                    RES[offs] = (unsigned<8>)-1;
+                }
             }
         }
 
         SCW {
             encoding: 5'b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}, {name(aq)}, {name(rl)}";
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = RES[offs];
                 if (res1 != 0)
-                    MEM[offs+3:offs] = X[rs2 % RFS];
-                if ((rd % RFS) != 0)
-                    X[rd % RFS] = res1 ? 0 : 1;
+                    MEM[offs+3:offs] = (unsigned<32>)X[rs2];
+                if (rd != 0)
+                    X[rd] = res1 ? 0 : 1;
             }
         }
 
         AMOSWAPW {
             encoding: 5'b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoswap.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)((signed)MEM[offs+3:offs]);
-                MEM[offs+3:offs] = (unsigned<32>)X[rs2 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<XLEN> res = X[rs2];
+                if (rd != 0) X[rd] = (unsigned<XLEN>)((signed<32>)MEM[offs+3:offs]);
+                MEM[offs+3:offs] = (unsigned<32>)res;
             }
         }
 
         AMOADDW {
             encoding: 5'b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoadd.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<32> res1 = (signed)MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)res1;
-                signed<34> res2 = res1 + (signed<32>)X[rs2 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                signed<32> res1 = (signed<32>)MEM[offs+3:offs];
+                signed<34> res2 = res1 + (signed<32>)X[rs2];
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+3:offs] = (unsigned<32>)res2;
             }
         }
@@ -50,11 +53,11 @@ InstructionSet RV32A extends RISCVBase {
         AMOXORW {
             encoding: 5'b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoxor.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res1;
-                unsigned<32> res2 = res1 ^ (unsigned<32>)X[rs2 % RFS];
+                unsigned<32> res2 = res1 ^ (unsigned<32>)X[rs2];
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -62,11 +65,11 @@ InstructionSet RV32A extends RISCVBase {
         AMOANDW {
             encoding: 5'b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoand.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res1;
-                unsigned<32> res2 = res1 & (unsigned<32>)X[rs2 % RFS];
+                unsigned<32> res2 = res1 & (unsigned<32>)X[rs2];
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -74,11 +77,11 @@ InstructionSet RV32A extends RISCVBase {
         AMOORW {
             encoding: 5'b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoor.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res1;
-                unsigned<32> res2 = res1 | (unsigned<32>)X[rs2 % RFS];
+                unsigned<32> res2 = res1 | (unsigned<32>)X[rs2];
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -86,11 +89,11 @@ InstructionSet RV32A extends RISCVBase {
         AMOMINW {
             encoding: 5'b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomin.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<32> res1 = (signed)MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)res1;
-                unsigned<32> res2 = res1 > (signed<32>)X[rs2 % RFS] ? (unsigned<32>)X[rs2 % RFS] : (unsigned)res1;
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                signed<32> res1 = (signed<32>)MEM[offs+3:offs];
+                unsigned<32> res2 = res1 > (signed<32>)X[rs2] ? (unsigned<32>)X[rs2] : (unsigned)res1;
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -98,11 +101,11 @@ InstructionSet RV32A extends RISCVBase {
         AMOMAXW {
             encoding: 5'b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomax.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<32> res1 = (signed)MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)res1;
-                unsigned<32> res2 = res1 < (signed<32>)X[rs2 % RFS] ? (unsigned<32>)X[rs2 % RFS] : (unsigned)res1;
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                signed<32> res1 = (signed<32>)MEM[offs+3:offs];
+                unsigned<32> res2 = res1 < (signed<32>)X[rs2] ? (unsigned<32>)X[rs2] : (unsigned)res1;
+                if (rd != 0) X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -110,11 +113,11 @@ InstructionSet RV32A extends RISCVBase {
         AMOMINUW {
             encoding: 5'b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amominu.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)res1;
-                unsigned<32> res2 = res1 > (unsigned<32>)X[rs2 % RFS] ? (unsigned<32>)X[rs2 % RFS] : res1;
+                unsigned<32> res2 = res1 > (unsigned<32>)X[rs2] ? (unsigned<32>)X[rs2] : res1;
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
@@ -122,146 +125,150 @@ InstructionSet RV32A extends RISCVBase {
         AMOMAXUW {
             encoding: 5'b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomaxu.w", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<32> res1 = MEM[offs+3:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = (unsigned<XLEN>)res1;
-                unsigned<32> res2 = res1 < (unsigned<32>)X[rs2 % RFS] ? (unsigned<32>)X[rs2 % RFS] : res1;
+                unsigned<32> res2 = res1 < (signed<32>)X[rs2] ? (unsigned<32>)X[rs2] : res1;
+                if (rd != 0) X[rd] = (unsigned)(signed<XLEN>)(signed)res1;
                 MEM[offs+3:offs] = res2;
             }
         }
-    }
-}
 
-InstructionSet RV64A extends RV32A {
-    instructions {
-        LRD {
+        LRD [[enable=XLEN==64]] {
             encoding: 5'b00010 :: aq[0:0] :: rl[0:0]  :: 5'b00000 :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: "{name(rd)}, {name(rs1)}";
-            behavior: {
-                if ((rd % RFS) != 0) {
-                    unsigned<XLEN> offs = X[rs1 % RFS];
-                    X[rd % RFS] = (signed<XLEN>)((signed<64>)MEM[offs+7:offs]);
-                    MEM[offs+7:offs] = (unsigned<64>)-1;
-                }
+            behavior: if(rd >= RFS || rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) {
+                unsigned<XLEN> offs = X[rs1];
+                X[rd] = (unsigned <XLEN>)((signed<64>)MEM[offs+7:offs]);
+            	RES[offs] = (unsigned<8>)-1;
             }
         }
 
-        SCD {
+        SCD [[enable=XLEN==64]] {
             encoding: 5'b00011 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res = RES[offs];
                 if (res != 0)
-                    MEM[offs+7:offs] = X[rs2 % RFS];
-                if ((rd % RFS) != 0)
-                    X[rd % RFS] = res ? 0 : 1;
+                    MEM[offs+7:offs] = X[rs2];
+                if (rd != 0)
+                    X[rd] = res ? 0 : 1;
             }
         }
 
-        AMOSWAPD {
+        AMOSWAPD [[enable=XLEN==64]] {
             encoding: 5'b00001 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoswap.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                if ((rd % RFS) != 0) X[rd % RFS] = (signed<XLEN>)((signed<64>)MEM[offs+7:offs]);
-                MEM[offs+7:offs] = (unsigned<64>)X[rs2 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<XLEN> res = X[rs2];
+                if (rd != 0)
+                 	X[rd] = (unsigned<XLEN>)((signed<64>)MEM[offs+7:offs]);
+                MEM[offs+7:offs] = (unsigned<64>)res;
             }
         }
 
-        AMOADDD {
+        AMOADDD [[enable=XLEN==64]] {
             encoding: 5'b00000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoadd.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<64> res = (signed)MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
-                unsigned<64> res2 = res + X[rs2 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<64> res1 = MEM[offs+7:offs];
+                unsigned<64> res2 = (unsigned<64>)(res1 + X[rs2]);
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }
 
-        AMOXORD {
+        AMOXORD [[enable=XLEN==64]] {
             encoding: 5'b00100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoxor.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<64> res = (signed)MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
-                unsigned<64> res2 = res ^ X[rs2 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<64> res1 = MEM[offs+7:offs];
+                unsigned<64> res2 = res1 ^ X[rs2];
+                if (rd != 0)
+                	X[rd] = (unsigned)(signed<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }
 
-        AMOANDD {
+        AMOANDD [[enable=XLEN==64]] {
             encoding: 5'b01100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoand.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<64> res = (signed)MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
-                unsigned<64> res2 = res & X[rs2 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<64> res1 = MEM[offs+7:offs];
+                unsigned<64> res2 = res1 & X[rs2];
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }
 
-        AMOORD {
+        AMOORD [[enable=XLEN==64]] {
             encoding: 5'b01000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amoor.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<64> res = (signed)MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
-                unsigned<64> res2 = res :: X[rs2 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<64> res1 = MEM[offs+7:offs];
+                unsigned<64> res2 = res1 | X[rs2];
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }
 
-        AMOMIND {
+        AMOMIND [[enable=XLEN==64]] {
             encoding: 5'b10000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomin.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<64> res1 = (signed)MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res1;
-                unsigned<64> res2 = res1 > (signed<64>)X[rs2 % RFS] ? X[rs2 % RFS] : res1;
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                signed<64> res1 = (signed<64>)MEM[offs+7:offs];
+                unsigned<64> res2 = res1 > (signed<64>)X[rs2] ? (unsigned<64>)X[rs2] : (unsigned)res1;
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }
 
-        AMOMAXD {
+        AMOMAXD [[enable=XLEN==64]] {
             encoding: 5'b10100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomax.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                signed<64> res = (signed)MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = res;
-                unsigned<64> res2 = res < (signed<64>)X[rs2 % RFS] ? X[rs2 % RFS] : res;
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                signed<64> res1 = (signed<64>)MEM[offs+7:offs];
+                unsigned<64> res2 = res1 < (signed<64>)X[rs2] ? (unsigned<64>)X[rs2] : (unsigned)res1;
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }
 
-        AMOMINUD {
+        AMOMINUD [[enable=XLEN==64]] {
             encoding: 5'b11000 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amominu.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
-                unsigned<64> res = MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = (signed<64>)res;
-                unsigned<64> res2 = res > X[rs2 % RFS] ? X[rs2 % RFS] : res;
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
+                unsigned<64> res1 = MEM[offs+7:offs];
+                unsigned<64> res2 = res1 > X[rs2] ? X[rs2] : res1;
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }
 
-        AMOMAXUD {
+        AMOMAXUD [[enable=XLEN==64]] {
             encoding: 5'b11100 :: aq[0:0] :: rl[0:0] :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0101111;
             assembly: {"amomaxu.d", "{name(rd)}, {name(rs1)}, {name(rs2)} (aqu = {aq},rel = {rl})"};
-            behavior: {
-                unsigned<XLEN> offs = X[rs1 % RFS];
+            behavior: if(rd >= RFS || rs1 >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = X[rs1];
                 unsigned<64> res1 = MEM[offs+7:offs];
-                if ((rd % RFS) != 0) X[rd % RFS] = (signed<64>)res1;
-                unsigned<64> res2 = res1 < X[rs2 % RFS] ? X[rs2 % RFS] : res1;
+                unsigned<64> res2 = res1 < X[rs2] ? (unsigned<64>)X[rs2] : res1;
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res1;
                 MEM[offs+7:offs] = res2;
             }
         }

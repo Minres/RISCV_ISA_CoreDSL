@@ -1,0 +1,532 @@
+import "RISCVBase.core_desc"
+
+InstructionSet Zba extends RISCVBase {
+
+    instructions {
+        ADD__UW [[enable=XLEN==64]] {
+            encoding: 7'b0000100 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<64>)(X[rs2] + (unsigned<32>)X[rs1]);
+                    }
+        }
+        SH1ADD {
+            encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(X[rs2] + (X[rs1] << 1));
+                    }
+        }
+        SH1ADD__UW [[enable=XLEN==64]] {
+            encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(X[rs2] + ((unsigned<XLEN>)(unsigned<32>)X[rs1]<<1));
+                    }
+        }
+        SH2ADD {
+            encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(X[rs2] + (X[rs1] << 2));
+                    }
+        }
+        SH2ADD__UW [[enable=XLEN==64]] {
+            encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(X[rs2] + ((unsigned<XLEN>)(unsigned<32>)X[rs1]<<2));
+                    }
+        }
+        SH3ADD {
+            encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(X[rs2] + (X[rs1] << 3));
+                    }
+        }
+        SH3ADD__UW [[enable=XLEN==64]] {
+            encoding: 7'b0010000 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(X[rs2] + ((unsigned<XLEN>)(unsigned<32>)X[rs1]<<3));
+                    }
+        }
+        SLLI__UW [[enable=XLEN==64]] {
+            encoding: 6'b000010 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0011011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = ((unsigned<XLEN>)(unsigned<32>)X[rs1]) << shamt;
+                    }
+        }
+    }
+}
+InstructionSet Zbb_common extends RISCVBase{
+    instructions {
+        ANDN {
+            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0) X[rd] = X[rs1] &  ~X[rs2];
+        }
+        ORN {
+            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0) X[rd] = X[rs1] |  ~X[rs2];
+        }
+        REV8 [[enable=XLEN==32]] {
+            encoding: 12'b011010011000 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> input = X[rs1];
+                        X[rd] = input[7:0] :: input[15:8] :: input[23:16]:: input[31:24];
+                    }
+        }
+        REV8 [[enable=XLEN==64]] {
+            encoding: 12'b011010111000 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> input = X[rs1];
+                        X[rd] = (unsigned<XLEN>)(input[7:0] :: input[15:8] :: input[23:16]:: input[31:24] :: input[39:32] :: input[47:40] :: input[55:48] :: input[63:56]);
+                    }
+        }
+        ROL [[enable=XLEN==32]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> shamt = X[rs2][4:0];
+                        X[rd] = (X[rs1] << shamt) |( X[rs1] >> (XLEN - shamt));
+                    }
+        }
+        ROL [[enable=XLEN==64]]{
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> shamt = X[rs2][5:0];
+                        X[rd] = (X[rs1] << shamt) |( X[rs1] >> (XLEN - shamt));
+                    }
+        }
+        ROLW [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> rs1_data = X[rs1][31:0];
+                        unsigned<5> shamt = X[rs2][4:0];
+                        unsigned<32> result = (rs1_data << shamt) | (rs1_data >> (32 - shamt));
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
+                    }
+        }
+        ROR [[enable=XLEN==32]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> shamt = X[rs2][4:0];
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+        ROR [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<6> shamt = X[rs2][5:0];
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+        RORI [[enable=XLEN==32]] {
+            encoding: 7'b0110000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+        RORI [[enable=XLEN==64]] {
+            encoding: 6'b011000 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (X[rs1] >> shamt) | (X[rs1] << (XLEN - shamt));
+                    }
+        }
+        RORIW [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0011011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> rs1_data = (unsigned<XLEN>)X[rs1][31:0];
+                        unsigned<XLEN> result = (rs1_data >> shamt) | (rs1_data << (32 - shamt));
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)(result[31:0]);
+                    }
+        }
+        RORW [[enable=XLEN==64]] {
+            encoding: 7'b0110000 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<32> rs1_data = X[rs1][31:0];
+                        unsigned<5> shamt = X[rs2][4:0];
+                        unsigned<32> result = (rs1_data >> shamt) | (rs1_data << (32 - shamt));
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<32>)result;
+                    }
+        }
+        XNOR {
+            encoding: 7'b0100000 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = X[rs1] ^ ~X[rs2];
+                    }
+        }
+    }
+}
+InstructionSet Zbb extends Zbb_common{
+    instructions {
+        CLZ {
+            encoding: 12'b011000000000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned int count = XLEN;
+                        for(int i=XLEN-1; i>=0; i--){
+                            if(X[rs1][i] == 1'b1){
+                                count = (unsigned int)(XLEN-1-i);
+                                break;
+                            }
+                        }
+                        X[rd] = count;
+                    }
+        }
+        CLZW [[enable=XLEN==64]] {
+            encoding: 12'b011000000000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0011011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned int count = 32;
+                        for(int i=31; i>=0; i--){
+                            if(X[rs1][i] == 1'b1){
+                                count = (unsigned int)(31-i);
+                                break;
+                            }
+                        }
+                        X[rd] = count;
+                    }
+        }
+        CPOP {
+            encoding: 12'b011000000010 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned int bitcount = 0;
+                        for(unsigned int i = 0; i<XLEN; i++){
+                            if(X[rs1][i] == 1'b1)
+                                bitcount++;
+                        }
+                        X[rd] = bitcount;
+                    }
+        }
+        CPOPW [[enable=XLEN==64]] {
+            encoding: 12'b011000000010 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0011011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned int bitcount = 0;
+                        for(unsigned int i = 0; i<32; i++){
+                            if(X[rs1][i] == 1'b1)
+                                bitcount++;
+                        }
+                        X[rd] = bitcount;
+                    }
+        }
+        CTZ {
+            encoding: 12'b011000000001 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned int count = XLEN;
+                        for(unsigned int i=0; i<XLEN; i++){
+                            if(X[rs1][i] == 1'b1){
+                                count = i;
+                                break;
+                            }
+                        }
+                        X[rd] = count;
+                    }
+        }
+        CTZW [[enable=XLEN==64]] {
+            encoding: 12'b011000000001 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0011011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned int count = 32;
+                        for(unsigned int i=0; i<32; i++){
+                            if(X[rs1][i] == 1'b1){
+                                count = i;
+                                break;
+                            }
+                        }
+                        X[rd] = count;
+                    }
+        }
+        MAX {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b110 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (signed<XLEN>)X[rs1] > (signed<XLEN>)X[rs2] ? X[rs1] : X[rs2];
+                    }
+        }
+        MAXU {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = X[rs1] > X[rs2] ? X[rs1] : X[rs2];
+                    }
+        }
+        MIN {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (signed<XLEN>)X[rs1] < (signed<XLEN>)X[rs2] ? X[rs1] : X[rs2];
+                    }
+        }
+        MINU {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = X[rs1] < X[rs2] ? X[rs1] : X[rs2];
+                    }
+        }
+        ORC__B {
+            encoding: 12'b001010000111 :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> output = 0;
+                        for(unsigned int i = 0; i<XLEN; i+=8){
+                            if(X[rs1] & ((unsigned<XLEN>)0xff << i))
+                                output |= (unsigned<XLEN>)0xff << i;
+                        }
+                        X[rd] = output;
+                    }
+        }
+        SEXT__B {
+            encoding: 12'b011000000100 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<8>)(unsigned<8>)X[rs1];
+                    }
+        }
+        SEXT__H {
+            encoding: 12'b011000000101 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<16>)(unsigned<16>)X[rs1];
+                    }
+        }
+        ZEXT__H [[enable=XLEN==32]] {
+            encoding: 12'b000010000000 :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<16>)X[rs1];
+                    }
+        }
+        ZEXT__H [[enable=XLEN==64]] {
+            encoding: 12'b000010000000 :: rs1[4:0] :: 3'b100 :: rd[4:0] :: 7'b0111011;
+            assembly: "{name(rd)}, {name(rs1)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        X[rd] = (unsigned<16>)X[rs1];
+                    }
+        }
+    }
+}
+InstructionSet Zbc_common extends RISCVBase {
+    instructions {
+        CLMUL {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> rs1_val = X[rs1];
+                        unsigned<XLEN> rs2_val = X[rs2];
+                        unsigned<XLEN> output = 0;
+                        for(unsigned int i=0; i<=XLEN-1; i++){
+                            if((rs2_val >> i) & 1)
+                                output = output ^ (rs1_val << i);
+                        }
+                        X[rd] = output;
+                    }
+        }
+        CLMULH {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b011 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> rs1_val = X[rs1];
+                        unsigned<XLEN> rs2_val = X[rs2];
+                        unsigned<XLEN> output = 0;
+                        for(unsigned int i=1; i<XLEN; i++){
+                            if((rs2_val >> i) & 1)
+                                output =  output ^ (rs1_val >> (XLEN - i));
+                        }
+                        X[rd] = output;
+                    }
+        }
+    }
+}
+InstructionSet Zbc extends Zbc_common{
+    instructions {
+        CLMULR {
+            encoding: 7'b0000101 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> rs1_val = X[rs1];
+                        unsigned<XLEN> rs2_val = X[rs2];
+                        unsigned<XLEN> output = 0;
+                        for(unsigned int i=0; i<XLEN; i++){
+                            if((rs2_val >> i) & 1)
+                                output =  output ^ (rs1_val >> (XLEN-i-1));
+                        }
+                        X[rd] = output;
+                    }
+        }
+    }
+
+}
+InstructionSet Zbs extends RISCVBase{
+    instructions {
+        BCLR {
+            encoding: 7'b0100100 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> index = X[rs2] & (unsigned<XLEN>)(XLEN - 1);
+                        X[rd] = X[rs1] & ~((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BCLRI [[enable=XLEN==32]] {
+            encoding: 7'b0100100 :: shamt[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> index = shamt & (unsigned<5>)(XLEN - 1);
+                        X[rd] = X[rs1] & ~((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BCLRI [[enable=XLEN==64]] {
+            encoding: 6'b010010 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<6> index = shamt & (unsigned<6>)(XLEN - 1);
+                        X[rd] = X[rs1] & ~((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BEXT {
+            encoding: 7'b0100100 :: rs2[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> index = X[rs2] & (unsigned<XLEN>)(XLEN - 1);
+                        X[rd] = (X[rs1] >> index) & 1;
+                    }
+        }
+        BEXTI [[enable=XLEN==32]] {
+            encoding: 7'b0100100 :: shamt[4:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> index = shamt & (unsigned<5>)(XLEN - 1);
+                        X[rd] = (X[rs1] >> index) & 1;
+                    }
+        }
+        BEXTI [[enable=XLEN==64]] {
+            encoding: 6'b010010 :: shamt[5:0] :: rs1[4:0] :: 3'b101 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<6> index = shamt & (unsigned<6>)(XLEN - 1);
+                        X[rd] = (X[rs1] >> index) & 1;
+                    }
+        }
+        BINV {
+            encoding: 7'b0110100 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> index = X[rs2] & (unsigned<XLEN>)(XLEN - 1);
+                        X[rd] = X[rs1] ^ ((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BINVI [[enable=XLEN==32]] {
+            encoding: 7'b0110100 :: shamt[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> index = shamt & (unsigned<5>)(XLEN - 1);
+                        X[rd] = X[rs1] ^ ((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BINVI [[enable=XLEN==64]] {
+            encoding: 6'b011010 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<6> index = shamt & (unsigned<6>)(XLEN - 1);
+                        X[rd] = X[rs1] ^ ((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BSET {
+            encoding: 7'b0010100 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0110011;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<XLEN> index = X[rs2] & (unsigned<XLEN>)(XLEN - 1);
+                        X[rd] = X[rs1] | ((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BSETI [[enable=XLEN==32]] {
+            encoding: 7'b0010100 :: shamt[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<5> index = shamt & (unsigned<5>)(XLEN - 1);
+                        X[rd] = X[rs1] | ((unsigned<XLEN>)1 << index);
+                    }
+        }
+        BSETI [[enable=XLEN==64]] {
+            encoding: 6'b001010 :: shamt[5:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0010011;
+            assembly: "{name(rd)}, {name(rs1)}, {shamt}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
+                    else if(rd != 0){
+                        unsigned<6> index = shamt & (unsigned<6>)(XLEN - 1);
+                        X[rd] = X[rs1] | ((unsigned<XLEN>)1 << index);
+                    }
+        }
+    }
+}
+
+InstructionSet RVB combines Zba, Zbb, Zbs;

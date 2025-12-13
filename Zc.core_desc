@@ -243,7 +243,7 @@ InstructionSet Zca extends RVI {
 
         C__LWSP {//
             encoding: 3'b010 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
-            assembly: "{name(rd)}, sp, {uimm:#05x}";
+            assembly: "{name(rd)}, {uimm:#05x}(sp)";
             behavior: {
                 if(rd >= RFS || rd == 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
                 	unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
@@ -272,8 +272,10 @@ InstructionSet Zca extends RVI {
         C__JR {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
-            behavior: if (rs1 && rs1 < RFS)
-                PC = X[rs1 % RFS] & ~0x1;
+            behavior: if (rs1 && rs1 < RFS){
+                  unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
+                  PC = X[rs1 % RFS] & addr_mask;   
+            }
             else
                 raise(0,2);
         }
@@ -294,9 +296,10 @@ InstructionSet Zca extends RVI {
             encoding: 3'b100 :: 1'b1 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: "{name(rs1)}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
                 unsigned<XLEN> new_pc = X[rs1];
                 X[1] = (unsigned<XLEN>)(PC + 2);
-                PC = new_pc & ~0x1;
+                PC = new_pc & addr_mask;
             }
         }
 
@@ -332,21 +335,17 @@ InstructionSet Zca extends RVI {
 
 InstructionSet Zcf extends RVF {
     instructions {
-        C__FLW {
+        C__FLW [[enable=XLEN==32]] {
             encoding: 3'b011 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8]+uimm);
                 unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
-                if (FLEN == 32)
-                    F[rd + 8] = res;
-                else { // NaN boxing
-                    F[rd + 8] = (unsigned)((signed<FLEN>)-1 << 32) | res;
-                }
+                F[rd + 8] = NaNBox32(res);
             }
         }
 
-        C__FSW {
+        C__FSW [[enable=XLEN==32]] {
             encoding: 3'b111 :: uimm[5:3] :: rs1[2:0] :: uimm[2:2] :: uimm[6:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -355,21 +354,17 @@ InstructionSet Zcf extends RVF {
             }
         }
 
-        C__FLWSP {
+        C__FLWSP [[enable=XLEN==32]] {
             encoding: 3'b011 :: uimm[5:5] :: rd[4:0] :: uimm[4:2] :: uimm[7:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                 unsigned<32> res = (unsigned<32>)MEM[offs+3:offs];
-                if (FLEN == 32)
-                    F[rd] = res;
-                else { // NaN boxing
-                    F[rd] = (unsigned)((signed<FLEN>)-1 << 32) | res;
-                }
+                F[rd] = NaNBox32(res);
             }
         }
 
-        C__FSWSP {
+        C__FSWSP [[enable=XLEN==32]] {
             encoding: 3'b111 :: uimm[5:2] :: uimm[7:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
@@ -382,21 +377,17 @@ InstructionSet Zcf extends RVF {
 
 InstructionSet Zcd extends RVD {
     instructions {
-        C__FLD { //(RV32/64)
+        C__FLD {  
             encoding: 3'b001 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rd[2:0] :: 2'b00;
             assembly:"f(8+{rd}), {uimm}({name(8+rs1)})";
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1 + 8] + uimm);
                 unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
-                if (FLEN == 64)
-                    F[rd + 8] = res;
-                else { // NaN boxing
-                    F[rd + 8] = (unsigned)(-1 << 64) | res;
-                }
+                F[rd + 8] = NaNBox64(res);
             }
         }
 
-        C__FSD { //(RV32/64)
+        C__FSD {  
             encoding: 3'b101 :: uimm[5:3] :: rs1[2:0] :: uimm[7:6] :: rs2[2:0] :: 2'b00;
             assembly:"f(8+{rs2}), {uimm}({name(8+rs1)})";
             behavior: {
@@ -405,21 +396,17 @@ InstructionSet Zcd extends RVD {
             }
         }
 
-        C__FLDSP {//(RV32/64)
+        C__FLDSP { 
             encoding: 3'b001 :: uimm[5:5] :: rd[4:0] :: uimm[4:3] :: uimm[8:6] :: 2'b10;
             assembly:"f {rd}, {uimm}(x2)";
             behavior: {
                 unsigned<XLEN> offs = (unsigned<XLEN>)(X[2] + uimm);
                 unsigned<64> res = (unsigned<64>)MEM[offs+7:offs];
-                if (FLEN == 64)
-                    F[rd] = res;
-                else { // NaN boxing
-                    F[rd] = (unsigned)(-1 << 64) | res;
-                }
+                F[rd] = NaNBox64(res);
             }
         }
 
-        C__FSDSP {//(RV32/64)
+        C__FSDSP { 
             encoding: 3'b101 :: uimm[5:3] :: uimm[8:6] :: rs2[4:0] :: 2'b10;
             assembly:"f {rs2}, {uimm}(x2), ";
             behavior: {
@@ -528,56 +515,57 @@ InstructionSet Zcmp extends RVI {
                     return rlist/4*16;
         }
         void load_regs32(unsigned<4> rlist, unsigned<XLEN> addr) {
-                if(rlist>14) {
-                     addr-=4;
-                     X[27] = MEM[addr+3:addr];
-                     addr-=4;
-                     X[26] = MEM[addr+3:addr];
-                }
-                if(rlist>13) {
-                     addr-=4;
-                     X[25] = MEM[addr+3:addr];
-                }
-                if(rlist>12) {
-                     addr-=4;
-                     X[24] = MEM[addr+3:addr];
-                }
-                if(rlist>11) {
-                     addr-=4;
-                     X[23] = MEM[addr+3:addr];
-                }
-                if(rlist>10) {
-                     addr-=4;
-                     X[22] = MEM[addr+3:addr];
-                }
-                if(rlist>9) {
-                     addr-=4;
-                     X[21] = MEM[addr+3:addr];
-                }
-                if(rlist>8) {
-                     addr-=4;
-                     X[20] = MEM[addr+3:addr];
-                }
-                if(rlist>7) {
-                     addr-=4;
-                     X[19] = MEM[addr+3:addr];
-                }
-                if(rlist>6) {
-                     addr-=4;
-                     X[18] = MEM[addr+3:addr];
-                }
-                if(rlist>5) {
-                     addr-=4;
-                     X[9] = MEM[addr+3:addr];
-                }
-                if(rlist>4) {
-                     addr-=4;
-                     X[8] = MEM[addr+3:addr];
-                }
-                if(rlist>3) {
-                     addr-=4;
-                     X[1] = MEM[addr+3:addr];
-                }
+            unsigned<XLEN> incr = 4;
+            if(rlist>14) {
+                 addr -= incr;
+                 X[27] = MEM[addr+3:addr];
+                 addr -= incr;
+                 X[26] = MEM[addr+3:addr];
+            }
+            if(rlist>13) {
+                 addr -= incr;
+                 X[25] = MEM[addr+3:addr];
+            }
+            if(rlist>12) {
+                 addr -= incr;
+                 X[24] = MEM[addr+3:addr];
+            }
+            if(rlist>11) {
+                 addr -= incr;
+                 X[23] = MEM[addr+3:addr];
+            }
+            if(rlist>10) {
+                 addr -= incr;
+                 X[22] = MEM[addr+3:addr];
+            }
+            if(rlist>9) {
+                 addr -= incr;
+                 X[21] = MEM[addr+3:addr];
+            }
+            if(rlist>8) {
+                 addr -= incr;
+                 X[20] = MEM[addr+3:addr];
+            }
+            if(rlist>7) {
+                 addr -= incr;
+                 X[19] = MEM[addr+3:addr];
+            }
+            if(rlist>6) {
+                 addr -= incr;
+                 X[18] = MEM[addr+3:addr];
+            }
+            if(rlist>5) {
+                 addr -= incr;
+                 X[9] = MEM[addr+3:addr];
+            }
+            if(rlist>4) {
+                 addr -= incr;
+                 X[8] = MEM[addr+3:addr];
+            }
+            if(rlist>3) {
+                 addr -= incr;
+                 X[1] = MEM[addr+3:addr];
+            }
         }
 
         unsigned int stack_adjust64(unsigned<4> rlist) {

@@ -1,0 +1,126 @@
+import "RVVBase.core_desc"
+
+InstructionSet RVVBase_vset extends RVVBase {
+    functions {
+        unsigned<1> valid_sew_lmul(){
+            return get_sew_pow() <= get_pow(ELEN) + get_lmul_pow();
+        }
+        unsigned<16> calculate_new_vl(unsigned<XLEN> avl, unsigned<16> vlmax){
+            if(avl <= vlmax) return ((unsigned<16>) avl);
+            else if(avl < (2*vlmax)) return vlmax; // return (unsigned<8>)((avl + 1) / 2)
+            else return vlmax;
+            // For example, this permits an implementation to set vl = ceil(AVL / 2) for VLMAX <
+            // AVL < 2*VLMAX in order to evenly distribute work over the last two iterations of a
+            // stripmine loop. Requirement 2 ensures that the first stripmine iteration of reduction loops
+            // uses the largest vector length of all iterations, even in the case of AVL < 2*VLMAX. This
+            // allows software to avoid needing to explicitly calculate a running maximum of vector
+            // lengths observed during a stripmined loop. Requirement 2 also allows an implementation
+            // to set vl to VLMAX for VLMAX < AVL < 2*VLMAX
+            // See "Constraints on Setting vl" in the vector spec.
+        }
+        void handle_illegal_vtype(){
+            vtype = (unsigned<XLEN>)1 << (XLEN-1);
+            vl = (unsigned<XLEN>)0;
+        }
+    }
+    instructions{
+        VSETVLI {
+            encoding: 4'b0000 :: ma[0:0] :: ta[0:0] :: sew[2:0] :: lmul[2:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b1010111;
+            assembly: "{name(rd)}, {name(rs1)}, {sew_name(sew)}, {lmul_name(lmul)}, {ta_name(ta)}, {ma_name(ma)}";
+            behavior: if(rd >=RFS || rs1 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    unsigned<5> orig_ratio = (unsigned<5>)(get_sew_pow() - get_lmul_pow());
+                    unsigned<XLEN> orig_vstart = vstart;
+                    vstart = 0;
+                    vtype = (unsigned<XLEN>)(ma :: ta:: sew :: lmul);
+                    if(!valid_sew_lmul()) {
+                        handle_illegal_vtype();
+                        vstart = orig_vstart;
+                    }
+                    else {
+                        //calculate VLMAX = VLEN * LMUL / SEW
+                        unsigned<16> VLMAX = (unsigned<16>)(16'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~16'b1;
+                        if(rs1 != 0){
+                            unsigned<XLEN> AVL = X[rs1];
+                            vl = (unsigned<XLEN>)calculate_new_vl(AVL, VLMAX);
+                            if(rd != 0)
+                                X[rd] = vl;
+                        }
+                        else if(rd != 0){
+                            vl = VLMAX;
+                            X[rd] = (unsigned<XLEN>)VLMAX;
+                        }
+                        else {
+                            unsigned<5> new_ratio =  (unsigned<5>)(get_sew_pow() - get_lmul_pow());
+                            if(orig_ratio != new_ratio){
+                                handle_illegal_vtype();
+                                vstart = orig_vstart;
+                            }
+                        }
+                    }
+                }
+        }
+
+        VSETIVLI {
+            encoding: 4'b1100 :: ma[0:0] :: ta[0:0] :: sew[2:0] :: lmul[2:0] :: uimm[4:0] :: 3'b111 :: rd[4:0] :: 7'b1010111;
+            assembly: "{name(rd)}, {uimm}, {sew_name(sew)}, {lmul_name(lmul)}, {ta_name(ta)}, {ma_name(ma)}";
+            behavior: if(rd >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    vtype = (unsigned<XLEN>)(ma :: ta:: sew :: lmul);
+                    if(!valid_sew_lmul()) {
+                        handle_illegal_vtype();
+                    }
+                    else {
+                        unsigned<16> VLMAX = (unsigned<16>)(16'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~16'b1;
+                        vl = calculate_new_vl(uimm, VLMAX);
+                        if(rd != 0)
+                            X[rd] = vl;
+                        vstart = 0;
+                    }
+                }
+        }
+
+        VSETVL {
+            encoding: 7'b1000000 :: rs2[4:0] :: rs1[4:0] :: 3'b111 :: rd[4:0] :: 7'b1010111;
+            assembly: "{name(rd)}, {name(rs1)}, {name(rs2)}";
+            behavior: if(rd >=RFS || rs1 >=RFS || rs2 >=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    unsigned<5> orig_ratio = (unsigned<5>)(get_sew_pow() - get_lmul_pow());
+                    unsigned<XLEN> orig_vstart = vstart;
+                    vstart = 0;
+                    if(X[rs2][(XLEN-2):8]) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    vtype = X[rs2];
+                    if(!valid_sew_lmul()) {
+                        handle_illegal_vtype();
+                        vstart = orig_vstart;
+                    }
+                    else {
+                        //calculate VLMAX = VLEN * LMUL / SEW
+                        unsigned<16> VLMAX = (unsigned<16>)(16'sb1 << (get_pow(VLEN) + get_lmul_pow() - get_sew_pow())) & ~16'b1;
+                        if(rs1 != 0){
+                            unsigned<XLEN> AVL = X[rs1];
+                            vl = (unsigned<XLEN>)calculate_new_vl(AVL, VLMAX);
+                            if(rd != 0)
+                                X[rd] = vl;
+                        }
+                        else if(rd != 0){
+                            vl = VLMAX;
+                            X[rd] = (unsigned<XLEN>)VLMAX;
+                        }
+                        else {
+                            // from 31.6.2 AVL encoding
+                            // Use of the instruction with a new SEW/LMUL ratio that would result in a change of VLMAX is reserved. Use of
+                            // the instruction is also reserved if vill was 1 beforehand. Implementations may set vill in either case.
+                            // In this implementation we do not trap, but set vill
+                            unsigned<5> new_ratio =  (unsigned<5>)(get_sew_pow() - get_lmul_pow());
+                            unsigned<1> vill = vtype[XLEN-1];
+                            if(vill || (orig_ratio != new_ratio) ){
+                                handle_illegal_vtype();
+                                vstart = orig_vstart;
+                            }
+                        }
+                    }
+                }
+        }
+    }
+}

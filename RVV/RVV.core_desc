@@ -1,0 +1,10 @@
+import "RVVBase_vset.core_desc"
+import "RVVBase_arith.core_desc"
+import "RVVBase_mem.core_desc"
+import "RVVBase_fixed.core_desc"
+import "RVVBase_red.core_desc"
+import "RVVBase_mask.core_desc"
+import "RVVBase_perm.core_desc"
+import "RVVBase_fp.core_desc"
+
+InstructionSet RVV combines RVVBase_vset, RVVBase_mem, RVVBase_arith, RVVBase_fixed, RVVBase_red_fp, RVVBase_mask, RVVBase_perm_fp, RVVBase_fp;

@@ -1,0 +1,374 @@
+import "RVF.core_desc"
+
+InstructionSet Zfhmin extends RVF {
+    functions {
+        unsigned<FLEN> NaNBox16(unsigned<16> val){
+            unsigned<FLEN> box = ~((unsigned<FLEN>)0);
+            return (unsigned<FLEN>)(box :: val);
+        }
+        //same as in RVD
+        unsigned<FLEN> NaNBox64(unsigned<64> val){
+            if(FLEN == 64) return (unsigned<FLEN>)val;
+            else {
+                unsigned<FLEN> box = ~((unsigned<FLEN>)0);
+                return (unsigned<FLEN>)(box :: val);
+            }
+        }
+        extern unsigned<16> unbox_h(unsigned int Flen, unsigned<FLEN> val);
+        extern unsigned<32> f16tof32(unsigned<16> val, unsigned<3> rm);
+        extern unsigned<64> f16tof64(unsigned<16> val, unsigned<3> rm);
+        extern unsigned<128> f16tof128(unsigned<16> val, unsigned<3> rm);
+        extern unsigned<16> f32tof16(unsigned<32> val, unsigned<3> rm);
+        extern unsigned<16> f64tof16(unsigned<64> val, unsigned<3> rm);
+        extern unsigned<16> f128tof16(unsigned<128> val, unsigned<3> rm);
+    }
+    instructions {
+        FLH {
+            encoding: imm[11:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b0000111;
+            assembly: "{fname(rd)}, {imm}({name(rs1)})";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
+                F[rd] = NaNBox16(MEM[offs+1:offs]);
+            }
+        }
+        FSH {
+            encoding: imm[11:5] :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: imm[4:0] :: 7'b0100111;
+            assembly: "{fname(rs2)}, {imm}({name(rs1)})";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> offs = (unsigned<XLEN>)(X[rs1] + (signed<12>)imm);
+                MEM[offs+1:offs] = (unsigned<16>)F[rs2];
+            }
+        }
+        FMV__X__H {
+            encoding: 12'b111001000000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                if (rd != 0)
+                    X[rd] = (unsigned<XLEN>)(signed<XLEN>)(signed<16>)(unsigned<16>)F[rs1];
+            }
+        }
+        FMV__H__X {
+            encoding: 12'b111101000000 :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {name(rs1)}";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                F[rd] = NaNBox16((unsigned<16>)X[rs1]);
+            }
+        }
+        FCVT__S__H {
+            encoding: 12'b010000000010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox32(f16tof32(unbox_h(FLEN, F[rs1]), get_rm(rm)));
+            }
+        }
+        FCVT__H__S {
+            encoding: 12'b010001000000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(f32tof16((unsigned<32>)F[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__D__H [[enable=FLEN>=64]] {
+            encoding: 12'b010000100010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox64(f16tof64(unbox_h(FLEN, F[rs1]), get_rm(rm)));
+            }
+        }
+        FCVT__H__D [[enable=FLEN>=64]] {
+            encoding: 12'b010001000001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(f64tof16((unsigned<64>)F[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__Q__H [[enable=FLEN>=128]] {
+            encoding: 12'b010001100010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = f16tof128(unbox_h(FLEN, F[rs1]), get_rm(rm));
+            }
+        }
+        FCVT__H__Q [[enable=FLEN>=128]] {
+            encoding: 12'b010001000011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(f128tof16((unsigned<128>)F[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+    }
+}
+InstructionSet Zfh extends Zfhmin {
+    functions {
+        extern unsigned<16> fadd_h(unsigned<16> l, unsigned<16> r, unsigned char m);
+        extern unsigned<16> fsub_h(unsigned<16> l, unsigned<16> r, unsigned char m);
+        extern unsigned<16> fmul_h(unsigned<16> l, unsigned<16> r, unsigned char m);
+        extern unsigned<16> fdiv_h(unsigned<16> l, unsigned<16> r, unsigned char m);
+        extern unsigned<16> fmadd_h(unsigned<16> l, unsigned<16> r, unsigned<16> s, unsigned<16> o, unsigned char m);
+        extern unsigned<16> fsel_h(unsigned<16> l, unsigned<16> r, unsigned<16> o);
+        extern unsigned<16> fsqrt_h(unsigned<16> l, unsigned char m);
+        extern unsigned<16> fcmp_h(unsigned<16> l, unsigned<16> r, unsigned<16> m);
+        extern unsigned<16> fclass_h(unsigned<16> v);    
+        extern unsigned<32> f16toi32(unsigned<16> v, unsigned<3>rm);
+        extern unsigned<32> f16toui32(unsigned<16> v, unsigned<3>rm);
+        extern unsigned<64> f16toi64(unsigned<16> v, unsigned<3>rm);
+        extern unsigned<64> f16toui64(unsigned<16> v, unsigned<3>rm);
+        extern unsigned<16> i32tof16(unsigned<32> v, unsigned<3> rm);
+        extern unsigned<16> ui32tof16(unsigned<32> v, unsigned<3> rm);
+        extern unsigned<16> i64tof16(unsigned<64> v, unsigned<3> rm);
+        extern unsigned<16> ui64tof16(unsigned<64> v, unsigned<3> rm);
+    }
+    instructions {
+
+        // 23.2. Half-Precision Computational Instructions
+        FADD__H {
+            encoding: 7'b0000010 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FSUB__H {
+            encoding: 7'b0000110 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fsub_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FMUL__H {
+            encoding: 7'b0001010 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fmul_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FDIV__H {
+            encoding: 7'b0001110 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fdiv_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FMIN__H {
+            encoding: 7'b0010110 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: {
+                F[rd] = NaNBox16(fsel_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), 0));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FMAX__H {
+            encoding: 7'b0010110 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: {
+                F[rd] = NaNBox16(fsel_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), 1));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FSQRT__H {
+            encoding: 12'b010111000000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fsqrt_h(unbox_h(FLEN, F[rs1]), get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FMADD__H {
+            encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 0, get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FMSUB__H {
+            encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 1, get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FNMADD__H {
+            encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001111;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 2, get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FNMSUB__H {
+            encoding: rs3[4:0] :: 2'b10 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1001011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
+            behavior: {
+                F[rd] = NaNBox16(fmadd_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), unbox_h(FLEN, F[rs3]), 3, get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        // 23.3. Half-Precision Conversion and Move Instructions
+        FCVT__W__H {
+            encoding: 12'b110001000000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)f16toi32(unbox_h(FLEN, F[rs1]), get_rm(rm));
+                if (rd != 0)
+                	X[rd] = (unsigned<XLEN>)res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__WU__H {
+            encoding: 12'b110001000001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                signed<XLEN> res = (signed<XLEN>)(signed<32>)f16toui32(unbox_h(FLEN, F[rs1]), get_rm(rm));
+                if (rd != 0)
+                    X[rd] = (unsigned<XLEN>)res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__L__H [[enable=XLEN>=64]] {
+            encoding: 12'b110001000010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                signed<XLEN> res = (signed<XLEN>)(signed<64>)f16toi64(unbox_h(FLEN, F[rs1]), get_rm(rm));
+                if (rd != 0)
+                    X[rd] = (unsigned<XLEN>)res; 
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__LU__H [[enable=XLEN>=64]] {
+            encoding: 12'b110001000011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {rm}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<XLEN> res = f16toui64(unbox_h(FLEN, F[rs1]), get_rm(rm));
+                if (rd != 0)
+                    X[rd] = res; 
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__H__W {
+            encoding: 12'b110101000000 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                F[rd] = NaNBox16(i32tof16((unsigned<32>)X[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__H__WU {
+            encoding: 12'b110101000001 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                F[rd] = NaNBox16(ui32tof16((unsigned<32>)X[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__H__L [[enable=XLEN==64]] {
+            encoding: 12'b110101000010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                F[rd] = NaNBox16(i64tof16(X[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FCVT__H__LU [[enable=XLEN==64]] {
+            encoding: 12'b110101000011 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {name(rs1)}, {rm}";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                F[rd] = NaNBox16(ui64tof16(X[rs1], get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FSGNJ__H {
+            encoding: 7'b0010010 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior:{
+                F[rd] = NaNBox16(unbox_h(FLEN, F[rs2])[15:15] :: unbox_h(FLEN, F[rs1])[14:0]);
+            }
+        }
+        FSGNJN__H {
+            encoding: 7'b0010010 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior:{
+                F[rd] = NaNBox16(~unbox_h(FLEN, F[rs2])[15:15] :: unbox_h(FLEN, F[rs1])[14:0]);
+            }
+        }
+        FSGNJX__H {
+            encoding: 7'b0010010 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
+            assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior:{
+                F[rd] = NaNBox16((unbox_h(FLEN, F[rs2]) & ((unsigned<16>)1<<15)) ^ unbox_h(FLEN, F[rs1]));
+            }
+        }
+
+        // 23.4. Half-Precision Floating-Point Compare Instructions
+        FEQ__H {
+            encoding: 7'b1010010 :: rs2[4:0] :: rs1[4:0] :: 3'b010 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<32> res = fcmp_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), 0);
+                if (rd != 0) X[rd] = res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FLT__H {
+            encoding: 7'b1010010 :: rs2[4:0] :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<32> res = fcmp_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), 2);
+                if (rd != 0) X[rd] = res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+        FLE__H {
+            encoding: 7'b1010010 :: rs2[4:0] :: rs1[4:0] :: 3'b000 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}, {fname(rs2)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<32> res = fcmp_h(unbox_h(FLEN, F[rs1]), unbox_h(FLEN, F[rs2]), 1);
+                if (rd != 0) X[rd] = res;
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
+            }
+        }
+
+        // 23.5. Half-Precision Floating-Point Classify Instruction
+        FCLASS__H {
+            encoding: 12'b111001000000 :: rs1[4:0] :: 3'b001 :: rd[4:0] :: 7'b1010011;
+            assembly: "{name(rd)}, {fname(rs1)}";
+            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
+                unsigned<32> res = fclass_h(unbox_h(FLEN, F[rs1]));
+                if (rd != 0) X[rd] = res;
+            }
+        }
+    }
+}

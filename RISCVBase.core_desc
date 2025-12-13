@@ -3,13 +3,13 @@ import "RISCVEncoding.core_desc"
 InstructionSet RISCVBase extends RISCVEncoding {
     architectural_state {
         unsigned int XLEN;
+        unsigned int FLEN=0;
         unsigned int INSTR_ALIGNMENT = 4;
         unsigned int RFS = 32;
 
         unsigned int fence = 0;
         unsigned int fencei = 1;
-        unsigned int fencevmal = 2;
-        unsigned int fencevmau = 3;
+        unsigned int fencevma = 2;
 
         // core registers
         register unsigned<XLEN> X[RFS] [[is_main_reg]];
@@ -60,25 +60,16 @@ InstructionSet RISCVBase extends RISCVEncoding {
     }
 
     functions {
-        extern void raise(int irq, int mcause);
-        extern void leave(int priv_lvl);
-        extern void wait(int flag);
+        extern void raise(unsigned int irq, unsigned int mcause);
+        extern void leave(unsigned int priv_lvl);
+        extern void wait(unsigned int flag);
+        extern void set_tval(unsigned<64> tval);
     }
 }
 
 InstructionSet RVPrivBase extends RISCVBase {
-	    architectural_state {
+	architectural_state {
         unsigned int CSR_SIZE = 4096;
         extern unsigned<XLEN> CSR[CSR_SIZE];
-    }
-}
-
-InstructionSet RVFPBase extends RVPrivBase {
-	    architectural_state {
-        unsigned<32> FLEN = 32;
-        unsigned<32> FFLAG_MASK = 0x1f;
-
-        register unsigned<FLEN> F[32];
-        unsigned<XLEN>& FCSR = CSR[3];
     }
 }

@@ -1,0 +1,13 @@
+        VLOX{{"SEG"~segment_size if segment_size >1}}EI{{elem_size}}__V {
+            encoding: 3'b{{segment_bits}} :: mew[0:0] :: 2'b11 :: vm[0:0] :: vs2[4:0] :: rs1[4:0] :: 3'b{{elem_bits}} :: vd[4:0] :: 7'b0000111;
+            assembly: "{vname(vd)}, ({name(rs1)}), {vname(vs2)}, {vm}";
+            behavior: if(rs1>=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    unsigned<7> EEW = {{elem_size}};
+                    signed<3> EMUL_pow =  (signed<3>)(get_pow(EEW) - get_sew_pow() + get_lmul_pow());
+                    if(illegal_indexed_load(vd, vm, {{segment_size}}, EEW, EMUL_pow, get_lmul_pow())) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    else if(vl > vstart){
+                        vstart = (unsigned<XLEN>) vlxseg(V, vl, vstart, vtype, vm, vd, X[rs1], vs2, {{segment_size}}, {{(elem_size/8) | int}}, sew(), 1);
+                    }
+                }
+        }

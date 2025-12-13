@@ -1,0 +1,15 @@
+{%- if segment_size == 1 or segment_size == 2 or segment_size == 4 or segment_size == 8 %}
+        VS{{segment_size}}RE{{elem_size}}__V {
+            encoding: 3'b{{segment_bits}} :: 9'b000101000 :: rs1[4:0] :: 3'b000 :: vs3[4:0] :: 7'b0100111;
+            assembly: "{vname(vs3)}, ({name(rs1)})";
+            behavior: if(rs1>=RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                else {
+                    unsigned<XLEN> evl = (unsigned<XLEN>)({{segment_size}} * VLEN/8);
+                    {%- if segment_size > 1%}if(vs3 % {{segment_size}}) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
+                    else {% else %}
+                    {% endif %}if(evl > vstart){
+                        vstart = (unsigned<XLEN>)vsseg(V, evl, vstart, vtype, 1, vs3, X[rs1], 3'b000, 1);
+                    }
+                }
+        }
+{%- endif %}
