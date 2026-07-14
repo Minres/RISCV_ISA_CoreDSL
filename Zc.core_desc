@@ -121,15 +121,15 @@ InstructionSet Zca extends RVI {
             encoding: 3'b100 :: 1'b0 :: 2'b00 :: rs1[2:0] :: shamt[4:0] :: 2'b01;
             assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
-                X[rs1 + 8] = X[rs1 + 8] >> shamt;
+                if(shamt) X[rs1 + 8] = X[rs1 + 8] >> shamt;
             }
         }
 
         C__SRLI [[enable=XLEN>32]] {//RV64)
-            encoding: 3'b100:: nzuimm[5:5] :: 2'b00:: rs1[2:0] :: nzuimm[4:0] :: 2'b01;
-            assembly: "{name(8+rs1)}, {nzuimm}";
+            encoding: 3'b100:: shamt[5:5] :: 2'b00:: rs1[2:0] :: shamt[4:0] :: 2'b01;
+            assembly: "{name(8+rs1)}, {shamt}";
             behavior: {
-                X[rs1 + 8] = X[rs1 + 8] >> nzuimm;
+                if(shamt) X[rs1 + 8] = X[rs1 + 8] >> shamt;
             }
         }
 
@@ -195,7 +195,7 @@ InstructionSet Zca extends RVI {
 
         C__SUBW [[enable=XLEN>32]] {//(RV64/128, RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b00:: rs2[2:0] :: 2'b01;
-            assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
+            assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
                 signed<32> res = (signed<32>)((signed<32>)X[rd + 8] - (signed<32>)X[rs2 + 8]);
 	            X[rd + 8] = (unsigned<XLEN>)res;
@@ -204,7 +204,7 @@ InstructionSet Zca extends RVI {
 
         C__ADDW [[enable=XLEN>32]] {//(RV64/128 RV32 res)
             encoding: 3'b100 :: 0b1 :: 2'b11:: rd[2:0] :: 2'b01:: rs2[2:0] :: 2'b01;
-            assembly: "{name(8+rd)}, {name(8+rd)}, {name(8+rs2)}";
+            assembly: "{name(8+rd)}, {name(8+rs2)}";
             behavior: {
                 signed<32> res = (signed<32>)((signed<32>)X[rd + 8] + (signed<32>)X[rs2 + 8]);
 	            X[rd + 8] = (unsigned<XLEN>)res;
@@ -230,9 +230,9 @@ InstructionSet Zca extends RVI {
         }
 
         C__SLLI [[enable=XLEN==32]] {//(RV32)
-            encoding: 3'b000 :: 1'b0 :: rs1[4:0] :: nzuimm[4:0] :: 2'b10;
-            assembly: "{name(rs1)}, {nzuimm}";
-            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else  if(rs1 != 0) X[rs1] = X[rs1] << nzuimm;
+            encoding: 3'b000 :: 1'b0 :: rs1[4:0] :: shamt[4:0] :: 2'b10;
+            assembly: "{name(rs1)}, {shamt}";
+            behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else  if(rs1 != 0) X[rs1] = X[rs1] << shamt;
         }
 
         C__SLLI [[enable=XLEN>32]] {//(RV32/RV64)

@@ -432,7 +432,7 @@ InstructionSet RVCFP extends RVF {
 		}
 
         C__SRAI64 [[enable=XLEN>64]] {//(RV128)
-            encoding: 3'b100 :: 0b0 :: 2'b01:: rs1[2:0] :: 4'b0000 :: 2'b01;
+            encoding: 3'b100 :: 1'b0 :: 2'b01 :: rs1[2:0] :: 5'b00000 :: 2'b01;
             assembly: {"c.srai64", "{name(8+rs1)}"};
             behavior: {
                 X[rs1 + 8] = (unsigned<XLEN>)((signed<XLEN>)X[rs1 + 8] >> 64);
@@ -446,7 +446,7 @@ InstructionSet RVCFP extends RVF {
             }
         }
         C__SLLI64 [[enable=XLEN>64]] {//(RV128)
-            encoding: 3'b000:: 0b0 :: rs1[4:0] :: 4'b0000 :: 2'b10;
+            encoding: 3'b000:: 1'b0 :: rs1[4:0] :: 5'b00000 :: 2'b10;
             assembly: {"c.slli64", "{name(rs1)}"};
             behavior: {
                 if(rs1 == 0) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
