@@ -428,7 +428,7 @@ InstructionSet Zcb extends RVI {
             behavior: {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1+8] + uimm);
                 unsigned<8> res = MEM[load_address];
-                if (rd != 0) X[rd+8] = (unsigned<XLEN>)res;
+                X[rd+8] = (unsigned<XLEN>)res;
             }
         }
         C__LHU {
@@ -437,7 +437,7 @@ InstructionSet Zcb extends RVI {
             behavior: {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1+8] + uimm);
                 unsigned<16> res = MEM[load_address+1:load_address];
-                if (rd != 0) X[rd+8] = (unsigned<XLEN>)res;
+                X[rd+8] = (unsigned<XLEN>)res;
             }
         }
         C__LH {
@@ -446,7 +446,7 @@ InstructionSet Zcb extends RVI {
             behavior: {
                 unsigned<XLEN> load_address = (unsigned<XLEN>)(X[rs1+8] + uimm);
                 signed<16> res = (signed<16>)MEM[load_address+1:load_address];
-                if (rd != 0) X[rd+8] = (unsigned<XLEN>)res;
+                X[rd+8] = (unsigned<XLEN>)res;
             }
         }
         C__SB {
