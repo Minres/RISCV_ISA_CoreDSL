@@ -784,7 +784,8 @@ InstructionSet Zcmp extends RVI {
 	                load_regs32(rlist, new_sp);
 	                X[10] = 0;
 	                X[2] = new_sp;
-	                PC = X[1] & ~0x1;
+                	unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
+	                PC = X[1] & addr_mask;
 	            }
             
         }
@@ -799,7 +800,8 @@ InstructionSet Zcmp extends RVI {
 	                load_regs64(rlist, new_sp);
 	                X[10]=0;
 	                X[2] = new_sp;
-	                PC = X[1] & ~0x1;                
+                	unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
+	                PC = X[1] & addr_mask;                
                 }
         }
         CM__POPRET [[enable=XLEN==32]]{
@@ -812,7 +814,8 @@ InstructionSet Zcmp extends RVI {
 	                unsigned<XLEN> new_sp = (unsigned<XLEN>)(X[2] + (unsigned<XLEN>)(stack_adj_base + spimm));
 	                load_regs32(rlist, new_sp);
 	                X[2] = new_sp;
-	                PC = X[1] & ~0x1;
+                	unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
+	                PC = X[1] & addr_mask;
                 }
         }
         CM__POPRET [[enable=XLEN==64]]{
@@ -825,7 +828,8 @@ InstructionSet Zcmp extends RVI {
 	                unsigned<XLEN> new_sp = (unsigned<XLEN>)(X[2] + (unsigned<XLEN>)(stack_adj_base + spimm));
 	                load_regs64(rlist, new_sp);
 	                X[2] = new_sp;
-	                PC = X[1] & ~0x1;
+                	unsigned<XLEN> addr_mask = (unsigned<XLEN>)-2; //equals ~0x1 but typed
+	                PC = X[1] & addr_mask;
                 }
         }
         CM__MVSA01 {
