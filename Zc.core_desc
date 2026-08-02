@@ -100,7 +100,7 @@ InstructionSet Zca extends RVI {
             assembly: "{name(rd)}, {imm:#05x}";
             behavior: {
                 if (imm == 0 || rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION);
-                if (rd != 0) X[rd] = (unsigned<XLEN>)((signed<18>)imm);
+                else if (rd != 0) X[rd] = (unsigned<XLEN>)((signed<18>)imm);
             }
         }
 
@@ -266,7 +266,7 @@ InstructionSet Zca extends RVI {
         C__MV {//(RV32)
             encoding: 3'b100 :: 1'b0 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs2];
+            behavior: if(rd >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = X[rs2];
         }
 
         C__JR {//(RV32)
@@ -289,7 +289,7 @@ InstructionSet Zca extends RVI {
         C__ADD {//(RV32)
             encoding: 3'b100 :: 1'b1 :: rd[4:0] :: rs2[4:0] :: 2'b10;
             assembly: "{name(rd)}, {name(rs2)}";
-            behavior: if(rd >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rd] + X[rs2]);
+            behavior: if(rd >= RFS || rs2 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else if (rd != 0) X[rd] = (unsigned<XLEN>)(X[rd] + X[rs2]);
         }
 
         C__JALR {//(RV32)
@@ -417,7 +417,7 @@ InstructionSet Zcd extends RVD {
     }
 }
 
-InstructionSet Zcb extends RVI {
+InstructionSet Zcb_min extends RVI {
     architectural_state {
         unsigned int MLEN = 2 * XLEN;
     }
@@ -470,6 +470,24 @@ InstructionSet Zcb extends RVI {
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = X[rsd+8][7:0];
         }
+        C__NOT {
+            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b101 :: 2'b01;
+            assembly: "{name(8+rsd)}";
+            behavior: X[rsd+8] = ~X[rsd+8];
+        }
+        C__MUL {
+            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
+            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            behavior: {
+                signed<MLEN> res = (signed)X[rsd+8] * (signed)X[rs2+8];
+                X[rsd+8] = (unsigned<XLEN>)res;
+            }
+        }
+    }
+}
+
+InstructionSet Zcb extends Zcb_min {
+    instructions {
         C__SEXTB {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b1 :: 2'b01;
             assembly: "{name(8+rsd)}";
@@ -489,19 +507,6 @@ InstructionSet Zcb extends RVI {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b100 :: 2'b01;
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = X[rsd+8][31:0];
-        }
-        C__NOT {
-            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b101 :: 2'b01;
-            assembly: "{name(8+rsd)}";
-            behavior: X[rsd+8] = ~X[rsd+8];
-        }
-        C__MUL {
-            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
-            behavior: {
-                signed<MLEN> res = (signed)X[rsd+8] * (signed)X[rs2+8];
-                X[rsd+8] = (unsigned<XLEN>)res;
-            }
         }
     }
 }
