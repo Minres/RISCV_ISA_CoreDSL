@@ -417,7 +417,7 @@ InstructionSet Zcd extends RVD {
     }
 }
 
-InstructionSet Zcb_min extends RVI {
+InstructionSet Zcb extends RVI {
     architectural_state {
         unsigned int MLEN = 2 * XLEN;
     }
@@ -470,24 +470,6 @@ InstructionSet Zcb_min extends RVI {
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = X[rsd+8][7:0];
         }
-        C__NOT {
-            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b101 :: 2'b01;
-            assembly: "{name(8+rsd)}";
-            behavior: X[rsd+8] = ~X[rsd+8];
-        }
-        C__MUL {
-            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
-            assembly: "{name(8+rsd)}, {name(8+rs2)}";
-            behavior: {
-                signed<MLEN> res = (signed)X[rsd+8] * (signed)X[rs2+8];
-                X[rsd+8] = (unsigned<XLEN>)res;
-            }
-        }
-    }
-}
-
-InstructionSet Zcb extends Zcb_min {
-    instructions {
         C__SEXTB {
             encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b1 :: 2'b01;
             assembly: "{name(8+rsd)}";
@@ -508,7 +490,20 @@ InstructionSet Zcb extends Zcb_min {
             assembly: "{name(8+rsd)}";
             behavior: X[rsd+8] = X[rsd+8][31:0];
         }
-    }
+        C__NOT {
+            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b11 :: 3'b101 :: 2'b01;
+            assembly: "{name(8+rsd)}";
+            behavior: X[rsd+8] = ~X[rsd+8];
+        }
+        C__MUL {
+            encoding: 3'b100 :: 3'b111 :: rsd[2:0] :: 2'b10 :: rs2[2:0] :: 2'b01;
+            assembly: "{name(8+rsd)}, {name(8+rs2)}";
+            behavior: {
+                signed<MLEN> res = (signed)X[rsd+8] * (signed)X[rs2+8];
+                X[rsd+8] = (unsigned<XLEN>)res;
+            }
+        }
+   }
 }
 
 InstructionSet Zcmp extends RVI {
