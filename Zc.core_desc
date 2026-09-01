@@ -65,7 +65,6 @@ InstructionSet Zca extends RVI {
             }
         }
 
-        // C.JAL will be overwritten by C.ADDIW for RV64/128
         C__JAL [[enable=XLEN==32]] {//(RV32)
             encoding: 3'b001 :: imm[11:11] :: imm[4:4] :: imm[9:8] :: imm[10:10] :: imm[6:6] :: imm[7:7] :: imm[3:1] :: imm[5:5] :: 2'b01;
             assembly: "{imm:#05x}";
@@ -303,7 +302,7 @@ InstructionSet Zca extends RVI {
             }
         }
 
-        C__EBREAK {//(RV32)
+        C__EBREAK [[no_cont]] {//(RV32)
             encoding: 3'b100 :: 1'b1 :: 5'b00000 :: 5'b00000 :: 2'b10;
             behavior: raise(0, 3);
         }

@@ -347,6 +347,7 @@ InstructionSet RVI extends RISCVBase {
             encoding: 12'b1 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: raise(0, 3);
         }
+        
         MRET [[no_cont]] {
             encoding: 7'b0011000 :: 5'b00010 :: 5'b0 :: 3'b0 :: 5'b0 :: 7'b1110011;
             behavior: leave(3);
