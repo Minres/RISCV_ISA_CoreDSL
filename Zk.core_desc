@@ -57,7 +57,7 @@ InstructionSet Zbkb extends Zbb_common {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<32> v = X[rd];
+                        unsigned<32> v = 0;
                         for(unsigned int i = 0; i<=XLEN/2-1; i++){
                             v[2*i] = X[rs1][i];
                             v[2*i+1] = X[rs1][i+XLEN/2];
@@ -71,7 +71,7 @@ InstructionSet Zbkb extends Zbb_common {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                        unsigned<32> v = X[rd];
+                        unsigned<32> v = 0;
                         for(unsigned int i = 0; i<=XLEN/2-1; i++){
                             v[i] = X[rs1][2*i];
                             v[i+XLEN/2] = X[rs1][2*i+1];
