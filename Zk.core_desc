@@ -57,10 +57,12 @@ InstructionSet Zbkb extends Zbb_common {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                       for(unsigned int i = 0; i<=XLEN/2-1; i++){
-                            X[rd][2*i] = X[rs1][i];
-                            X[rd][2*i+1] = X[rs1][i+XLEN/2];
+                        unsigned<32> rd_val = 0;
+                        for(unsigned int i = 0; i<=XLEN/2-1; i++){
+                            rd_val[2*i] = X[rs1][i];
+                            rd_val[2*i+1] = X[rs1][i+XLEN/2];
                         }
+                        X[rd] = rd_val;
                     }
         }
 
@@ -69,10 +71,12 @@ InstructionSet Zbkb extends Zbb_common {
             assembly: "{name(rd)}, {name(rs1)}";
             behavior: if(rd >=RFS || rs1 >=RFS) raise(0, 2);
                     else if(rd != 0){
-                       for(unsigned int i = 0; i<=XLEN/2-1; i++){
-                            X[rd][i] = X[rs1][2*i];
-                            X[rd][i+XLEN/2] = X[rs1][2*i+1];
+                        unsigned<32> rd_val = 0;
+                        for(unsigned int i = 0; i<=XLEN/2-1; i++){
+                            rd_val[i] = X[rs1][2*i];
+                            rd_val[i+XLEN/2] = X[rs1][2*i+1];
                         }
+                        X[rd] = rd_val;
                     }
         }
     }
