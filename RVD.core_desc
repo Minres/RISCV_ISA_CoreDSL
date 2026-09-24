@@ -129,8 +129,7 @@ InstructionSet RVD extends RVF {
             encoding: rs3[4:0] :: 2'b01 :: rs2[4:0] :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1000111;
             assembly: "{fname(rd)}, {fname(rs1)}, {fname(rs2)}, {fname(rs3)}, {rm}";
             behavior: {
-                unsigned<FLEN> res = NaNBox64(fmadd_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), unbox_d(FLEN, F[rs3]), 1, get_rm(rm)));
-                F[rd] = res;
+                F[rd] = NaNBox64(fmadd_d(unbox_d(FLEN, F[rs1]), unbox_d(FLEN, F[rs2]), unbox_d(FLEN, F[rs3]), 1, get_rm(rm)));
                 unsigned<32> flags = fget_flags();
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
@@ -215,7 +214,7 @@ InstructionSet RVD extends RVF {
                 FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
-        FCVT__D__L [[enable=XLEN==64]] {
+        FCVT__D__L [[enable=XLEN>=64]] {
             encoding: 7'b1101001 :: 5'b00010 :: rs1[4:0] :: rm[2:0] :: rd[4:0] :: 7'b1010011;
             assembly: "{fname(rd)}, {name(rs1)}, {rm}";
             behavior: if(rs1 >= RFS) raise(0, RV_CAUSE_ILLEGAL_INSTRUCTION); else {
@@ -247,6 +246,8 @@ InstructionSet RVD extends RVF {
             assembly: "{fname(rd)}, {fname(rs1)}, {rm}";
             behavior: {
                 F[rd] = NaNBox64(f32tof64(unbox_s(FLEN, F[rs1]), get_rm(rm)));
+                unsigned<32> flags = fget_flags();
+                FCSR = (FCSR & ~FFLAG_MASK) | (flags & FFLAG_MASK);
             }
         }
         FSGNJ__D {
